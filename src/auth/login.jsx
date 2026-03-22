@@ -82,7 +82,7 @@ export default function Login() {
             <button className='bg-[#55BB33] w-[90%] xs:w-[80%] py-[8px] single-tall:py-[16px] single-taller:py-[19px] rounded-[6px] font-bold text-white font-family-poppins cursor-pointer transition-all duration-300 hover:bg-[#66cd43] md:text-[22px] text-[20px] single-tall:text-[29px] single-taller:text-[33px] shadow-sm shadow-[#55BB33]'>
               Sign in
             </button>
-            <Link to="/" className='font-bold underline text-[#1A3D00] text-center text-[14px] single-tall:text-[20px] single-taller:text-[22px]'>New to SAHLA FARM? Create an account</Link>
+            <Link to="/signup" className='font-bold underline text-[#1A3D00] text-center text-[14px] single-tall:text-[20px] single-taller:text-[22px]'>New to SAHLA FARM? Create an account</Link>
           </div>
         </form>
  
