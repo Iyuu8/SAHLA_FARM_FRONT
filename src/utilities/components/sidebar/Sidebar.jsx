@@ -76,10 +76,10 @@ const LogOutIcon = () => (
 export default function Sidebar({isOpen, setIsOpen}) {
   return (
     <div className="">
-        <div className='hidden md:block'>
+        <div className='hidden lg:block'>
             <DesktopSidebar LogOutIcon={LogOutIcon} HomeIcon={HomeIcon} NotificationIcon={NotificationIcon} CameraIcon={CameraIcon} ChatIcon={ChatIcon} ProfileIcon={ProfileIcon} LogoIcon={LogoIcon} HistoryIcon={HistoryIcon}/>
         </div>
-        <div className='md:hidden'>
+        <div className='lg:hidden'>
             <MobileSidebar isOpen={isOpen} setIsOpen={setIsOpen} LogOutIcon={LogOutIcon} HomeIcon={HomeIcon} NotificationIcon={NotificationIcon} CameraIcon={CameraIcon} ChatIcon={ChatIcon} ProfileIcon={ProfileIcon} LogoIcon={LogoIcon} HistoryIcon={HistoryIcon} />
         </div>
     </div>

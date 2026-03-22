@@ -14,7 +14,7 @@ export default function Layout() {
             
             <button
               onClick={() => setIsMobileOpen(true)}
-              className="md:hidden text-white text-xl p-1"
+              className="lg:hidden text-white text-xl p-1"
             >
               ☰
             </button>
