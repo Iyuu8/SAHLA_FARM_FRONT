@@ -25,7 +25,7 @@ export default function SignUp() {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    navigate('/dashboard')
+    navigate('/login')
   }
 
   return (
