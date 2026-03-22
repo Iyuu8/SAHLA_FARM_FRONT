@@ -18,7 +18,7 @@ function App() {
 
         <Route path="/" element={<Layout/>}>
 
-          <Route path="/" element={<Dashboard/>} />
+          <Route index element={<Dashboard/>} />
           <Route path="/history" element={<History/>} />
           <Route path="/stream" element={<CamStream/>} />
           <Route path="/chat" element={<AIchat/>} />
