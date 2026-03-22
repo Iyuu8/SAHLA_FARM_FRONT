@@ -7,25 +7,28 @@ import Login from "./auth/login.jsx"
 import SignUp from "./auth/signup.jsx"
 import Settings from "./pages/settings.jsx"
 import Notifications from "./pages/notifications.jsx"
-
-
-
+import Layout from "./layout.jsx"
 function App() {
   return (
-    <div className="">
+    <>
       <Routes>
-        <Route path="/" element={<Dashboard/>} />
-        <Route path="/chat" element={<AIchat/>} />
-        <Route path="/history" element={<History/>} />
-        <Route path="/stream" element={<CamStream/>} />
+
         <Route path="/login" element={<Login/>} />
         <Route path="/signup" element={<SignUp/>} />
-        <Route path="/settings" element={<Settings/>} />
-        <Route path="/notifications" element={<Notifications/>} />
 
+        <Route path="/" element={<Layout/>}>
+
+          <Route path="/" element={<Dashboard/>} />
+          <Route path="/history" element={<History/>} />
+          <Route path="/stream" element={<CamStream/>} />
+          <Route path="/chat" element={<AIchat/>} />
+          <Route path="/notifications" element={<Notifications/>} />
+          <Route path="/settings" element={<Settings/>} />
+
+        </Route>
 
       </Routes>
-    </div>
+    </>
   );
 }
 
