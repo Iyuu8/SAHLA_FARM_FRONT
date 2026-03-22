@@ -9,3 +9,45 @@
 html,body,#root {
   min-height: 100vh;
 }
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-UltraLight.otf') format('opentype');
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-Light.otf') format('opentype');
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-Regular.otf') format('opentype');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-Medium.otf') format('opentype');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-SemiBold.otf') format('opentype');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-Bold.otf') format('opentype');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-ExtraBold.otf') format('opentype');
+  font-weight: 800;
+}
