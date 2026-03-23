@@ -8,9 +8,6 @@ import SignUp from "./auth/signup.jsx"
 import Settings from "./pages/settings.jsx"
 import Notifications from "./pages/notifications.jsx"
 import Layout from "./layout.jsx"
-
-
-
 function App() {
   return (
     <>
@@ -21,7 +18,7 @@ function App() {
 
         <Route path="/" element={<Layout/>}>
 
-          <Route path="/" element={<Dashboard/>} />
+          <Route index element={<Dashboard/>} />
           <Route path="/history" element={<History/>} />
           <Route path="/stream" element={<CamStream/>} />
           <Route path="/chat" element={<AIchat/>} />
