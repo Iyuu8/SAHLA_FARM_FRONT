@@ -2,6 +2,8 @@ export const user = {
     pfp : "https://images5.alphacoders.com/100/1005348.jpg",
     userName: "ayoub",
     email: "anesbenaziza19@gmail.com",
+    address: "Sidi Bel Abbes, Algeria",
+    age: 24,
     password: "123456",
     homeAssistantId: "http://sahla-homeassistant.local:8123Bearer123456789",
     displayUnits:{

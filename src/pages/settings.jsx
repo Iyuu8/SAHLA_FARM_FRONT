@@ -1,6 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { user } from "./../utilities/data/profileSettings"
-import { FaCaretDown } from 'react-icons/fa6';
+import EditProfileModal from './../utilities/components/settings/EditProfileModal';
+import EditHomeAssistantModal from './../utilities/components/settings/EditHomeAssistantModal';
+import FarmDropdown from './../utilities/components/settings/FarmDropdown';
+import PrefDropdown from './../utilities/components/settings/PrefDropdown';
 
 export default function ProfilePage({
   mode,
@@ -32,6 +35,36 @@ export default function ProfilePage({
   languageOptions,
 }) {
   const { pfp, userName, email, homeAssistantId, displayUnits, farmSettings } = user;
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isHomeAssistantModalOpen, setIsHomeAssistantModalOpen] = useState(false);
+
+  const [profileInfo, setProfileInfo] = useState({
+    userName,
+    email,
+    address: user.address ?? '',
+    age: user.age ?? '',
+    password: user.password || '',
+  });
+
+  const getConnectionParts = (connectionId) => {
+    const splitIndex = connectionId.toLowerCase().indexOf('bearer');
+    if (splitIndex === -1) {
+      return { url: connectionId, token: '' };
+    }
+
+    const url = connectionId.slice(0, splitIndex);
+    const token = connectionId.slice(splitIndex + 6);
+    return { url, token };
+  };
+
+  const initialConnection = getConnectionParts(homeAssistantId || '');
+
+  const [homeAssistantConnection, setHomeAssistantConnection] = useState({
+    url: initialConnection.url,
+    token: initialConnection.token,
+  });
+
+  const homeAssistantIdDisplay = `${homeAssistantConnection.url}Bearer${homeAssistantConnection.token}`;
 
   return (
     <div className='flex-1 h-full min-h-0 w-full bg-[#F5F7F6] overflow-hidden p-2 sm:p-3 md:p-4 font-newblack'>
@@ -43,15 +76,18 @@ export default function ProfilePage({
             <img src={pfp} alt="Profile picture" className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full object-cover flex-shrink-0" />
           ) : (
             <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full bg-gray-300 flex items-center justify-center text-lg md:text-xl font-bold text-gray-600 flex-shrink-0">
-              {userName.charAt(0).toUpperCase()}
+              {profileInfo.userName.charAt(0).toUpperCase()}
             </div>
           )}
           <div className='flex flex-col gap-1 min-w-0'>
-            <span className='text-lg sm:text-xl font-bold text-[#192514] capitalize truncate'>{userName}</span>
-            <span className='text-xs sm:text-sm text-[rgba(25,37,20,0.6)] break-all'>{email}</span>
+            <span className='text-lg sm:text-xl font-bold text-[#192514] capitalize truncate'>{profileInfo.userName}</span>
+            <span className='text-xs sm:text-sm text-[rgba(25,37,20,0.6)] break-all'>{profileInfo.email}</span>
           </div>
 
-          <button className='absolute top-[20%] right-0 bg-[#55BB33] hover:bg-[#4ea531] text-white text-[1.5ch] font-normal px-5 py-1 rounded-lg transition-colors flex items-center'>
+          <button
+            onClick={() => setIsProfileModalOpen(true)}
+            className='absolute top-[20%] right-0 bg-[#55BB33] hover:bg-[#4ea531] text-white text-[1.5ch] font-normal px-5 py-1 rounded-lg transition-colors flex items-center'
+          >
             Edit
           </button>
         </div>
@@ -158,130 +194,50 @@ export default function ProfilePage({
             <div className='flex flex-1 flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 lg:ml-4 min-w-0'>
               <input
                 type="text"
-                defaultValue={homeAssistantId}
+                value={homeAssistantIdDisplay}
                 className='flex-1 min-w-0 bg-white border border-[rgba(23,37,20,0.2)] rounded-lg px-3 py-2 text-[1.5ch] text-[#192514] outline-none font-semibold'
                 readOnly
               />
-              <button className='bg-[#57BD36] hover:bg-[#4ea531] text-[#F8FFF6] text-[1.8ch] font-semibold px-4 py-1 rounded-[12px] transition-colors whitespace-nowrap font-newblack'>
+              <button
+                onClick={() => setIsHomeAssistantModalOpen(true)}
+                className='bg-[#57BD36] hover:bg-[#4ea531] text-[#F8FFF6] text-[1.8ch] font-semibold px-4 py-1 rounded-[12px] transition-colors whitespace-nowrap font-newblack'
+              >
                 Change
               </button>
             </div>
           </div>
         </div>
 
-      </section>
-    </div>
-  )
-}
-
-/* ── FARM DROPDOWN COMPONENT ── */
-function FarmDropdown({ label, value, options, onChange, color }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    const closeOnOutsideClick = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', closeOnOutsideClick);
-    return () => document.removeEventListener('mousedown', closeOnOutsideClick);
-  }, []);
-
-  const base = 'max-w-full flex items-center gap-1 px-2 sm:px-3 py-2 rounded-[10px] text-xs sm:text-[1.6ch] font-semibold cursor-pointer select-none';
-
-  return (
-    <div className='relative' ref={containerRef}>
-      <button
-        type='button'
-        className={base}
-        style={{ backgroundColor: color.bg, color: color.text }}
-        onClick={() => setIsOpen((prev) => !prev)}
-      >
-        <span className='capitalize'>{label}: {value}</span>
-        <span className={`text-xs transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} style={{ color: color.text }}><FaCaretDown /></span>
-      </button>
-
-      {isOpen && (
-        <div
-          className='absolute left-0 top-full mt-2 z-40 min-w-full w-max rounded-xl border p-1 shadow-[0_8px_22px_rgba(0,0,0,0.18)]'
-          style={{
-            backgroundColor: color.bg === '#192514' ? '#1F2D19' : '#F0FFE9',
-            color: color.bg === '#192514' ? '#F8FFF6' : '#192514',
-            borderColor: color.bg === '#192514' ? 'rgba(248,255,246,0.15)' : 'rgba(23,37,20,0.15)'
+        <EditProfileModal
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          initialValues={profileInfo}
+          currentPassword={profileInfo.password}
+          onSave={(nextValues) => {
+            setProfileInfo((prev) => ({
+              ...prev,
+              userName: nextValues.userName,
+              email: nextValues.email,
+              address: nextValues.address,
+              age: nextValues.age,
+              password: nextValues.password || prev.password,
+            }));
+            setIsProfileModalOpen(false);
           }}
-        >
-          {(options || []).map((option) => (
-            <button
-              key={option}
-              type='button'
-              className='block w-full text-left px-3 py-1.5 rounded-lg text-xs sm:text-sm transition-colors hover:bg-[rgba(214,247,203,0.22)]'
-              onClick={() => {
-                if (onChange) onChange(option);
-                setIsOpen(false);
-              }}
-            >
-              {option}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
+        />
 
-/* ── PREFERENCE DROPDOWN COMPONENT ── */
-function PrefDropdown({ label, value, options, onChange }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef(null);
+        <EditHomeAssistantModal
+          isOpen={isHomeAssistantModalOpen}
+          onClose={() => setIsHomeAssistantModalOpen(false)}
+          initialUrl={homeAssistantConnection.url}
+          initialToken={homeAssistantConnection.token}
+          onSave={(nextConnection) => {
+            setHomeAssistantConnection(nextConnection);
+            setIsHomeAssistantModalOpen(false);
+          }}
+        />
 
-  useEffect(() => {
-    const closeOnOutsideClick = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', closeOnOutsideClick);
-    return () => document.removeEventListener('mousedown', closeOnOutsideClick);
-  }, []);
-
-  const normalizedOptions = (options || []).map((option) =>
-    typeof option === 'string' ? { value: option, label: option } : option
-  );
-
-  const base = 'max-w-full flex items-center gap-1 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-[1.5ch] font-semibold cursor-pointer select-none bg-[#DEDEDE] text-[#192514]';
-
-  return (
-    <div className='relative' ref={containerRef}>
-      <button
-        type='button'
-        className={base}
-        onClick={() => setIsOpen((prev) => !prev)}
-      >
-        <span className='capitalize'>{label}: {value}</span>
-        <span className={`text-xs transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}><FaCaretDown /></span>
-      </button>
-
-      {isOpen && (
-        <div className='absolute left-0 top-full mt-2 z-40 min-w-full w-max rounded-xl border border-[rgba(23,37,20,0.15)] bg-[#F4F6F4] p-1 shadow-[0_8px_22px_rgba(0,0,0,0.14)]'>
-          {normalizedOptions.map((option) => (
-            <button
-              key={option.value}
-              type='button'
-              className='block w-full text-left px-3 py-1.5 rounded-lg text-xs sm:text-sm transition-colors text-[#192514] hover:bg-[#DEDEDE]'
-              onClick={() => {
-                if (onChange) onChange(option.value);
-                setIsOpen(false);
-              }}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      )}
+      </section>
     </div>
   )
 }
