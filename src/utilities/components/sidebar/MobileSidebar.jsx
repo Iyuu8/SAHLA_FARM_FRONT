@@ -1,7 +1,5 @@
-import React, { useState } from 'react'
 import { Link } from 'react-router'
 import { useLocation } from 'react-router';
-import Tooltip from './Tooltip';
 import { X } from "lucide-react"
 
 
@@ -35,7 +33,7 @@ export default function MobileSidebar({isOpen, setIsOpen , userName = "user" , L
             </div>
             {isOpen && <button
               onClick={() => setIsOpen(false)}
-              className="w-8 h-8  flex items-start justify-center bg-transparent text-white
+              className="w-8 h-8  flex items-center justify-center bg-transparent text-white
                 hover:bg-white/10 rounded-xl
                 transition-all duration-200"
             >

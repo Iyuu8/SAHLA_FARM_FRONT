@@ -3,98 +3,7 @@
 @tailwind utilities;
 
 :root{
-  --dashboard-page-bg: #eceeed; /* Dashboard page background */
-  --dashboard-surface-soft: #e2e7df; /* Graph panel background */
-  --dashboard-card: #f7f8f7; /* Generic light card surface */
-  --dashboard-grid: #c6ccc3; /* Graph grid lines */
-  --dashboard-graph-line: #4e584e; /* Graph line color */
 
-  --dashboard-text-main: #273026; /* Primary dark text */
-  --dashboard-text-soft: #6d766d; /* Secondary text and ticks */
-  --dashboard-text-inverse: #0c1d0d; /* Text on bright accents */
-
-  --dashboard-border-muted: #d2d8d0; /* Light border around cards/inputs */
-  --dashboard-divider: #bcc2ba; /* Main column horizontal divider */
-  --dashboard-soft-shadow: 0 9px 18px rgba(21, 31, 22, 0.08); /* Shared soft card shadow */
-
-  --dashboard-accent: #6ed245; /* Accent green for active controls */
-  --dashboard-toggle-off: #d9ded6; /* Toggle background when off */
-
-  --dashboard-actuator-on-bg: #3f8f10; /* Actuator card when ON */
-  --dashboard-actuator-on-border: #2f7510; /* ON actuator border */
-  --dashboard-actuator-on-text: #f6fff1; /* ON actuator text */
-
-  --dashboard-actuator-off-bg: #112b14; /* Actuator card when OFF */
-  --dashboard-actuator-off-border: #1f4527; /* OFF actuator border */
-  --dashboard-actuator-off-text: #e8f1e7; /* OFF actuator text */
-
-  --dashboard-sensor-active-bg: #65c435; /* Selected sensor card background */
-  --dashboard-sensor-active-border: #58ae2e; /* Selected sensor card border */
-  --dashboard-sensor-active-text: #f4ffe9; /* Selected sensor primary text */
-  --dashboard-sensor-active-text-subtle: #dff6cd; /* Selected sensor secondary text */
-
-  --dashboard-sensor-idle-bg: #f5f6f4; /* Unselected sensor card background */
-  --dashboard-sensor-idle-border: #dbdfd9; /* Unselected sensor card border */
-  --dashboard-sensor-idle-text: #2d332d; /* Unselected sensor primary text */
-  --dashboard-sensor-idle-text-subtle: #6f786f; /* Unselected sensor secondary text */
-
-  --dashboard-warnings-bg: #1a2334; /* Warnings panel base navy color */
-  --dashboard-warnings-border: rgba(255, 255, 255, 0.14); /* Warnings panel outer border */
-  --dashboard-warnings-text: #eff3fb; /* Warnings panel primary text */
-  --dashboard-warnings-text-muted: #b6c1d0; /* Warnings panel subtitle/helper text */
-  --dashboard-warnings-item-bg: rgba(255, 255, 255, 0.05); /* Warnings row default background */
-  --dashboard-warnings-item-hover: rgba(255, 255, 255, 0.11); /* Warnings row hover background */
-  --dashboard-warnings-item-border: rgba(255, 255, 255, 0.12); /* Warnings row border */
-  --dashboard-alert: #f2b661; /* Warning icon color */
-
-  --dashboard-crop-bg: #1d4e16; /* Crop panel base green color */
-  --dashboard-crop-border: rgba(177, 219, 158, 0.42); /* Crop panel and input borders */
-  --dashboard-crop-text: #eef8e6; /* Crop panel primary text */
-  --dashboard-crop-text-muted: #c0d9b5; /* Crop panel labels and helper text */
-  --dashboard-crop-input-bg: rgba(15, 45, 13, 0.34); /* Crop panel input/select background */
-  --dashboard-crop-recommend-bg: rgba(16, 58, 14, 0.45); /* Recommendation box same family, slightly darker */
-}
-
-html,body,#root {
-  min-height: 100vh;
-}
-
-body {
-  font-family: 'NewBlack', sans-serif;
-  background: var(--dashboard-page-bg);
-}
-
-.dashboard-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #90a392 #d7ddd5;
-}
-
-.dashboard-scrollbar::-webkit-scrollbar {
-  width: 10px;
-}
-
-.dashboard-scrollbar::-webkit-scrollbar-track {
-  background: #d7ddd5;
-  border-radius: 999px;
-}
-
-.dashboard-scrollbar::-webkit-scrollbar-thumb {
-  background: #90a392;
-  border-radius: 999px;
-  border: 2px solid #d7ddd5;
-}
-
-.dashboard-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #768a7a;
-}
-
-.hide-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
 }
 
 @font-face {
@@ -137,4 +46,33 @@ body {
   font-family: 'NewBlack';
   src: url('./assets/fonts/NewBlackTypeface-ExtraBold.otf') format('opentype');
   font-weight: 800;
+}
+
+html,body,#root {
+  min-height: 100vh;
+}
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Small screens */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 3px;
+  }
+}
+
+::-webkit-scrollbar-track {
+  background: #D9D9D9;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #55BB33;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #3d8f24;
 }

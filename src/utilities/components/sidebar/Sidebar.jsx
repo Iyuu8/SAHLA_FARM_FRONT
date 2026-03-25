@@ -1,8 +1,6 @@
 import React from 'react'
-import { useState } from 'react';
 import DesktopSidebar from './DesktopSidebar'; 
 import MobileSidebar from './MobileSidebar';
-import { Link,useLocation } from 'react-router';
 
 const LogoIcon = () => (
   <svg width="63" height="64" viewBox="0 0 63 64" fill="none" xmlns="http://www.w3.org/2000/svg">
