@@ -6,6 +6,73 @@
 
 }
 
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-UltraLight.otf') format('opentype');
+  font-weight: 200;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-Light.otf') format('opentype');
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-Regular.otf') format('opentype');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-Medium.otf') format('opentype');
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-SemiBold.otf') format('opentype');
+  font-weight: 600;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-Bold.otf') format('opentype');
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: 'NewBlack';
+  src: url('./assets/fonts/NewBlackTypeface-ExtraBold.otf') format('opentype');
+  font-weight: 800;
+}
+
 html,body,#root {
   min-height: 100vh;
+}
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Small screens */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 3px;
+  }
+}
+
+::-webkit-scrollbar-track {
+  background: #D9D9D9;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #55BB33;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #3d8f24;
 }
