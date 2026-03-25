@@ -14,30 +14,31 @@ export default function Layout() {
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   return (
+    
     <NotificationsContext.Provider value={{notifications,setNotifications}}>
       <div className='flex min-h-screen font-newblack'>
           
-          <div className=''><Sidebar isOpen={isMobileOpen} setIsOpen={setIsMobileOpen}/></div>
-          <div className={`md:pl-[88px] flex flex-col flex-1 p-2 h-screen
-            ${location.pathname === "/notifications" ? "bg-white" : "bg-[#ECEEED]"}
-          `}>
-            <header className='w-full h-16  text-white flex items-center justify-start md:px-[2px] gap-1 '>
+        <div className=''><Sidebar isOpen={isMobileOpen} setIsOpen={setIsMobileOpen}/></div>
+        <div className={`md:pl-[88px] flex flex-col flex-1 p-2 h-screen
+          ${location.pathname === "/notifications" ? "bg-white" : "bg-[#ECEEED]"}
+        `}>
+          <header className='w-full h-16  text-white flex items-center justify-start md:px-[2px] gap-1 '>
+          
             
-              
-              <button
-                onClick={() => setIsMobileOpen(true)}
-                className="md:hidden text-black text-xl p-1 flex items-center"
-              >
-                ☰
-              </button>
+            <button
+              onClick={() => setIsMobileOpen(true)}
+              className="md:hidden text-black text-xl p-1 flex items-center"
+            >
+              ☰
+            </button>
 
-              <Header></Header>
+            <Header></Header>
 
-            </header>
-            <main className={`flex-1 ${location.pathname === "/notifications" ? "overflow-y-auto" : ""}`}>
-              <Outlet/>
-            </main>
-          </div>
+          </header>
+          <main className={`flex flex-1  ${location.pathname === "/notifications" ? "overflow-y-auto" : ""}`}>
+            <Outlet/>
+          </main>
+        </div>
           
       </div>
     </NotificationsContext.Provider>
