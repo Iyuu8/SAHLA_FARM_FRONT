@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router'
-import { useState,useEffect } from 'react';
+import { NotificationsContext } from '../../../layout';
+import { useState,useEffect,useContext } from 'react';
 const LogoIcon = () => (
   <svg className='w-7 h-7 md:w-9 md:h-9 lg:w-11 lg:h-11' width="45" height="45" viewBox="0 0 44 45" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M22.4877 23.6092C22.4877 23.6092 24.8105 19.3465 29.7453 18.3817C29.7453 18.3817 22.5846 15.3262 15.0848 18.3817C15.0848 18.3817 19.1489 18.8649 22.4877 23.6092Z" fill="#55BB33"/>
@@ -40,9 +41,11 @@ const BellIcon = () => (
       stroke="#192514" strokeOpacity="0.8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
-export default function Header({numberOfNotifications=2}) {
+export default function Header() {
   const [time, setTime] = useState("");
-  
+  const { notifications = [] } = useContext(NotificationsContext);
+  const numberOfNotifications =
+  notifications.filter(n => !n.isRead).length;
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
@@ -61,7 +64,7 @@ export default function Header({numberOfNotifications=2}) {
     <div className='flex w-full justify-between items-center'>
       <div className='flex items-center  w-full gap-2'>
         <LogoIcon/> 
-        <span className='text-[#192514] text-[15px] lg:text-[32px] md:text-[26px] font-normal'>SAHLA Farm</span>
+        <span className='text-[#192514] text-[15px] lg:text-[32px] md:text-[26px] font-normal font-newblack'>SAHLA Farm</span>
       </div>
       
       <div className='flex justify-end  gap-1 w-full'>
@@ -81,7 +84,7 @@ export default function Header({numberOfNotifications=2}) {
     {/* Badge — on top of bell on mobile, next to text on desktop */}
     
   </div>
-  <span className='hidden md:block text-[#192514] opacity-80 text-[15px]'>
+  <span className='hidden font-newblack md:block text-[#192514] opacity-80 text-[15px] '>
     Notifications
   </span>
   <div className='

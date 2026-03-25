@@ -1,33 +1,45 @@
 import { Outlet } from 'react-router'
 import { useState } from 'react';
+import { useLocation } from 'react-router';
 import Sidebar from "./utilities/components/sidebar/Sidebar.jsx"
 import Header from './utilities/components/header/Header.jsx';
+import { notificationsData } from './data/notificationsData.js';
+import { createContext } from 'react';
+
+export const NotificationsContext = createContext(null);
 
 export default function Layout() {
+  const [notifications, setNotifications] = useState(notificationsData);
+  
+  const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   return (
-    <div className='flex min-h-screen'>
-        
-        <div><Sidebar isOpen={isMobileOpen} setIsOpen={setIsMobileOpen}/></div>
-        <div className='flex flex-col flex-1 bg-[#ECEEED] p-2'>
-          <header className='w-full h-16  text-white flex items-center justify-start px-[2px] gap-1 '>
+    <NotificationsContext.Provider value={{notifications,setNotifications}}>
+      <div className='flex min-h-screen font-newblack'>
           
+          <div className=''><Sidebar isOpen={isMobileOpen} setIsOpen={setIsMobileOpen}/></div>
+          <div className={`md:pl-[88px] flex flex-col flex-1 p-2 h-screen
+            ${location.pathname === "/notifications" ? "bg-white" : "bg-[#ECEEED]"}
+          `}>
+            <header className='w-full h-16  text-white flex items-center justify-start md:px-[2px] gap-1 '>
             
-            <button
-              onClick={() => setIsMobileOpen(true)}
-              className="md:hidden text-black text-xl p-1 flex items-center"
-            >
-              ☰
-            </button>
+              
+              <button
+                onClick={() => setIsMobileOpen(true)}
+                className="md:hidden text-black text-xl p-1 flex items-center"
+              >
+                ☰
+              </button>
 
-            <Header></Header>
+              <Header></Header>
 
-          </header>
-          <main className='flex-1'>
-            <Outlet/>
-        </main>
-        </div>
-        
-    </div>
+            </header>
+            <main className={`flex-1 ${location.pathname === "/notifications" ? "overflow-y-auto" : ""}`}>
+              <Outlet/>
+            </main>
+          </div>
+          
+      </div>
+    </NotificationsContext.Provider>
   )
 }

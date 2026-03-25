@@ -17,7 +17,7 @@ export default function DesktopSidebar({ userName = "user", LogOutIcon , Notific
 ];
 
   return (
-    <aside className="px-2 min-h-screen flex flex-col items-center py-5 overflow-visible" 
+    <aside className="fixed top-0 left-0 px-2 min-h-screen flex flex-col items-center py-5 overflow-visible" 
     style={{background: "linear-gradient(180deg, rgba(43, 32, 51, 1) 0%, rgba(28, 35, 42, 1) 100%)"}}>
       <div>
         <div className='mb-6'>
