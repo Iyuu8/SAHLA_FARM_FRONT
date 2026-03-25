@@ -79,7 +79,7 @@ export default function Notifications() {
           <div className='flex flex-col w-full gap-1'>
             {groups.yesterday.map((item)=>{
               return(
-              <div key={item.id} className='px-5 py-[10px] flex w-full justify-between items-center
+              <div key={item.id} className='md:px-5 px-2 md:py-[10px] py-[5px] flex w-full justify-between items-center gap-1
                hover:bg-[#DDEADB75] cursor-pointer 
                transition-colors duration-200 rounded-[20px]'
                onClick={() =>markAsRead(item.id)}
@@ -99,7 +99,7 @@ export default function Notifications() {
           <div className='flex flex-col w-full gap-1'>
             {groups.earlier.map((item)=>{
               return(
-              <div key={item.id} className='px-5 py-[10px] flex w-full justify-between items-center
+              <div key={item.id} className='md:px-5 px-2 md:py-[10px] py-[5px] flex w-full justify-between items-center gap-1
                hover:bg-[#DDEADB75] cursor-pointer 
                transition-colors duration-200 rounded-[20px]'
                onClick={() =>markAsRead(item.id)}
