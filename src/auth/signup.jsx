@@ -11,7 +11,7 @@ import { Link } from 'react-router'
 import { FiShoppingCart } from 'react-icons/fi'
 import { FaExclamationCircle } from 'react-icons/fa'
 import { BarChart3 } from 'lucide-react'
-import LoginFeatureContainer from './../utilities/components/loginFeature'
+import LoginFeatureContainer from '../utilities/components/login/loginFeature'
 import { useNavigate } from 'react-router'
 
 export default function SignUp() {

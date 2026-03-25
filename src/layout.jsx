@@ -7,7 +7,7 @@ export default function Layout() {
   return (
     <div className='flex min-h-screen'>
         
-        <div><Sidebar isOpen={isMobileOpen} setIsOpen={setIsMobileOpen}/></div>
+        <div className='md:w-[84px] md:shrink-0'><Sidebar isOpen={isMobileOpen} setIsOpen={setIsMobileOpen}/></div>
         <div className='flex flex-col flex-1'>
           <header className='w-full h-16 bg-gray-800 text-white flex items-center justify-start px-6 gap-4'>
           
@@ -22,7 +22,7 @@ export default function Layout() {
             <span>Header</span>
 
           </header>
-          <main className='flex-1'>
+          <main className='flex-1 flex'>
             <Outlet/>
         </main>
         </div>
