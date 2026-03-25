@@ -14,6 +14,7 @@ export default function Layout() {
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   return (
+    
     <NotificationsContext.Provider value={{notifications,setNotifications}}>
       <div className='flex min-h-screen font-newblack'>
           
@@ -25,18 +26,18 @@ export default function Layout() {
               
               <button
                 onClick={() => setIsMobileOpen(true)}
-                className="md:hidden text-black text-sm w-5 h-5 p-1 flex items-center text-[10px]"
+                className="md:hidden text-black w-5 h-5 p-1 flex items-center"
               >
                 ☰
               </button>
 
-              <Header></Header>
+            <Header></Header>
 
-            </header>
-            <main className={`flex-1 ${location.pathname === "/notifications" ? "overflow-y-auto" : ""}`}>
-              <Outlet/>
-            </main>
-          </div>
+          </header>
+          <main className={`flex flex-1  ${location.pathname === "/notifications" ? "overflow-y-auto" : ""}`}>
+            <Outlet/>
+          </main>
+        </div>
           
       </div>
     </NotificationsContext.Provider>

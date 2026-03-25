@@ -32,7 +32,7 @@ export default function Notifications() {
     );
   };
   return (
-    <div className='flex flex-col h-full md:p-1 pl-1 font-newblack'>
+    <div className='flex flex-col h-full md:p-1 pl-1 font-newblack w-full ml-2'>
       <div className='text-[#192514] md:text-[32px] text-[24px] font-bold font-newblack'>Notifications</div>
       <div className='flex justify-between items-center pr-3 pb-3'>
         <div className='flex md:gap-3 gap-2 '>
