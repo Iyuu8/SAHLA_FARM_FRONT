@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
+import { FiEdit2 } from 'react-icons/fi';
 import { user } from "./../utilities/data/profileSettings"
 import EditProfileModal from './../utilities/components/settings/EditProfileModal';
 import EditHomeAssistantModal from './../utilities/components/settings/EditHomeAssistantModal';
 import FarmDropdown from './../utilities/components/settings/FarmDropdown';
 import PrefDropdown from './../utilities/components/settings/PrefDropdown';
+import ProfilePictureEditorModal from './../utilities/components/settings/ProfilePictureEditorModal';
+import useProfileInfo from './../hooks/useProfileInfo';
 
 export default function ProfilePage({
   mode,
@@ -34,17 +37,12 @@ export default function ProfilePage({
   setLanguage,
   languageOptions,
 }) {
-  const { pfp, userName, email, homeAssistantId, displayUnits, farmSettings } = user;
+  const { homeAssistantId, displayUnits, farmSettings } = user;
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isHomeAssistantModalOpen, setIsHomeAssistantModalOpen] = useState(false);
+  const [isPfpModalOpen, setIsPfpModalOpen] = useState(false);
 
-  const [profileInfo, setProfileInfo] = useState({
-    userName,
-    email,
-    address: user.address ?? '',
-    age: user.age ?? '',
-    password: user.password || '',
-  });
+  const { profileInfo, updateProfileInfo, updateProfilePhoto } = useProfileInfo(user);
 
   const getConnectionParts = (connectionId) => {
     const splitIndex = connectionId.toLowerCase().indexOf('bearer');
@@ -72,13 +70,26 @@ export default function ProfilePage({
 
         {/* ── PROFILE HEADER ── */}
         <div className='relative flex items-center gap-3 sm:gap-4 pr-20'>
-          {pfp ? (
-            <img src={pfp} alt="Profile picture" className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full object-cover flex-shrink-0" />
-          ) : (
-            <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full bg-gray-300 flex items-center justify-center text-lg md:text-xl font-bold text-gray-600 flex-shrink-0">
-              {profileInfo.userName.charAt(0).toUpperCase()}
-            </div>
-          )}
+          <div className='relative group w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 flex-shrink-0'>
+            {profileInfo.pfp ? (
+              <img src={profileInfo.pfp} alt="Profile avatar" className="w-full h-full rounded-full object-cover" />
+            ) : (
+              <div className="w-full h-full rounded-full bg-gray-300 flex items-center justify-center text-lg md:text-xl font-bold text-gray-600">
+                {profileInfo.userName.charAt(0).toUpperCase()}
+              </div>
+            )}
+
+            <button
+              type='button'
+              onClick={() => setIsPfpModalOpen(true)}
+              className='absolute inset-0 rounded-full bg-[rgba(25,37,20,0.45)] text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center'
+              aria-label='Change profile picture'
+            >
+              <span className='w-8 h-8 rounded-full bg-[#57BD36] flex items-center justify-center shadow-[0_3px_8px_rgba(0,0,0,0.18)]'>
+                <FiEdit2 size={14} />
+              </span>
+            </button>
+          </div>
           <div className='flex flex-col gap-1 min-w-0'>
             <span className='text-lg sm:text-xl font-bold text-[#192514] capitalize truncate'>{profileInfo.userName}</span>
             <span className='text-xs sm:text-sm text-[rgba(25,37,20,0.6)] break-all'>{profileInfo.email}</span>
@@ -214,15 +225,16 @@ export default function ProfilePage({
           initialValues={profileInfo}
           currentPassword={profileInfo.password}
           onSave={(nextValues) => {
-            setProfileInfo((prev) => ({
-              ...prev,
-              userName: nextValues.userName,
-              email: nextValues.email,
-              address: nextValues.address,
-              age: nextValues.age,
-              password: nextValues.password || prev.password,
-            }));
+            updateProfileInfo(nextValues);
             setIsProfileModalOpen(false);
+          }}
+        />
+
+        <ProfilePictureEditorModal
+          isOpen={isPfpModalOpen}
+          onClose={() => setIsPfpModalOpen(false)}
+          onConfirm={(nextPfp) => {
+            updateProfilePhoto(nextPfp);
           }}
         />
 
