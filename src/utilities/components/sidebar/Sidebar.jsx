@@ -1,8 +1,6 @@
 import React from 'react'
-import { useState } from 'react';
 import DesktopSidebar from './DesktopSidebar'; 
 import MobileSidebar from './MobileSidebar';
-import { Link,useLocation } from 'react-router';
 
 const LogoIcon = () => (
   <svg width="63" height="64" viewBox="0 0 63 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -76,10 +74,10 @@ const LogOutIcon = () => (
 export default function Sidebar({isOpen, setIsOpen}) {
   return (
     <div className="">
-        <div className='hidden lg:block'>
+        <div className='hidden md:block'>
             <DesktopSidebar LogOutIcon={LogOutIcon} HomeIcon={HomeIcon} NotificationIcon={NotificationIcon} CameraIcon={CameraIcon} ChatIcon={ChatIcon} ProfileIcon={ProfileIcon} LogoIcon={LogoIcon} HistoryIcon={HistoryIcon}/>
         </div>
-        <div className='lg:hidden'>
+        <div className='md:hidden'>
             <MobileSidebar isOpen={isOpen} setIsOpen={setIsOpen} LogOutIcon={LogOutIcon} HomeIcon={HomeIcon} NotificationIcon={NotificationIcon} CameraIcon={CameraIcon} ChatIcon={ChatIcon} ProfileIcon={ProfileIcon} LogoIcon={LogoIcon} HistoryIcon={HistoryIcon} />
         </div>
     </div>

@@ -1,0 +1,61 @@
+{
+  "state": {
+      "growth_mode": "growth_priority",
+      "crop": "tomatoes",
+      "growth_stage": "flowering",
+      "time_of_day": "11:37"
+  },
+  "sensors": [
+      { "name": "soil moisture", "value": 22, "description": null },
+      { "name": "temperature", "value": 93, "description": null },
+      { "name": "air humidity", "value": 19, "description": null },
+      { "name": "light intensity", "value": 65, "description": null }
+  ],
+  "actuators": [
+    {
+      "name": "pump",
+      "physical_state": "on",
+      "control_mode": "auto",
+      "timer": {
+        "active": true,
+        "duration_minutes": 15,
+        "execute_until": "11:52"
+      },
+      "delay": {
+        "active": false,
+        "execute_at": null
+      }
+    },
+    {
+      "name": "fan",
+      "physical_state": "on",
+      "control_mode": "semi-auto",
+      "timer": {
+        "active": false,
+        "duration_minutes": null,
+        "execute_until": null
+      },
+      "delay": {
+        "active": false,
+        "execute_at": null
+      }
+    }
+  ],
+  "warnings": [
+      {
+        "name": "frost risk",
+        "active": false,
+        "description": "Low temperatures can cause frost damage to plants...",
+        "severity": 100
+      },
+      { "name": "heavy rainfall", "active": false, "severity": 100, "description": null },
+      { "name": "high humidity level", "active": false, "severity": 100, "description": null },
+      { "name": "high temperature detected", "active": true, "severity": 100, "description": null },
+      { "name": "insufficient sunlight", "active": false, "severity": 100, "description": null },
+      { "name": "excessive sunlight", "active": false, "severity": 100, "description": null },
+      { "name": "low soil moisture", "active": true, "severity": 100, "description": null },
+      { "name": "overwatering", "active": false, "severity": 100, "description": null },
+      { "name": "strong wind", "active": false, "severity": 100, "description": null }
+  ],
+  "recommendation": "Your plants are overheating and the soil is very dry. Water them promptly and provide shade."
+}
