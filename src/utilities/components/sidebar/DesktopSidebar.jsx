@@ -63,7 +63,7 @@ export default function DesktopSidebar({ userName = "user", LogOutIcon , Notific
                       } : {}}
                   >
                     {isActive && (
-                      <div className="absolute left-[9px] w-1 h-3 bg-[#67BF49] rounded-r-[2px]" />
+                      <div className="absolute left-[12px] w-1 h-3 bg-[#67BF49] rounded-r-[2px]" />
                     )}
                     <item.icon />
                     
