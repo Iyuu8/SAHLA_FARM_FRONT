@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useLocation } from 'react-router';
 import Sidebar from "./utilities/components/sidebar/Sidebar.jsx"
 import Header from './utilities/components/header/Header.jsx';
-import { notificationsData } from './data/notificationsData.js';
+import { notificationsData } from './utilities/data/notificationsData.js';
 import { createContext } from 'react';
 
 export const NotificationsContext = createContext(null);

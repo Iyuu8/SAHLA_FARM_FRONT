@@ -10,6 +10,7 @@ import {
   SENSOR_OPTIONS,
   SENSOR_SERIES,
 } from '../utilities/data/dashboardData';
+import MonitoringAlerts from '../utilities/components/dashboard/MonitoringAlerts';
 
 export default function Dashboard() {
   const [actuators, setActuators] = useState(INITIAL_ACTUATORS);
@@ -60,18 +61,20 @@ export default function Dashboard() {
 
   return (
     <motion.div
-      className="w-full h-full grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-3 p-3 overflow-y-auto overflow-x-hidden lg:overflow-hidden font-newblack"
+      // Changed to flex-col and min-h-full. Removed the restrictive overflow constraints.
+      // This allows the page to grow and scroll naturally without clipping backgrounds.
+      className="w-full min-h-full flex flex-col gap-4 p-3 overflow-y-auto overflow-x-hidden font-newblack bg-[#F5F7F6]"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
     >
-
-      {/* ══ LEFT COLUMN ══ */}
-      <div className="flex flex-col gap-3 min-h-0 min-w-0">
-
+      
+      {/* ══ UPPER HALF (Chart & Alerts) ══ */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-3 w-full">
+        
         {/* CHART CARD */}
         <motion.div
-          className="bg-[#F8FFF6] rounded-2xl p-1 sm:p-1 flex-1 min-h-[280px]"
+          className="bg-[#F8FFF6] rounded-2xl p-1 sm:p-1 min-h-[280px]"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05, duration: 0.32, ease: 'easeOut' }}
@@ -82,62 +85,69 @@ export default function Dashboard() {
           />
         </motion.div>
 
-        {/* ACTUATORS ROW */}
+        {/* MONITORING ALERTS */}
         <motion.div
-          className="grid grid-cols-[minmax(0,1fr)_158px] sm:grid-cols-[minmax(0,1fr)_170px] md:flex md:flex-row md:items-stretch gap-3 min-w-0"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.12, duration: 0.32, ease: 'easeOut' }}
+          // Added min-h for mobile. On Desktop, the CSS grid automatically stretches this to match the Chart's height.
+          className="min-h-[300px] lg:min-h-0 w-full flex flex-col h-full"
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.18, duration: 0.3, ease: 'easeOut' }}
         >
-
-          {/* actuator carousel */}
-          <div className="flex-1 min-w-0">
-            <ActuatorCarousel
-              actuators={actuators}
-              onToggleActuatorStatus={handleToggleActuatorStatus}
-            />
-          </div>
-
-          {/* manual mode — always visible, never in carousel */}
-          <div className="shrink-0 md:ml-auto">
-            <ManualModeCard
-              globalMode={globalMode}
-              onToggleGlobalMode={handleToggleGlobalMode}
-              onOpenEdit={() => setIsEditActuatorsOpen(true)}
-            />
-          </div>
-
+          <MonitoringAlerts />
         </motion.div>
-
-        {/* SENSOR CARDS ROW */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {/* <SensorCard /> */}
-          {/* <SensorCard /> */}
-          {/* <SensorCard /> */}
-          {/* <SensorCard /> */}
-        </div>
-
+        
       </div>
 
-      {/* ══ RIGHT COLUMN ══ */}
-      <motion.div
-        className="flex flex-col gap-3 min-h-0"
-        initial={{ opacity: 0, x: 10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.18, duration: 0.3, ease: 'easeOut' }}
-      >
+      {/* ══ BOTTOM HALF (Actuators, Sensors & Crop Info) ══ */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-3 w-full">
+        
+        {/* LEFT COLUMN: Actuators & Sensors */}
+        <div className="flex flex-col gap-3 min-w-0">
+          
+          {/* ACTUATORS ROW */}
+          <motion.div
+            className="grid grid-cols-[minmax(0,1fr)_158px] sm:grid-cols-[minmax(0,1fr)_170px] md:flex md:flex-row md:items-stretch gap-3 min-w-0"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12, duration: 0.32, ease: 'easeOut' }}
+          >
+            <div className="flex-1 min-w-0">
+              <ActuatorCarousel
+                actuators={actuators}
+                onToggleActuatorStatus={handleToggleActuatorStatus}
+              />
+            </div>
 
-        {/* MONITORING ALERTS */}
-        <div className="bg-[#1e2a18] rounded-2xl p-4 flex-1">
-          {/* <MonitoringAlerts /> */}
+            <div className="shrink-0 md:ml-auto">
+              <ManualModeCard
+                globalMode={globalMode}
+                onToggleGlobalMode={handleToggleGlobalMode}
+                onOpenEdit={() => setIsEditActuatorsOpen(true)}
+              />
+            </div>
+          </motion.div>
+
+          {/* SENSOR CARDS ROW */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {/* <SensorCard /> */}
+            {/* <SensorCard /> */}
+            {/* <SensorCard /> */}
+            {/* <SensorCard /> */}
+          </div>
+          
         </div>
 
-        {/* CROP INFO + RECOMMENDATIONS */}
-        <div className="bg-[#2d4a1e] rounded-2xl p-4">
+        {/* RIGHT COLUMN: Crop Info */}
+        <motion.div
+          className="bg-[#2d4a1e] rounded-2xl p-4 shrink-0 h-full"
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.22, duration: 0.3, ease: 'easeOut' }}
+        >
           {/* <CropInfo /> */}
-        </div>
-
-      </motion.div>
+        </motion.div>
+        
+      </div>
 
       <EditActuatorsModal
         isOpen={isEditActuatorsOpen}
@@ -147,5 +157,5 @@ export default function Dashboard() {
       />
 
     </motion.div>
-  )
+  );
 }

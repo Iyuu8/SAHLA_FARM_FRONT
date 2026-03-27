@@ -130,3 +130,38 @@ export const INITIAL_ACTUATORS = [
 ];
 
 export const DEFAULT_SELECTED_SENSOR_ID = 'temperature';
+
+export const INITIAL_WARNINGS = [
+  {
+    id: '1',
+    title: 'high_temperature_detected',
+    status: 'active',
+    severity: 85,
+    description:
+      'High temperatures have been detected in the monitored area, which can cause plant stress, increased water loss, and reduced crop productivity. Prolonged exposure may damage plant tissues and accelerate soil drying. Consider improving ventilation, providing shade if possible, and ensuring adequate irrigation.',
+  },
+  {
+    id: '2',
+    title: 'frost_risk',
+    status: 'active',
+    severity: 50,
+    description:
+      'Temperatures have dropped to dangerously low levels, posing a significant risk of frost formation. Frost can damage or destroy plant cells, leading to wilting, discoloration, and crop loss. Consider activating heating systems, covering vulnerable crops, and monitoring soil temperature closely.',
+  },
+  {
+    id: '3',
+    title: 'low_soil_moisture',
+    status: 'active',
+    severity: 60,
+    description:
+      'Soil moisture levels have fallen below the optimal threshold for healthy plant growth. Insufficient moisture restricts nutrient uptake and can stunt root development. Begin irrigation promptly and consider mulching to retain soil moisture and reduce further evaporation.',
+  },
+  {
+    id: '4',
+    title: 'overwatering',
+    status: 'active',
+    severity: 80,
+    description:
+      'Soil moisture levels have exceeded safe thresholds, indicating overwatering or poor drainage. Excess water displaces oxygen from the soil, suffocating roots and promoting harmful fungi and root rot. Suspend irrigation immediately and improve drainage if possible.',
+  },
+];
