@@ -16,10 +16,10 @@ import { user, profileSettingOptions } from '../utilities/data/profileSettings';
 import MonitoringAlerts from '../utilities/components/dashboard/MonitoringAlerts';
 
 export default function Dashboard({
-  // Shared with Settings page via parent (App.js / layout)
   crop,
   setCrop,
   cropOptions,
+  onAddCropOption,   // <-- new: adds a custom crop to the shared list
   growthStage,
   setGrowthStage,
   mode,
@@ -150,7 +150,7 @@ export default function Dashboard({
   const cropInfoSection = (
     <motion.div
       key="crop-info"
-      className="w-full shrink-0 min-h-[250px] lg:h-full"
+      className="w-full shrink-0 min-h-[200px] lg:h-full"
       initial={{ opacity: 0, x: 10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.22, duration: 0.3, ease: 'easeOut' }}
@@ -159,6 +159,7 @@ export default function Dashboard({
         crop={crop ?? user.farmSettings.crop}
         setCrop={setCrop}
         cropOptions={cropOptions ?? profileSettingOptions.cropOptions}
+        onAddCropOption={onAddCropOption}
         growthStage={growthStage ?? user.farmSettings.growth}
         setGrowthStage={setGrowthStage}
         mode={mode ?? user.farmSettings.mode}
