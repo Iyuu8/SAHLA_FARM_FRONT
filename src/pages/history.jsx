@@ -1,6 +1,9 @@
-import React, { useState ,useEffect} from 'react'
+import React, { useState ,useEffect ,useRef} from 'react'
+import { profileSettingOptions } from '../utilities/data/profileSettings';
 import HistoryData from '../utilities/data/HistoryData';
-import {SunnyIcon,ClearNightIcon,CloudyIcon} from '../../src/utilities/data/Icons'
+import FarmDropdown from './../utilities/components/settings/FarmDropdown';
+
+import HistoryDetailCard from '../utilities/components/history/HistoryDetailCard';
 const CalendarIcon = () => (
   <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12.75 1.5H11.25V0.75C11.25 0.551088 11.171 0.360322 11.0303 0.21967C10.8897 0.0790176 10.6989 0 10.5 0C10.3011 0 10.1103 0.0790176 9.96967 0.21967C9.82902 0.360322 9.75 0.551088 9.75 0.75V1.5H5.25V0.75C5.25 0.551088 5.17098 0.360322 5.03033 0.21967C4.88968 0.0790176 4.69891 0 4.5 0C4.30109 0 4.11032 0.0790176 3.96967 0.21967C3.82902 0.360322 3.75 0.551088 3.75 0.75V1.5H2.25C1.65326 1.5 1.08097 1.73705 0.65901 2.15901C0.237053 2.58097 0 3.15326 0 3.75V12.75C0 13.3467 0.237053 13.919 0.65901 14.341C1.08097 14.7629 1.65326 15 2.25 15H12.75C13.3467 15 13.919 14.7629 14.341 14.341C14.7629 13.919 15 13.3467 15 12.75V3.75C15 3.15326 14.7629 2.58097 14.341 2.15901C13.919 1.73705 13.3467 1.5 12.75 1.5ZM13.5 12.75C13.5 12.9489 13.421 13.1397 13.2803 13.2803C13.1397 13.421 12.9489 13.5 12.75 13.5H2.25C2.05109 13.5 1.86032 13.421 1.71967 13.2803C1.57902 13.1397 1.5 12.9489 1.5 12.75V7.5H13.5V12.75ZM13.5 6H1.5V3.75C1.5 3.55109 1.57902 3.36032 1.71967 3.21967C1.86032 3.07902 2.05109 3 2.25 3H3.75V3.75C3.75 3.94891 3.82902 4.13968 3.96967 4.28033C4.11032 4.42098 4.30109 4.5 4.5 4.5C4.69891 4.5 4.88968 4.42098 5.03033 4.28033C5.17098 4.13968 5.25 3.94891 5.25 3.75V3H9.75V3.75C9.75 3.94891 9.82902 4.13968 9.96967 4.28033C10.1103 4.42098 10.3011 4.5 10.5 4.5C10.6989 4.5 10.8897 4.42098 11.0303 4.28033C11.171 4.13968 11.25 3.94891 11.25 3.75V3H12.75C12.9489 3 13.1397 3.07902 13.2803 3.21967C13.421 3.36032 13.5 3.55109 13.5 3.75V6Z" fill="#55BB33"/>
@@ -26,6 +29,17 @@ export default function History() {
     growthStage:"All",
     weather:"All"
   });
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const handleItemClick = (item) => {
+    setSelectedItem(item);
+    setShowModal(true);
+  };
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedItem(null);
+  };
+  const {growthStageOptions} = profileSettingOptions;
   function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint);
 
@@ -65,45 +79,55 @@ export default function History() {
           <input className='bg-white rounded-lg hover:border-[#55BB33] border-[#C0C5D0] text-[10px] md:text-[16px] border-1 border outline-none px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33]' placeholder='e.g. orange'
            value={Input.crop} onChange={(e)=> setInput({...Input,crop:e.target.value})}/>
         </div>
-        {/* <div className='flex flex-col flex-1 min-w-[150px]'>
-          <label className='font-newblack font-bold text-black/70 text-[16px]'>Growth Stage</label>
-          <input className='bg-white rounded-lg hover:border-[#55BB33] border-[#C0C5D0] border-1 border outline-none px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33]' placeholder='e.g. 13-02-26 '
-          value={Input.growthStage} onChange={(e)=> setInput({...Input,growthStage:e.target.value})}/>
-        </div> */}
+        
         <div className="flex flex-col flex-1 md:min-w-[150px] min-w-[80px]">
                 <span className="font-newblack font-bold text-black/70 text-[10px] md:text-[16px]">Growth Stage</span>
-                <select 
+                <CustomDropdown
+                  value={Input.growthStage}
+                  onChange={(val) => setInput({...Input, growthStage: val})}
+                  options={["All", ...growthStageOptions] || []}
+                  placeholder="Select growth stage"
+                />
+                {/* <select 
                   value={Input.growthStage}
                   onChange={(e) => setInput({...Input,growthStage:e.target.value})}
                   className="bg-white rounded-lg text-[10px] md:text-[16px] hover:border-[#55BB33] border-[#C0C5D0] border-1 border outline-none px-2 py-[5px] hover:shadow-[0_0_4px_0_#55BB33]"
                 >
                   <option>All</option>
+
                   <option>flowering</option>
-                  <option>vegetative</option>
-                  <option>harvest</option>
+                  <option>Fruiting</option>
+                  <option>Maturity</option>
+                  <option>vegetative Growth</option>
+                  <option>Germination</option>
                   <option>seedling</option>
-                </select>
-              </div>
-        {/* <div className='flex flex-col flex-1 min-w-[150px]'>
-          <label className='font-newblack font-bold text-black/70 text-[16px]'>Weather</label>
-          <input className='bg-white rounded-lg hover:border-[#55BB33] border-[#C0C5D0] border-1 border outline-none px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33]' placeholder='e.g. 13-02-26 '
-          value={Input.weather} onChange={(e)=> setInput({...Input,weather:e.target.value})}/>
-        </div> */}
+                </select>  */}
+
+
+
+        </div>
+        
         <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
                 <span className="font-newblack font-bold text-black/70 text-[10px] md:text-[16px]">Weather</span>
-                <select 
+                <CustomDropdown
+                  value={Input.weather}
+                  onChange={(val) => setInput({...Input, weather: val})}
+                  options={["All","Sunny","Cloudy","night","windy","stormy","rainy"] || []}
+                  placeholder="Select growth stage"
+                />
+                {/* <select 
                   value={Input.weather}
                   onChange={(e) => setInput({...Input,weather:e.target.value})}
                   className="bg-white rounded-lg hover:border-[#55BB33] border-[#C0C5D0] border-1 text-[10px] md:text-[16px] border outline-none px-2 py-[5px] hover:shadow-[0_0_4px_0_#55BB33]"
                 >
                   <option>All</option>
-                  <option>Sunny<SunnyIcon color={"#192514"}/></option>
+                  <option>Sunny</option>
                   <option>Cloudy</option>
-                </select>
+                </select> */}
         </div>
         <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px] bg-[#192514]
          text-[#E8FFE0] text-[10px] md:text-[16px] items-center justify-center self-end
-          h-fit md:py-[5px] py-[6px] border-[#55BB33] border rounded-lg cursor-pointer' 
+          h-fit md:py-[5px] py-[6px] rounded-lg cursor-pointer' 
           onClick={()=> setInput({
             date:"",
             time:"",
@@ -128,9 +152,9 @@ export default function History() {
         {FilteredHistoryData.map((item) => (
           <div 
             key={item.id} 
-            className={`grid grid-cols-5 items-center border-b border-[#bdbdbd7c] transition-colors duration-200 hover:bg-[#B0FF92] hover:bg-opacity-40
+            className={`grid grid-cols-5 items-center border-b border-[#bdbdbd7c] transition-colors duration-200 hover:bg-[#B0FF92] hover:bg-opacity-40 cursor-pointer
             `}
-            onClick={()=>{alert(item.id)}}
+            onClick={() => handleItemClick(item)}
           >
             {/* Date */}
             <div className="py-4 font-bold text-center text-[#00000094] flex items-center justify-center md:gap-2 gap-1 text-[10px] md:text-[16px] ">
@@ -165,6 +189,89 @@ export default function History() {
         loading more records...
       </div>
     </div>
+    {/* Modal Overlay */}
+    {/* Modal */}
+    {showModal && selectedItem && (
+      <div 
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+        onClick={closeModal}
+      >
+        <div 
+          className="relative max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <HistoryDetailCard data={selectedItem.details} onClose={closeModal} isMobile={isMobile}/>
+        </div>
+      </div>
+    )}
     </div>
   )
 }
+
+
+
+const CustomDropdown = ({ value, onChange, options, placeholder }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find(opt => opt === value);
+
+  return (
+    <div className="relative w-full" ref={dropdownRef}>
+      {/* Main select button */}
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className="bg-white rounded-lg text-[10px] md:text-[16px] hover:border-[#55BB33] border-2 border-[#C0C5D0] outline-none md:px-4 px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33] cursor-pointer flex justify-between items-center transition-all duration-200"
+      >
+        <span className={!selectedOption ? 'text-gray-400' : 'text-gray-700'}>
+          {selectedOption || placeholder || 'Select option'}
+        </span>
+        <svg 
+          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} 
+          fill="none" 
+          stroke="currentColor" 
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+      
+      {/* Custom dropdown list - WITH CUSTOM BORDER, SHADOW, AND NO SCROLLBAR */}
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-[0_0_8px_#4b53489c] z-50 overflow-hidden">
+          <div className="max-h-60 overflow-y-auto hide-scrollbar">
+            {options.map((option) => (
+              <div
+                key={option}
+                onClick={() => {
+                  onChange(option);
+                  setIsOpen(false);
+                }}
+                className={`
+                  px-4 py-2.5 cursor-pointer transition-all duration-200 text-[10px] md:text-[16px]
+                  ${value === option 
+                    ? 'bg-[#55BB33] text-white font-medium' 
+                    : 'text-gray-700 hover:bg-[rgba(176,255,146,0.49)] hover:text-[#000000]'
+                  }
+                  border-b border-gray-100 last:border-b-0
+                `}
+              >
+                {option}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
