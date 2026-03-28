@@ -99,7 +99,7 @@ export default function ChartCard({
 
   return (
     <motion.div
-      className={`w-full h-full min-h-[280px] rounded-2xl bg-[#F8FFF6] p-3 sm:p-4 md:p-6 font-newblack ${className}`}
+      className={`flex flex-col w-full h-full min-h-[280px] rounded-2xl bg-[#F8FFF6] p-3 sm:p-4 md:p-6 font-newblack ${className || ''}`}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28, ease: 'easeOut' }}
@@ -115,7 +115,7 @@ export default function ChartCard({
         <RangeSelector activeRange={activeRange} onChange={setActiveRange} />
       </div>
 
-      <div className='mt-4 h-[220px] sm:h-[260px] md:h-[320px] relative'>
+      <div className='flex-1 min-h-0 w-full relative mt-4'>
         <AnimatePresence>
           {pinnedPoint ? (
             <motion.div

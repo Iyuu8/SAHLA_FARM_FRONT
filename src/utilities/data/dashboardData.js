@@ -1,10 +1,37 @@
+// ─── SENSOR OPTIONS ────────────────────────────────────────────────────────────
+// Each sensor now carries a currentValue and description shown on the SensorCard.
 export const SENSOR_OPTIONS = [
-  { id: 'temperature', label: 'Temperature', unit: '°C' },
-  { id: 'humidity', label: 'Humidity', unit: '%' },
-  { id: 'soilMoisture', label: 'Soil Moisture', unit: '%' },
-  { id: 'lightIntensity', label: 'Light Intensity', unit: 'lux' },
+  {
+    id: 'temperature',
+    label: 'Temperature',
+    unit: '°C',
+    currentValue: 35,
+    description: 'The temperature is very high, this is dangerous for the plant',
+  },
+  {
+    id: 'humidity',
+    label: 'Humidity',
+    unit: '%',
+    currentValue: 16,
+    description: 'Humidity has dropped too low, the plant may lose moisture quickly',
+  },
+  {
+    id: 'soilMoisture',
+    label: 'Soil Moisture',
+    unit: '%',
+    currentValue: 16,
+    description: 'The soil moisture is critically low, the plant may start drying out.',
+  },
+  {
+    id: 'lightIntensity',
+    label: 'Light Intensity',
+    unit: 'lux',
+    currentValue: '35k',
+    description: 'The plant is exposed to too much sunlight, this can harm its health',
+  },
 ];
 
+// ─── SENSOR SERIES ──────────────────────────────────────────────────────────────
 export const SENSOR_SERIES = {
   temperature: {
     today: [
@@ -104,6 +131,7 @@ export const SENSOR_SERIES = {
   },
 };
 
+// ─── CHART ──────────────────────────────────────────────────────────────────────
 export const CHART_RANGE_OPTIONS = [
   { key: 'today', label: 'today' },
   { key: 'threeDays', label: 'last 3 days' },
@@ -112,6 +140,7 @@ export const CHART_RANGE_OPTIONS = [
 
 export const CHART_Y_TICKS = [-5, 15, 35, 55];
 
+// ─── ACTUATORS ──────────────────────────────────────────────────────────────────
 export const INITIAL_ACTUATORS = [
   {
     id: 'pump',
@@ -131,6 +160,7 @@ export const INITIAL_ACTUATORS = [
 
 export const DEFAULT_SELECTED_SENSOR_ID = 'temperature';
 
+// ─── WARNINGS ───────────────────────────────────────────────────────────────────
 export const INITIAL_WARNINGS = [
   {
     id: '1',
