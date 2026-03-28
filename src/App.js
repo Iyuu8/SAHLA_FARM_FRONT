@@ -23,7 +23,7 @@ function App() {
     lightIntensityOptions,
   } = profileSettingOptions;
 
-  // ── Farm settings — shared between Dashboard and Settings ──
+  // ── Farm settings — shared between Dashboard, Settings, and AIchat ──
   const [mode, setMode] = useState('balanced');
   const [manualControl, setManualControl] = useState('off');
   const [growthStage, setGrowthStage] = useState('Flowering');
@@ -32,7 +32,6 @@ function App() {
   // cropOptions lives in state so new crops added from either page persist everywhere
   const [cropOptions, setCropOptions] = useState(profileSettingOptions.cropOptions);
 
-  // Adds a new crop to the shared list (called when user types a new crop and presses Enter)
   const handleAddCropOption = (newCrop) => {
     setCropOptions((prev) => {
       const exists = prev.some((o) => o.toLowerCase() === newCrop.toLowerCase());
@@ -40,7 +39,6 @@ function App() {
     });
   };
 
-  // Shared crop setter used by both Dashboard and Settings
   const handleSetCrop = (newCrop) => {
     setCrop(newCrop);
     handleAddCropOption(newCrop);
@@ -80,7 +78,19 @@ function App() {
 
           <Route path="/history" element={<History />} />
           <Route path="/stream" element={<CamStream />} />
-          <Route path="/chat" element={<AIchat />} />
+
+          {/* AIchat receives live farm context so the assistant always has current data */}
+          <Route
+            path="/chat"
+            element={
+              <AIchat
+                crop={crop}
+                growthStage={growthStage}
+                mode={mode}
+              />
+            }
+          />
+
           <Route path="/notifications" element={<Notifications />} />
 
           <Route
