@@ -1,4 +1,4 @@
-import {Routes, Route} from "react-router"
+import { Routes, Route } from "react-router"
 import { useState } from 'react'
 import Dashboard from "./pages/dashboard.jsx"
 import AIchat from "./pages/aiChat.jsx"
@@ -10,12 +10,12 @@ import Settings from "./pages/settings.jsx"
 import Notifications from "./pages/notifications.jsx"
 import Layout from "./layout.jsx"
 import { profileSettingOptions } from "./utilities/data/profileSettings"
+
 function App() {
   const {
     modeOptions,
     manualControlOptions,
     growthStageOptions,
-    cropOptions,
     languageOptions,
     temperatureOptions,
     humidityOptions,
@@ -23,11 +23,30 @@ function App() {
     lightIntensityOptions,
   } = profileSettingOptions;
 
+  // ── Farm settings — shared between Dashboard and Settings ──
   const [mode, setMode] = useState('balanced');
   const [manualControl, setManualControl] = useState('off');
   const [growthStage, setGrowthStage] = useState('Flowering');
   const [crop, setCrop] = useState('Tomatoes');
 
+  // cropOptions lives in state so new crops added from either page persist everywhere
+  const [cropOptions, setCropOptions] = useState(profileSettingOptions.cropOptions);
+
+  // Adds a new crop to the shared list (called when user types a new crop and presses Enter)
+  const handleAddCropOption = (newCrop) => {
+    setCropOptions((prev) => {
+      const exists = prev.some((o) => o.toLowerCase() === newCrop.toLowerCase());
+      return exists ? prev : [...prev, newCrop];
+    });
+  };
+
+  // Shared crop setter used by both Dashboard and Settings
+  const handleSetCrop = (newCrop) => {
+    setCrop(newCrop);
+    handleAddCropOption(newCrop);
+  };
+
+  // ── Display unit preferences — Settings only ──
   const [temperatureUnit, setTemperatureUnit] = useState('°C');
   const [humidityUnit, setHumidityUnit] = useState('%');
   const [soilMoistureUnit, setSoilMoistureUnit] = useState('%');
@@ -38,16 +57,32 @@ function App() {
     <>
       <Routes>
 
-        <Route path="/login" element={<Login/>} />
-        <Route path="/signup" element={<SignUp/>} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
 
-        <Route path="/" element={<Layout/>}>
+        <Route path="/" element={<Layout />}>
 
-          <Route index element={<Dashboard/>} />
-          <Route path="/history" element={<History/>} />
-          <Route path="/stream" element={<CamStream/>} />
-          <Route path="/chat" element={<AIchat/>} />
-          <Route path="/notifications" element={<Notifications/>} />
+          <Route
+            index
+            element={
+              <Dashboard
+                crop={crop}
+                setCrop={handleSetCrop}
+                cropOptions={cropOptions}
+                onAddCropOption={handleAddCropOption}
+                growthStage={growthStage}
+                setGrowthStage={setGrowthStage}
+                mode={mode}
+                setMode={setMode}
+              />
+            }
+          />
+
+          <Route path="/history" element={<History />} />
+          <Route path="/stream" element={<CamStream />} />
+          <Route path="/chat" element={<AIchat />} />
+          <Route path="/notifications" element={<Notifications />} />
+
           <Route
             path="/settings"
             element={
@@ -62,7 +97,7 @@ function App() {
                 setGrowthStage={setGrowthStage}
                 growthStageOptions={growthStageOptions}
                 crop={crop}
-                setCrop={setCrop}
+                setCrop={handleSetCrop}
                 cropOptions={cropOptions}
                 temperatureUnit={temperatureUnit}
                 setTemperatureUnit={setTemperatureUnit}
