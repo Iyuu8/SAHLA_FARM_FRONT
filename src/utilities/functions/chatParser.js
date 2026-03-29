@@ -1,4 +1,6 @@
-import { pillColorForIndex } from './chatConstants';
+// src/utilities/functions/chatParser.js
+
+import { pillColorForIndex } from '../data/chatConstants';
 
 /**
  * Full message parser.
@@ -6,25 +8,22 @@ import { pillColorForIndex } from './chatConstants';
  * Converts raw AI text into a structured array of blocks that MessageContent renders.
  *
  * Block types:
- *   { type: 'paragraph', segments: Segment[] }   — normal prose line(s)
- *   { type: 'bullet',    segments: Segment[] }   — "- " or "• " prefixed line
- *   { type: 'numbered',  n: number, segments: Segment[] } — "1. " prefixed line
- *   { type: 'heading',   level: 2|3, text: string }       — "## " or "### "
- *   { type: 'spacer' }                                    — blank line / paragraph gap
+ *   { type: 'paragraph', segments: Segment[] }
+ *   { type: 'bullet',    segments: Segment[] }
+ *   { type: 'numbered',  n: number, segments: Segment[] }
+ *   { type: 'heading',   level: 2|3, text: string }
+ *   { type: 'spacer' }
  *
- * Inline segment types (inside paragraphs / bullets):
+ * Inline segment types:
  *   { type: 'text',  content: string }
  *   { type: 'pill',  icon, content, color }
  *   { type: 'bold',  content: string }
  */
 
-// ─── Inline parser (text + pills + bold) ─────────────────────────────────────
-
-let _globalPillIndex = 0; // resets per message parse call
+let _globalPillIndex = 0;
 
 function parseInlineSegments(text) {
   const segments = [];
-  // Combined regex: pill tags OR **bold**
   const regex = /\[\[PILL:(\w+):([^\]]+)\]\]|\*\*([^*]+)\*\*/g;
   let last = 0;
   let match;
@@ -35,7 +34,6 @@ function parseInlineSegments(text) {
     }
 
     if (match[1] !== undefined) {
-      // Pill: [[PILL:icon:content]]
       segments.push({
         type: 'pill',
         icon: match[1],
@@ -44,7 +42,6 @@ function parseInlineSegments(text) {
       });
       _globalPillIndex++;
     } else {
-      // Bold: **text**
       segments.push({ type: 'bold', content: match[3] });
     }
 
@@ -58,24 +55,16 @@ function parseInlineSegments(text) {
   return segments;
 }
 
-// ─── Block parser ─────────────────────────────────────────────────────────────
-
 export function parseMessageSegments(text) {
-  _globalPillIndex = 0; // reset pill color counter for this message
+  _globalPillIndex = 0;
 
-  // Normalise line endings
   const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-
-  // Split into lines
   const lines = normalized.split('\n');
-
   const blocks = [];
 
   for (let i = 0; i < lines.length; i++) {
-    const raw = lines[i];
-    const trimmed = raw.trim();
+    const trimmed = lines[i].trim();
 
-    // Blank line → spacer (only if previous block wasn't already a spacer)
     if (trimmed === '') {
       if (blocks.length > 0 && blocks[blocks.length - 1].type !== 'spacer') {
         blocks.push({ type: 'spacer' });
@@ -83,32 +72,27 @@ export function parseMessageSegments(text) {
       continue;
     }
 
-    // Heading ## / ###
     const headingMatch = trimmed.match(/^(#{2,3})\s+(.+)$/);
     if (headingMatch) {
       blocks.push({ type: 'heading', level: headingMatch[1].length, text: headingMatch[2] });
       continue;
     }
 
-    // Bullet: "- " or "• " or "* "
     const bulletMatch = trimmed.match(/^[-•*]\s+(.+)$/);
     if (bulletMatch) {
       blocks.push({ type: 'bullet', segments: parseInlineSegments(bulletMatch[1]) });
       continue;
     }
 
-    // Numbered list: "1. " "2. " etc.
     const numberedMatch = trimmed.match(/^(\d+)\.\s+(.+)$/);
     if (numberedMatch) {
       blocks.push({ type: 'numbered', n: parseInt(numberedMatch[1], 10), segments: parseInlineSegments(numberedMatch[2]) });
       continue;
     }
 
-    // Normal paragraph line
     blocks.push({ type: 'paragraph', segments: parseInlineSegments(trimmed) });
   }
 
-  // Remove trailing spacer
   if (blocks.length > 0 && blocks[blocks.length - 1].type === 'spacer') {
     blocks.pop();
   }

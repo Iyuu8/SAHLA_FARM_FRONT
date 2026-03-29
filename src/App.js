@@ -51,6 +51,11 @@ function App() {
   const [lightIntensityUnit, setLightIntensityUnit] = useState('lux');
   const [language, setLanguage] = useState('English');
 
+  // ── AI chat state — lifted here so the conversation survives page navigation ──
+  const [chatMessages,  setChatMessages]  = useState([]);
+  const [chatThinking,  setChatThinking]  = useState(false);
+  const [chatMode,      setChatMode]      = useState('Detailed');
+
   return (
     <>
       <Routes>
@@ -79,14 +84,21 @@ function App() {
           <Route path="/history" element={<History />} />
           <Route path="/stream" element={<CamStream />} />
 
-          {/* AIchat receives live farm context so the assistant always has current data */}
           <Route
             path="/chat"
             element={
               <AIchat
+                // Farm context — stays in sync with Dashboard & Settings
                 crop={crop}
                 growthStage={growthStage}
                 mode={mode}
+                // Lifted conversation state — persists across navigation
+                messages={chatMessages}
+                setMessages={setChatMessages}
+                isThinking={chatThinking}
+                setIsThinking={setChatThinking}
+                responseMode={chatMode}
+                setResponseMode={setChatMode}
               />
             }
           />

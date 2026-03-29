@@ -56,9 +56,7 @@ export default function ActuatorCard({
         </div>
 
         <div className='min-w-0 font-normal'>
-          <p className='text-[1.58ch] sm:text-[1.7ch] leading-5 font-normal'>
-            {name} {isOn ? 'On' : 'Off'}
-          </p>
+          
           <p className='text-[1.54ch] sm:text-[1.68ch] leading-5 mt-1 font-normal'>
             {schedule}
           </p>

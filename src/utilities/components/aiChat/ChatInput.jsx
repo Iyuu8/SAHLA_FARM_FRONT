@@ -1,26 +1,29 @@
+// src/utilities/components/aiChat/ChatInput.jsx
+
 import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Plus, ChevronDown, FileText, Image as ImageIcon, X } from 'lucide-react';
+import { Send, Plus, ChevronDown, FileText, Image as ImageIcon, X, SquarePen } from 'lucide-react';
 
 /**
  * ChatInput — the fixed bottom input bar.
  *
  * Props:
- *   onSend        (text: string, files: File[]) => void
- *   isThinking    boolean
- *   responseMode  'Detailed' | 'Concise'
- *   setResponseMode fn
+ *   onSend           (text: string, files: File[]) => void
+ *   onNewChat        () => void   — clears conversation
+ *   isThinking       boolean
+ *   responseMode     'Detailed' | 'Concise'
+ *   setResponseMode  fn
+ *   hasMessages      boolean     — shows new chat button only when there are messages
  */
-export default function ChatInput({ onSend, isThinking, responseMode, setResponseMode }) {
+export default function ChatInput({ onSend, onNewChat, isThinking, responseMode, setResponseMode, hasMessages }) {
   const [input, setInput] = useState('');
   const [attachedFiles, setAttachedFiles] = useState([]);
   const [showModeMenu, setShowModeMenu] = useState(false);
 
   const fileInputRef = useRef(null);
-  const textareaRef = useRef(null);
-  const modeMenuRef = useRef(null);
+  const textareaRef  = useRef(null);
+  const modeMenuRef  = useRef(null);
 
-  // Close mode menu on outside click
   useEffect(() => {
     const handler = (e) => {
       if (modeMenuRef.current && !modeMenuRef.current.contains(e.target)) {
@@ -38,22 +41,15 @@ export default function ChatInput({ onSend, isThinking, responseMode, setRespons
     onSend(input.trim(), [...attachedFiles]);
     setInput('');
     setAttachedFiles([]);
-    // Reset textarea height
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-    }
+    if (textareaRef.current) textareaRef.current.style.height = 'auto';
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files || []);
-    setAttachedFiles((prev) => [...prev, ...files]);
+    setAttachedFiles((prev) => [...prev, ...Array.from(e.target.files || [])]);
     e.target.value = '';
   };
 
@@ -68,7 +64,7 @@ export default function ChatInput({ onSend, isThinking, responseMode, setRespons
   return (
     <div className="shrink-0 px-3 sm:px-6 md:px-12 lg:px-20 pb-4 pt-2">
 
-      {/* File chips preview */}
+      {/* File chips */}
       <AnimatePresence>
         {attachedFiles.length > 0 && (
           <motion.div
@@ -78,18 +74,12 @@ export default function ChatInput({ onSend, isThinking, responseMode, setRespons
             className="flex flex-wrap gap-2 mb-2"
           >
             {attachedFiles.map((f, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-1.5 bg-white border border-[rgba(25,37,20,0.12)] rounded-lg px-2.5 py-1 text-sm text-[#192514] font-medium"
-              >
+              <div key={i} className="flex items-center gap-1.5 bg-white border border-[rgba(25,37,20,0.12)] rounded-lg px-2.5 py-1 text-sm text-[#192514] font-medium">
                 {f.type?.startsWith('image/')
                   ? <ImageIcon size={13} className="text-[#55BB33]" />
-                  : <FileText size={13} className="text-[#55BB33]" />}
+                  : <FileText  size={13} className="text-[#55BB33]" />}
                 <span className="truncate max-w-[140px]">{f.name}</span>
-                <button
-                  onClick={() => removeFile(i)}
-                  className="ml-1 opacity-50 hover:opacity-100 transition-opacity"
-                >
+                <button onClick={() => removeFile(i)} className="ml-1 opacity-50 hover:opacity-100 transition-opacity">
                   <X size={12} />
                 </button>
               </div>
@@ -98,15 +88,12 @@ export default function ChatInput({ onSend, isThinking, responseMode, setRespons
         )}
       </AnimatePresence>
 
-      {/* Main input row */}
+      {/* Input row */}
       <div
         className="flex items-center gap-2 bg-white rounded-2xl px-3 py-2"
-        style={{
-          border: '1.5px solid rgba(85,187,51,0.45)',
-          boxShadow: '0px 4px 10px 0px rgba(0,0,0,0.06)',
-        }}
+        style={{ border: '1.5px solid rgba(85,187,51,0.45)', boxShadow: '0px 4px 10px 0px rgba(0,0,0,0.06)' }}
       >
-        {/* Attach */}
+        {/* Attach button */}
         <button
           onClick={() => fileInputRef.current?.click()}
           className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors hover:brightness-90"
@@ -115,14 +102,7 @@ export default function ChatInput({ onSend, isThinking, responseMode, setRespons
         >
           <Plus size={17} color="#F8FFF6" strokeWidth={2.5} />
         </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept="image/*,.pdf,.txt,.csv,.doc,.docx"
-          className="hidden"
-          onChange={handleFileChange}
-        />
+        <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf,.txt,.csv,.doc,.docx" className="hidden" onChange={handleFileChange} />
 
         {/* Textarea */}
         <textarea
@@ -135,7 +115,26 @@ export default function ChatInput({ onSend, isThinking, responseMode, setRespons
           className="flex-1 resize-none bg-transparent outline-none text-base text-[#192514] placeholder:text-[#192514]/35 leading-relaxed py-1 max-h-[130px] overflow-y-auto font-newblack"
         />
 
-        {/* Response mode selector */}
+        {/* New conversation button — only visible when there are messages */}
+        <AnimatePresence>
+          {hasMessages && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.18 }}
+              onClick={onNewChat}
+              disabled={isThinking}
+              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all disabled:opacity-35 hover:brightness-90"
+              style={{ background: '#192514' }}
+              title="Start new conversation"
+            >
+              <SquarePen size={15} color="#F8FFF6" strokeWidth={2} />
+            </motion.button>
+          )}
+        </AnimatePresence>
+
+        {/* Response mode */}
         <div ref={modeMenuRef} className="relative shrink-0">
           <button
             onClick={() => setShowModeMenu((p) => !p)}
@@ -154,21 +153,14 @@ export default function ChatInput({ onSend, isThinking, responseMode, setRespons
                 exit={{ opacity: 0, y: -4, scale: 0.95 }}
                 transition={{ duration: 0.14 }}
                 className="absolute bottom-full right-0 mb-1 bg-white rounded-xl overflow-hidden z-50"
-                style={{
-                  border: '1px solid rgba(25,37,20,0.10)',
-                  boxShadow: '0px 8px 20px rgba(0,0,0,0.12)',
-                  minWidth: '110px',
-                }}
+                style={{ border: '1px solid rgba(25,37,20,0.10)', boxShadow: '0px 8px 20px rgba(0,0,0,0.12)', minWidth: '110px' }}
               >
                 {['Detailed', 'Concise'].map((opt) => (
                   <button
                     key={opt}
                     onClick={() => { setResponseMode(opt); setShowModeMenu(false); }}
                     className="w-full text-left px-4 py-2.5 text-sm font-semibold transition-colors"
-                    style={{
-                      color: responseMode === opt ? '#55BB33' : '#192514',
-                      background: responseMode === opt ? 'rgba(85,187,51,0.08)' : 'transparent',
-                    }}
+                    style={{ color: responseMode === opt ? '#55BB33' : '#192514', background: responseMode === opt ? 'rgba(85,187,51,0.08)' : 'transparent' }}
                   >
                     {opt}
                   </button>
@@ -183,11 +175,7 @@ export default function ChatInput({ onSend, isThinking, responseMode, setRespons
           onClick={handleSend}
           disabled={!canSend}
           className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all disabled:opacity-35"
-          style={{
-            background: 'transparent',
-            border: '1.5px solid rgba(85,187,51,0.55)',
-            color: '#55BB33',
-          }}
+          style={{ background: 'transparent', border: '1.5px solid rgba(85,187,51,0.55)', color: '#55BB33' }}
         >
           <Send size={16} strokeWidth={2} />
         </button>

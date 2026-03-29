@@ -19,7 +19,7 @@ export default function Layout() {
       <div className='flex min-h-screen font-newblack'>
           
           <div className=''><Sidebar isOpen={isMobileOpen} setIsOpen={setIsMobileOpen}/></div>
-          <div className={`md:pl-[88px] flex flex-col flex-1 p-2 h-screen bg-[#F5F7F6]
+          <div className={`md:pl-[88px] flex flex-col flex-1 p-2 max-h-full max-w-full bg-[#F5F7F6]
           `}>
             <header className='w-full h-16  text-white flex items-center justify-start md:px-[2px] gap-1 '>
             
