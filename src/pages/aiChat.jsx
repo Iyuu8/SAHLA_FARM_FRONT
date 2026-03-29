@@ -264,7 +264,7 @@ export default function AIchat({ crop, growthStage, mode, actuators, recommended
   }, [messages, responseMode, farmProps]);
 
   return (
-    <div className="flex flex-col w-full min-h-screen font-newblack overflow-hidden relative" style={{ background: '#F5F7F6' }}>
+    <div className="flex flex-col w-full h-full font-newblack overflow-hidden relative" style={{ background: '#F5F7F6' }}>
       
       {/* Message list */}
       <div className="flex-1 overflow-y-auto px-3 sm:px-6 md:px-12 lg:px-20 py-6 flex flex-col gap-6 pt-16">
