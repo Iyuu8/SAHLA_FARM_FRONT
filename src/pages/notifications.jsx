@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState,useEffect,useContext , useMemo} from 'react';
+import { useState,useContext , useMemo} from 'react';
 import { NotificationsContext } from '../layout';
 
 
@@ -12,7 +12,6 @@ export default function Notifications() {
   };
   }, [notifications]);
   const [filter, setFilter] = useState("all");
-
   const filtered = filter === "unread"
     ? notifications.filter(n => !n.isRead)
     : notifications;

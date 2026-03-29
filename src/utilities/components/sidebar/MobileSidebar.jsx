@@ -62,7 +62,6 @@ export default function MobileSidebar({isOpen, setIsOpen , userName = "user" , L
             <nav className="flex flex-col items-start justify-start gap-3 w-full">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
-                console.log(location.pathname)
                 return (
                     <Link 
                       key={item.name}

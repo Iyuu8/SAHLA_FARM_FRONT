@@ -16,10 +16,10 @@ export default function Layout() {
   return (
     
     <NotificationsContext.Provider value={{notifications,setNotifications}}>
-      <div className='flex min-h-screen font-newblack'>
+      <div className={`flex font-newblack ${location.pathname === "/notifications" || "/history" ? "h-screen overflow-hidden" : "min-h-screen"}`}>
           
           <div className=''><Sidebar isOpen={isMobileOpen} setIsOpen={setIsMobileOpen}/></div>
-          <div className={`md:pl-[88px] flex flex-col flex-1 p-2 max-h-full max-w-full bg-[#F5F7F6]
+          <div className={`md:pl-[88px] flex flex-col flex-1 p-2 h-screen bg-[#F5F7F6] bg-opacity-95 ${location.pathname === "/notifications" || "/history" ? "overflow-hidden" : ""}
           `}>
             <header className='w-full h-16  text-white flex items-center justify-start md:px-[2px] gap-1 '>
             
@@ -34,7 +34,7 @@ export default function Layout() {
             <Header></Header>
 
           </header>
-          <main className={`flex flex-1  ${location.pathname === "/notifications" ? "overflow-y-auto" : ""}`}>
+          <main className={`flex flex-1  ${location.pathname === "/notifications" ? "overflow-y-auto" : "min-h-0"}`}>
             <Outlet/>
           </main>
         </div>
