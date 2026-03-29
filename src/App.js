@@ -23,7 +23,7 @@ function App() {
     lightIntensityOptions,
   } = profileSettingOptions;
 
-  // ── Farm settings — shared between Dashboard and Settings ──
+  // ── Farm settings — shared between Dashboard, Settings, and AIchat ──
   const [mode, setMode] = useState('balanced');
   const [manualControl, setManualControl] = useState('off');
   const [growthStage, setGrowthStage] = useState('Flowering');
@@ -32,7 +32,6 @@ function App() {
   // cropOptions lives in state so new crops added from either page persist everywhere
   const [cropOptions, setCropOptions] = useState(profileSettingOptions.cropOptions);
 
-  // Adds a new crop to the shared list (called when user types a new crop and presses Enter)
   const handleAddCropOption = (newCrop) => {
     setCropOptions((prev) => {
       const exists = prev.some((o) => o.toLowerCase() === newCrop.toLowerCase());
@@ -40,7 +39,6 @@ function App() {
     });
   };
 
-  // Shared crop setter used by both Dashboard and Settings
   const handleSetCrop = (newCrop) => {
     setCrop(newCrop);
     handleAddCropOption(newCrop);
@@ -52,6 +50,11 @@ function App() {
   const [soilMoistureUnit, setSoilMoistureUnit] = useState('%');
   const [lightIntensityUnit, setLightIntensityUnit] = useState('lux');
   const [language, setLanguage] = useState('English');
+
+  // ── AI chat state — lifted here so the conversation survives page navigation ──
+  const [chatMessages,  setChatMessages]  = useState([]);
+  const [chatThinking,  setChatThinking]  = useState(false);
+  const [chatMode,      setChatMode]      = useState('Detailed');
 
   return (
     <>
@@ -80,7 +83,26 @@ function App() {
 
           <Route path="/history" element={<History />} />
           <Route path="/stream" element={<CamStream />} />
-          <Route path="/chat" element={<AIchat />} />
+
+          <Route
+            path="/chat"
+            element={
+              <AIchat
+                // Farm context — stays in sync with Dashboard & Settings
+                crop={crop}
+                growthStage={growthStage}
+                mode={mode}
+                // Lifted conversation state — persists across navigation
+                messages={chatMessages}
+                setMessages={setChatMessages}
+                isThinking={chatThinking}
+                setIsThinking={setChatThinking}
+                responseMode={chatMode}
+                setResponseMode={setChatMode}
+              />
+            }
+          />
+
           <Route path="/notifications" element={<Notifications />} />
 
           <Route
