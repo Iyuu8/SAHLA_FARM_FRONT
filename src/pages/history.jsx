@@ -1,7 +1,6 @@
 import React, { useState ,useEffect ,useRef} from 'react'
 import { profileSettingOptions } from '../utilities/data/profileSettings';
 import HistoryData from '../utilities/data/HistoryData';
-import FarmDropdown from './../utilities/components/settings/FarmDropdown';
 
 import HistoryDetailCard from '../utilities/components/history/HistoryDetailCard';
 const CalendarIcon = () => (

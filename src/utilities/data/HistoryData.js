@@ -9,9 +9,9 @@ const weathers = [
   { type: "night",  icon: ClearNightIcon,    temp: "15°C", hum: "55%" },
 ];
 
-const crops = ["tomato", "wheat", "corn", "orange", "olive", "potato", "cucumber", "pepper"];
+const crops = ["tomatoes", "lettuce", "cucumber", "strawberries", "basil", "spinach", "peppers"];
 
-const stages = ["seedling", "vegetative", "flowering", "fruiting", "harvesting", "germination"];
+const stages = ["germination", "seedling", "vegetative growth", "flowering", "fruiting", "maturity"];
 
 // generates dates from 01-01-26 to 28-02-26
 const generateDates = () => {
@@ -99,7 +99,7 @@ const HistoryData = Array.from({ length: 200 }, (_, i) => {
         {
           name:           "pump",
           physical_state: pumpOn ? "on" : "off",
-          control_mode:   rand(["auto", "semi-auto", "manual"]),
+          control_mode:   rand(["auto", "semi-auto"]),
           timer: {
             active:           hasTimer,
             duration_minutes: hasTimer ? Math.floor(Math.random() * 45) + 10 : null,
