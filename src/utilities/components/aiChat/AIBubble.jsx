@@ -42,7 +42,7 @@ export default function AIBubble({ segments }) {
 
       {/* Bubble */}
       <div
-        className="w-full sm:max-w-[78%] lg:max-w-[68%] rounded-2xl rounded-tl-sm px-4 py-3"
+        className="w-full sm:max-w-[78%] lg:max-w-[68%] rounded-2xl rounded-tl-sm px-4 py-3 font-newblack"
         style={{
           background: '#EBF7E6',
           color: '#192514',
