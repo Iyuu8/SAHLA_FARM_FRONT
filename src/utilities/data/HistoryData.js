@@ -13,17 +13,22 @@ const crops = ["tomatoes", "lettuce", "cucumber", "strawberries", "basil", "spin
 
 const stages = ["germination", "seedling", "vegetative growth", "flowering", "fruiting", "maturity"];
 
-// generates dates from 01-01-26 to 28-02-26
+// generates dates from 01-01-26 to current date
 const generateDates = () => {
   const dates = [];
-  for (let month = 1; month <= 2; month++) {
-    const days = month === 1 ? 31 : 28;
-    for (let day = 1; day <= days; day++) {
-      const mm = String(month).padStart(2, "0");
-      const dd = String(day).padStart(2, "0");
-      dates.push(`${dd}-${mm}-26`);
-    }
+  const startDate = new Date(2026, 0, 1); // January 1, 2026
+  const endDate = new Date(); // Today
+  
+  let currentDate = new Date(startDate);
+  
+  while (currentDate <= endDate) {
+    const day = String(currentDate.getDate()).padStart(2, "0");
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const year = String(currentDate.getFullYear()).slice(-2);
+    dates.push(`${day}-${month}-${year}`);
+    currentDate.setDate(currentDate.getDate() + 1);
   }
+  
   return dates;
 };
 
@@ -61,20 +66,41 @@ const aiRecommendations = [
 
 const rand = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
+// Helper function to generate random date between start and end
+const getRandomDate = (dates) => rand(dates);
+
+// Helper function to generate random ISO datetime
+const getRandomDateTime = (date, time) => {
+  const [day, month, year] = date.split('-');
+  const [hours] = time.split(':');
+  const fullYear = 2000 + parseInt(year);
+  const randomMinutes = Math.floor(Math.random() * 60);
+  return new Date(fullYear, parseInt(month) - 1, parseInt(day), parseInt(hours), randomMinutes).toISOString();
+};
+
 const HistoryData = Array.from({ length: 200 }, (_, i) => {
   const randomWeather = rand(weathers);
-  const randomStage   = rand(stages);
-  const randomDate    = rand(allDates);
-  const randomTime    = rand(allTimes);
-  const randomCrop    = rand(crops);
+  const randomStage = rand(stages);
+  const randomDate = getRandomDate(allDates);
+  const randomTime = rand(allTimes);
+  const randomCrop = rand(crops);
 
-  const pumpOn   = Math.random() > 0.5;
-  const fanOn    = Math.random() > 0.5;
-  const hasTimer = pumpOn && Math.random() > 0.4;
+  // Random states for actuators
+  const pumpStatus = Math.random() > 0.5 ? "on" : "off";
+  const fanStatus = Math.random() > 0.5 ? "on" : "off";
+  const pumpHasSchedule = pumpStatus === "on" && Math.random() > 0.4;
+  const fanHasSchedule = fanStatus === "on" && Math.random() > 0.5;
 
-  const executeFrom  = hasTimer ? `${String(Math.floor(Math.random() * 12) + 6).padStart(2, "0")}:00` : null;
-  const executeUntil = hasTimer ? `${String(parseInt(executeFrom) + 1).padStart(2, "0")}:30`           : null;
-
+  // Generate random datetime for actuators
+  const pumpDateTime = pumpHasSchedule ? getRandomDateTime(randomDate, randomTime) : null;
+  const fanDateTime = fanHasSchedule ? getRandomDateTime(randomDate, randomTime) : null;
+  
+  // Calculate run_until based on duration
+  const pumpDuration = pumpHasSchedule ? Math.floor(Math.random() * 45) + 10 : null;
+  const fanDuration = fanHasSchedule ? Math.floor(Math.random() * 30) + 15 : null;
+  
+  const pumpRunUntil = pumpDateTime && pumpDuration ? new Date(new Date(pumpDateTime).getTime() + pumpDuration * 60000).toISOString() : null;
+  const fanRunUntil = fanDateTime && fanDuration ? new Date(new Date(fanDateTime).getTime() + fanDuration * 60000).toISOString() : null;
   return {
     id:          i + 1,
     date:        randomDate,
@@ -90,37 +116,31 @@ const HistoryData = Array.from({ length: 200 }, (_, i) => {
       growthStage: randomStage,
       weatherIcon: randomWeather.icon,
       sensors: {
-        temperature:    randomWeather.temp,
-        humidity:       randomWeather.hum,
-        soilMoisture:   `${Math.floor(Math.random() * 60) + 20}%`,
-        lightIntensity: `${Math.floor(Math.random() * 80000) + 1000}lx`,
+      temperature: randomWeather.temp,
+      humidity: randomWeather.hum,
+      soilMoisture: `${Math.floor(Math.random() * 60) + 20}%`,
+      lightIntensity: `${Math.floor(Math.random() * 80000) + 1000}lx`,
+    },
+    actuators: [
+      {
+        id: `pump_${i + 1}`,
+        type: "pump",
+        status: pumpStatus,
+        control_mode: pumpStatus === "on" ? rand(["auto", "semi_auto"]) : "auto",
+        run_at: pumpDateTime,
+        duration_minutes: pumpDuration,
+        run_until: pumpRunUntil
       },
-      actuators: [
-        {
-          name:           "pump",
-          physical_state: pumpOn ? "on" : "off",
-          control_mode:   rand(["auto", "semi-auto"]),
-          timer: {
-            active:           hasTimer,
-            duration_minutes: hasTimer ? Math.floor(Math.random() * 45) + 10 : null,
-            execute_from:     executeFrom,
-            execute_until:    executeUntil,
-          },
-          delay: { active: false, execute_at: null },
-        },
-        {
-          name:           "fan",
-          physical_state: fanOn ? "on" : "off",
-          control_mode:   rand(["auto", "semi-auto"]),
-          timer: {
-            active:           false,
-            duration_minutes: null,
-            execute_from:     null,
-            execute_until:    null,
-          },
-          delay: { active: false, execute_at: null },
-        },
-      ],
+      {
+        id: `fan_${i + 1}`,
+        type: "fan",
+        status: fanStatus,
+        control_mode: fanStatus === "on" ? rand(["auto", "semi_auto"]) : "auto",
+        run_at: fanDateTime,
+        duration_minutes: fanDuration,
+        run_until: fanRunUntil
+      }
+    ],
       weatherSummary:   weatherSummaries[randomWeather.type],
       aiRecommendation: rand(aiRecommendations),
     },
