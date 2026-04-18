@@ -65,7 +65,7 @@ export default function ProfilePage({
   const homeAssistantIdDisplay = `${homeAssistantConnection.url}Bearer${homeAssistantConnection.token}`;
 
   return (
-    <div className='flex-1 h-full min-h-0 w-full bg-[#F5F7F6] overflow-hidden p-2 sm:p-3 md:p-4 font-newblack'>
+    <div className='flex-1 h-full w-full bg-[#F5F7F6] overflow-hidden p-2 sm:p-3 md:p-4 font-newblack'>
       <section className='relative top-1/2 -translate-y-1/2 h-auto w-full md:w-[95%] mx-auto bg-white rounded-xl shadow-[2px_2px_10px_0.5px_rgba(0,0,0,0.25)] flex flex-col gap-4 sm:gap-5 md:gap-6 p-4 sm:p-5 md:p-8 overflow-visible'>
 
         {/* ── PROFILE HEADER ── */}
