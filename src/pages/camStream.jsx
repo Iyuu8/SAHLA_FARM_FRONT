@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 // ── Live clock ────────────────────────────────────────────────────────────────
 function useClock() {
@@ -11,7 +11,7 @@ function useClock() {
   }, []);
   return time;
 }
-const PlayIcon = ({ size = 14, color = "#192514" }) => (
+const PlayIcon = ({ size = 25, color = "#192514" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
     <polygon points="5,3 19,12 5,21" />
   </svg>
@@ -30,17 +30,28 @@ const CameraIcon = ({ size = 25, color = "currentColor" }) => (
   </svg>
 );
 // ── Corner brackets ───────────────────────────────────────────────────────────
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint);
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, [breakpoint]);
+  return isMobile;
+}
 const Corner = ({ pos }) => {
-  const size = 40;
+  const isMobile = useIsMobile();
+  const border   = isMobile ? "1px" : "4px";
+  const size     = isMobile ? 20 : 40;
   const t = pos.includes("top")    ? 0 : "auto";
   const b = pos.includes("bottom") ? 0 : "auto";
   const l = pos.includes("left")   ? 0 : "auto";
   const r = pos.includes("right")  ? 0 : "auto";
  
-  const borderTop    = pos.includes("top")    ? `1px solid #55BB33` : "none";
-  const borderBottom = pos.includes("bottom") ? `1px solid #55BB33` : "none";
-  const borderLeft   = pos.includes("left")   ? `1px solid #55BB33` : "none";
-  const borderRight  = pos.includes("right")  ? `1px solid #55BB33` : "none";
+  const borderTop    = pos.includes("top")    ? `${border} solid #55BB33` : "none";
+  const borderBottom = pos.includes("bottom") ? `${border} solid #55BB33` : "none";
+  const borderLeft   = pos.includes("left")   ? `${border} solid #55BB33` : "none";
+  const borderRight  = pos.includes("right")  ? `${border} solid #55BB33` : "none";
  
   return (
     <div style={{
@@ -51,6 +62,7 @@ const Corner = ({ pos }) => {
   );
 };
 export default function CamStream() {
+  const isMobile = useIsMobile(); 
   const time = useClock();
   const [streaming, setStreaming]   = useState(false);
   const [snapped, setSnapped]       = useState(false);
@@ -62,6 +74,8 @@ export default function CamStream() {
     setTimeout(() => setSnapFlash(false), 200);
     setTimeout(() => setSnapped(false), 2000);
   };
+
+   
  
   return (
     <div style={{
@@ -163,33 +177,33 @@ export default function CamStream() {
       </div>
  
       {/* ── Controls ── */}
-      <div style={{ display: "flex", gap: 10 }}>
+      <div className="flex gap-[10px] w-full">
  
         {/* Start / Stop stream */}
         <button
           onClick={() => setStreaming(s => !s)}
-          className="flex items-center gap-2 bg-[#55BB33] border-none
+          className="flex flex-grow md:flex-grow-0 items-center gap-2 bg-[#55BB33] border-none
            rounded-md px-[18px] py-2 text-white text-2xl font-semibold
            font-newblack cursor-pointer tracking-wide transition-colors duration-200
-          hover:bg-[#3F8806] text-[16px] md:text-[24px]"
+          hover:bg-[#3F8806] text-[15px] md:text-[24px]"
           onMouseEnter={e => e.currentTarget.style.backgroundColor = "#3d9922"}
           onMouseLeave={e => e.currentTarget.style.backgroundColor = "#55BB33"}
         >
-          <PlayIcon size={15} color="white"/>
+          <PlayIcon size={isMobile ? 15 : undefined} color="white"/>
           {streaming ? "stop stream" : "start stream"}
         </button>
  
         {/* Take snapshot */}
         <button
           onClick={handleSnapshot}
-          className="flex items-center gap-2 bg-[#55BB33] border-none
+          className="flex flex-grow md:flex-grow-0 items-center gap-2 bg-[#55BB33] border-none
            rounded-md px-[18px] py-2 text-white text-2xl font-semibold
            font-newblack cursor-pointer tracking-wide transition-colors duration-200
-          hover:bg-[#3F8806] text-[16px] md:text-[24px]"
+          hover:bg-[#3F8806] text-[15px] md:text-[24px]"
           onMouseEnter={e => e.currentTarget.style.backgroundColor = "#3d9922"}
           onMouseLeave={e => e.currentTarget.style.backgroundColor = "#55BB33"}
         >
-          <CameraIcon size={15} color="white" />
+          <CameraIcon size={isMobile ? 15 : undefined} color="white" />
           take snapshot
         </button>
  
