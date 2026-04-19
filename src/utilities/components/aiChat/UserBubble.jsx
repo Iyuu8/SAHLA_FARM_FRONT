@@ -15,7 +15,7 @@ export default function UserBubble({ message }) {
   const hasTextBubble = message.text || docs.length > 0;
 
   return (
-    <div className="flex flex-col items-end w-full gap-2">
+    <div className="flex flex-col items-end w-full min-w-0 gap-2">
       
       {/* 2. Images rendered ABOVE and OUTSIDE the text box */}
       {images.length > 0 && (
@@ -43,15 +43,16 @@ export default function UserBubble({ message }) {
           className="
             max-w-[85%] sm:max-w-[70%] lg:max-w-[60%]
             rounded-2xl rounded-tr-sm px-4 py-3
-            text-base font-medium leading-relaxed
+            text-base font-medium leading-relaxed break-words
           "
           style={{
             background: '#192514',
             color: '#F8FFF6',
             boxShadow: '0px 4px 10px 0px rgba(0,0,0,0.18)',
+            overflowWrap: 'anywhere',
           }}
         >
-          {message.text && <div className="whitespace-pre-wrap">{message.text}</div>}
+          {message.text && <div className="whitespace-pre-wrap break-words" style={{ overflowWrap: 'anywhere' }}>{message.text}</div>}
 
           {/* Non-image files fallback */}
           {docs.length > 0 && (

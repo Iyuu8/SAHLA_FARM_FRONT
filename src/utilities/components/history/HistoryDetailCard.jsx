@@ -1,10 +1,18 @@
 import React from 'react'
 import { TemperatureIcon , LightIcon , HumidityIcon , SoilMoistureIcon } from '../../data/Icons';
+import {
+  convertHumidity,
+  convertLightIntensity,
+  convertSoilMoisture,
+  convertTemperature,
+  formatConvertedValue,
+  splitReading,
+} from '../../functions/conversionFunctions';
 
 
 
 const ActuatorCard = ({ actuator }) => {
-  const { type, status, control_mode, run_at, duration_minutes, run_until } = actuator;
+  const { type, status, control_mode, run_at, run_until } = actuator;
  
   // Format time from ISO string to "HH:MM"
   const formatTime = (isoString) => {
@@ -108,7 +116,15 @@ const ActuatorCard = ({ actuator }) => {
     </div>
   );
 };
-export default function HistoryDetailCard({data,onClose,isMobile}) {
+export default function HistoryDetailCard({
+  data,
+  onClose,
+  isMobile,
+  temperatureUnit = '°C',
+  humidityUnit = '%',
+  soilMoistureUnit = '%',
+  lightIntensityUnit = 'lux',
+}) {
     const {
     date,
     time,
@@ -119,7 +135,32 @@ export default function HistoryDetailCard({data,onClose,isMobile}) {
     weatherSummary,
     aiRecommendation,
   } = data;
-  console.log(data)
+  const parsedTemperature = splitReading(sensors.temperature);
+  const parsedHumidity = splitReading(sensors.humidity);
+  const parsedSoil = splitReading(sensors.soilMoisture);
+  const parsedLight = splitReading(sensors.lightIntensity);
+
+  const tempInC = Number.isFinite(parsedTemperature.value) ? parsedTemperature.value : 0;
+
+  const convertedSensors = {
+    temperature: formatConvertedValue(convertTemperature(tempInC, temperatureUnit), temperatureUnit, 1),
+    humidity: formatConvertedValue(
+      convertHumidity(parsedHumidity.value, humidityUnit, tempInC),
+      humidityUnit,
+      1
+    ),
+    soilMoisture: formatConvertedValue(
+      convertSoilMoisture(parsedSoil.value, soilMoistureUnit),
+      soilMoistureUnit,
+      1
+    ),
+    lightIntensity: formatConvertedValue(
+      convertLightIntensity(parsedLight.value, lightIntensityUnit),
+      lightIntensityUnit,
+      1
+    ),
+  };
+
   return (
     <div className="bg-[#F5F7F4] rounded-3xl px-4 pb-2 md:px-7 max-w-2xl w-full shadow-md font-sans mx-auto relative overflow-y-auto max-h-[90vh] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {/* Close Button - Inside Card */}
@@ -163,19 +204,19 @@ export default function HistoryDetailCard({data,onClose,isMobile}) {
               {/* First row */}
               <div className='grid grid-cols-2 md:gap-6 gap-5'>
                 <div className='flex w-full items-center gap-2 text-[#333333] font-newblack bg-[#E0E0E0] border border-[#B4B4B4] md:px-3 px-2 py-2 md:py-3 rounded-lg text-center md:text-[16px] text-[14px] whitespace-nowrap'>
-                  <TemperatureIcon size={isMobile ? 30 : 24 }/><div className='flex flex-col-reverse items-start md:flex-row'><span>Temperature</span><span className='font-bold text-[16px] md:font-normal'>{!isMobile && <span>:</span>} {sensors.temperature}</span> </div>
+                  <TemperatureIcon size={isMobile ? 30 : 24 }/><div className='flex flex-col-reverse items-start md:flex-row'><span>Temperature</span><span className='font-bold text-[16px] md:font-normal'>{!isMobile && <span>:</span>} {convertedSensors.temperature}</span> </div>
                 </div>
                 <div className='flex w-full items-center gap-2 text-[#333333] font-newblack bg-[#E0E0E0] border border-[#B4B4B4] md:px-3 px-2 py-2 md:py-3 rounded-lg text-center md:text-[16px] text-[14px] whitespace-nowrap'>
-                  <HumidityIcon size={isMobile ? 30 : 24 }/><div className='flex flex-col-reverse items-start md:flex-row'><span>Humidity</span><span className='font-bold text-[16px] md:font-normal'>{!isMobile && <span>:</span>} {sensors.humidity}</span> </div>
+                  <HumidityIcon size={isMobile ? 30 : 24 }/><div className='flex flex-col-reverse items-start md:flex-row'><span>Humidity</span><span className='font-bold text-[16px] md:font-normal'>{!isMobile && <span>:</span>} {convertedSensors.humidity}</span> </div>
                 </div>
               </div>
               {/* Second row */}
               <div className='grid grid-cols-2 md:gap-6 gap-4'>
                 <div className='flex w-full items-center gap-2 text-[#333333] font-newblack bg-[#E0E0E0] border border-[#B4B4B4] md:px-3 px-2 py-2 md:py-3 rounded-lg text-center md:text-[16px] text-[14px] whitespace-nowrap'>
-                  <SoilMoistureIcon size={isMobile ? 30 : 24 }/><div className='flex flex-col-reverse items-start md:flex-row'><span>Soil moisture</span><span className='font-bold text-[16px] md:font-normal'>{!isMobile && <span>:</span>} {sensors.soilMoisture}</span> </div>
+                  <SoilMoistureIcon size={isMobile ? 30 : 24 }/><div className='flex flex-col-reverse items-start md:flex-row'><span>Soil moisture</span><span className='font-bold text-[16px] md:font-normal'>{!isMobile && <span>:</span>} {convertedSensors.soilMoisture}</span> </div>
                 </div>
                 <div className='flex w-full items-center gap-2 text-[#333333] font-newblack bg-[#E0E0E0] border border-[#B4B4B4] md:px-3 px-2 py-2 md:py-3 rounded-lg text-center md:text-[16px] text-[14px] whitespace-nowrap'>
-                  <LightIcon size={isMobile ? 30 : 24 }/><div className='flex flex-col-reverse items-start md:flex-row'><span>Light intensity</span><span className='font-bold text-[16px] md:font-normal'>{!isMobile && <span>:</span>} {sensors.lightIntensity}</span> </div>
+                  <LightIcon size={isMobile ? 30 : 24 }/><div className='flex flex-col-reverse items-start md:flex-row'><span>Light intensity</span><span className='font-bold text-[16px] md:font-normal'>{!isMobile && <span>:</span>} {convertedSensors.lightIntensity}</span> </div>
                 </div>
               </div>
             </div>

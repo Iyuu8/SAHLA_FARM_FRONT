@@ -42,12 +42,13 @@ export default function AIBubble({ segments }) {
 
       {/* Bubble */}
       <div
-        className="w-full sm:max-w-[78%] lg:max-w-[68%] rounded-2xl rounded-tl-sm px-4 py-3 font-newblack"
+        className="w-full min-w-0 sm:max-w-[78%] lg:max-w-[68%] rounded-2xl rounded-tl-sm px-4 py-3 font-newblack break-words"
         style={{
           background: '#EBF7E6',
           color: '#192514',
           boxShadow: '0px 4px 10px 0px rgba(0,0,0,0.10)',
           fontSize: '15px',
+          overflowWrap: 'anywhere',
         }}
       >
         <MessageContent segments={segments} />

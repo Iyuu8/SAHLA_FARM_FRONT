@@ -1,0 +1,240 @@
+SAHLA FRONTEND DATA FLOW (POST-FIX) - BACKEND HANDOFF REPORT
+
+Last updated: 2026-04-19
+
+REPORT SCOPE
+- Dashboard
+- Settings
+- AI Chat
+- Shared storage/state logic
+
+This report does not describe other pages or features outside the scope above.
+
+====================================================
+1) ARCHITECTURE SUMMARY (CURRENT FRONTEND)
+====================================================
+
+The current frontend uses a hybrid model:
+- Static domain data is imported from data files.
+- User-editable/runtime state is stored in localStorage.
+- Shared hooks act as the single source of truth across scoped pages.
+
+Main goal in this stage:
+- Simulate backend-like persistence and cross-page synchronization without a real backend.
+
+Key consequence:
+- The system is functionally coherent for simulation/testing, but security and scale constraints remain until backend integration.
+
+====================================================
+2) CURRENT DATA OWNERSHIP MODEL
+====================================================
+
+A) Static dummy data (import-only, not persisted to localStorage)
+- src/utilities/data/dashboardData.js
+  - FARM_INFO
+  - SENSOR_SERIES
+  - Derived dashboard exports (sensor options/series/defaults/actuators/warnings)
+- src/utilities/data/profileSettings.js
+  - USER_INFO
+  - NORMALIZED_USER
+  - profileSettingOptions
+- src/utilities/data/chatConstants.js
+  - Chat model constants
+  - API endpoints
+  - Static chat copy text
+
+B) User/runtime state (persisted in localStorage)
+- Shared farm preferences (single source)
+  - key: sahla_farm_preferences
+  - owner hook: src/hooks/useFarmPreferences.js
+  - fields:
+    - mode
+    - growthStage
+    - crop
+    - cropOptions
+    - temperatureUnit
+    - humidityUnit
+    - soilMoistureUnit
+    - lightIntensityUnit
+    - language
+
+- Shared actuators state
+  - key: sahla_actuators_state
+  - owner hook: src/hooks/useActuatorsState.js
+
+- Dashboard view state (UI selections)
+  - key: sahla_dashboard_view:selectedSensorId
+  - key: sahla_dashboard_view:activeRange
+  - owner page: src/pages/dashboard.jsx
+
+- Chat conversation state
+  - key: sahla_chat_history
+  - owner page: src/pages/aiChat.jsx
+
+- Chat response mode
+  - key: sahla_chat_history:mode
+  - owner page: src/pages/aiChat.jsx
+
+- Profile display info (non-auth)
+  - key: sahla_profile_info
+  - owner hook: src/hooks/useProfileInfo.js
+  - fields:
+    - pfp
+    - userName
+    - email
+    - address
+    - age
+
+Centralized storage key registry:
+- src/utilities/data/storageKeys.js
+
+====================================================
+3) HOW SHARED STATE IS SYNCHRONIZED
+====================================================
+
+Shared sync layer:
+- src/hooks/usePersistentState.js
+
+Behavior:
+- Reads initial value from localStorage.
+- Writes updates back to localStorage.
+- Uses custom in-tab event (sahla-storage-sync) for same-tab consumers.
+- Also listens to native storage event for cross-tab updates.
+
+Scoped page relationships:
+- Dashboard and Settings both consume:
+  - useFarmPreferences()
+  - useActuatorsState()
+- AI Chat consumes:
+  - useFarmPreferences()
+  - useActuatorsState()
+
+Result in scoped architecture:
+- No independent duplicate state for crop/mode/growth/units/language.
+- No independent duplicate state for actuator mode/status.
+
+====================================================
+4) PAGE LOGIC DETAILS (SCOPE-ONLY)
+====================================================
+
+A) Dashboard
+- Imports static dummy telemetry and series from dashboardData.
+- Applies user-selected display units from shared farm preferences.
+- Persists chart sensor selection and date-range selection in localStorage.
+- Reads/writes shared actuator state.
+
+B) Settings
+- Reads/writes shared farm preferences (crop, growth stage, mode, units, language).
+- Reads/writes shared actuator mode through manual control UI mapping.
+- Uses profile hook for non-auth profile display edits.
+- Home Assistant URL/token edit modal remains local to page state in this version.
+
+C) AI Chat
+- Reads farm context (state data) from shared localStorage-backed hooks.
+- Reads static/dummy sensor + warning baselines from data layer via prompt builder.
+- Stores conversation and response mode in localStorage.
+- If storage quota is exceeded, shows warning and requires opening a new conversation.
+
+====================================================
+5) LOCAL STORAGE RELIANCE NOW VS BACKEND LATER
+====================================================
+
+Current reliance:
+- localStorage is the persistence layer for scoped user/runtime data.
+- This simulates what future backend persistence should do.
+
+Expected backend migration path:
+- Replace hook-level localStorage read/write with API read/write.
+- Keep hook interfaces if possible to reduce UI refactor effort.
+- Preserve normalized shape contracts consumed by pages/components.
+
+Recommended migration order:
+1) Security-sensitive flows first.
+2) Shared preference + actuator persistence.
+3) AI context source migration and optional conversation persistence migration.
+
+====================================================
+6) AI CHAT LIMITATION + OVERFLOW BEHAVIOR
+====================================================
+
+Current limitation:
+- AI conversation history is localStorage-backed.
+- Attachments (especially base64 images) can hit browser storage quota.
+
+Current overflow behavior:
+1) Show warning:
+   "Reached conversation limit. Please open a new conversation to continue."
+2) Block further conversation writes.
+3) On new conversation, delete previous persisted conversation key and reset state.
+
+Backend decision point:
+- Option A (recommended): persist chat conversations in backend.
+- Option B: keep conversation in localStorage and accept capacity limits.
+
+====================================================
+7) CURRENT PROBLEMS / RISKS BACKEND TEAM MUST KNOW
+====================================================
+
+1) API keys are currently exposed in frontend constants.
+- GROQ_API_KEY
+- GOOGLE_API_KEY
+- This is not production-safe and must move server-side.
+
+2) AI operational context currently mixes:
+- Shared runtime state from localStorage-backed hooks
+- Static dummy data from imported files
+- Backend should become source of truth for operational sensor/warning context.
+
+3) Home Assistant URL/token are local-page state only.
+- Not persisted as shared app state.
+- Not validated or secured by backend in this version.
+
+4) Password update is intentionally disabled in frontend.
+- No current-password verification flow in frontend simulation.
+- Backend must implement full auth-safe update flow.
+
+5) localStorage persistence can fail silently in generic shared hook layer.
+- Backend migration should remove this class of client storage failures.
+
+====================================================
+8) SECURITY / AUTH EXPECTATIONS FOR BACKEND
+====================================================
+
+Backend should implement:
+- Server-side model proxy for AI providers (no client API keys).
+- Secure credential handling for HA token and password.
+- Password hashing + salting + secure verification.
+- Access control for profile/settings update endpoints.
+
+====================================================
+9) DATA CONTRACT EXPECTATIONS
+====================================================
+
+To minimize frontend rewrite risk, backend responses should preserve stable field names/types for:
+- FARM_INFO / SENSOR_SERIES compatible shapes 
+- USER_INFO-compatible profile/preference fields consumed by current hooks
+
+Recommendation:
+- Introduce explicit versioned API schemas and keep adapter layer deterministic.
+
+====================================================
+10) BACKEND PRIORITIES (PRACTICAL ORDER)
+====================================================
+
+Priority 1: Security and correctness
+- Remove frontend key exposure via server proxy.
+- Implement password update flow (hashed, verified).
+- Implement secure HA credential management.
+
+Priority 2: Shared persistence replacement
+- Farm preferences endpoints.
+- Actuator state endpoints.
+- Optional dashboard view preference endpoints.
+
+Priority 3: AI context and conversation persistence strategy
+- Move operational context to backend-fed state.
+- Decide whether conversation storage is backend or local-only.
+
+====================================================
+END OF REPORT
+====================================================

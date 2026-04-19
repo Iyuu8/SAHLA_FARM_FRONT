@@ -1,6 +1,6 @@
 // src/pages/aiChat.jsx
 
-import { useRef, useEffect, useCallback, useState } from 'react';
+import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import UserBubble        from '../utilities/components/aiChat/UserBubble';
@@ -17,8 +17,13 @@ import {
   GROQ_VISION_MODEL,
   GROQ_ENDPOINT,
   GOOGLE_API_KEY,
-  GOOGLE_VISION_MODEL
+  GOOGLE_VISION_MODEL,
+  CHAT_COPY,
 } from '../utilities/data/chatConstants';
+import { STORAGE_KEYS } from '../utilities/data/storageKeys';
+import useFarmPreferences from '../hooks/useFarmPreferences';
+import useActuatorsState from '../hooks/useActuatorsState';
+import usePersistentState from '../hooks/usePersistentState';
 
 // ─── Compress image to base64 JPEG (max 1024px, 85% quality) ─────────────────
 function compressImageToBase64(file) {
@@ -81,23 +86,27 @@ async function buildUserContent(text, files, farmContext, modeInstruction) {
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
-export default function AIchat({ crop, growthStage, mode, actuators, recommendedAction }) {
-  
-  // 1. Initialize state from LocalStorage
-  const [messages, setMessages] = useState(() => {
-    try {
-      const savedChat = localStorage.getItem('sahla_chat_history');
-      if (savedChat) {
-        return JSON.parse(savedChat);
-      }
-    } catch (error) {
-      console.error("Failed to load chat history:", error);
-    }
-    return [];
-  });
+export default function AIchat({
+  recommendedAction,
+}) {
+  const {
+    crop,
+    growthStage,
+    mode,
+    temperatureUnit,
+    humidityUnit,
+    soilMoistureUnit,
+    lightIntensityUnit,
+  } = useFarmPreferences();
 
-  const [isThinking, setIsThinking]   = useState(false);
-  const [responseMode, setResponseMode] = useState('Detailed');
+  const [actuators] = useActuatorsState();
+
+  // AI chat is intentionally localStorage-backed in this simulation build.
+  const [messages, setMessages] = usePersistentState(STORAGE_KEYS.chatHistory, []);
+  const [responseMode, setResponseMode] = usePersistentState(`${STORAGE_KEYS.chatHistory}:mode`, 'Detailed');
+  const [isThinking, setIsThinking] = useState(false);
+  const [conversationLimitReached, setConversationLimitReached] = useState(false);
+
   const bottomRef = useRef(null);
 
   // Auto-scroll to bottom
@@ -105,30 +114,61 @@ export default function AIchat({ crop, growthStage, mode, actuators, recommended
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isThinking]);
 
-  // 2. Sync state to LocalStorage every time messages change
+  // If localStorage contains malformed data or a previous save failed, keep UI usable.
   useEffect(() => {
-    const savableMessages = messages.map(msg => ({
-      role: msg.role,
-      text: msg.text,
-      segments: msg.segments,
-      files: msg.files 
-    }));
-    
-    localStorage.setItem('sahla_chat_history', JSON.stringify(savableMessages));
-  }, [messages]);
-
-  // 3. Clear Chat Function
-  const handleClearChat = () => {
-    if (window.confirm("Are you sure you want to start a new conversation?")) {
+    if (!Array.isArray(messages)) {
       setMessages([]);
-      localStorage.removeItem('sahla_chat_history');
+    }
+  }, [messages, setMessages]);
+
+  const persistConversation = useCallback((nextMessages) => {
+    try {
+      localStorage.setItem(STORAGE_KEYS.chatHistory, JSON.stringify(nextMessages));
+      setConversationLimitReached(false);
+      return true;
+    } catch {
+      setConversationLimitReached(true);
+      return false;
+    }
+  }, []);
+
+  // Start a new chat from the shared App state.
+  const handleClearChat = () => {
+    if (window.confirm(CHAT_COPY.newChatConfirm)) {
+      // Conversation reset clears all persisted messages for this chat thread.
+      localStorage.removeItem(STORAGE_KEYS.chatHistory);
+      setMessages([]);
+      setConversationLimitReached(false);
     }
   };
 
-  const farmProps = { crop, growthStage, mode, actuators, recommendedAction };
+  const farmProps = useMemo(() => ({
+    crop,
+    growthStage,
+    mode,
+    actuators,
+    recommendedAction,
+    displayUnits: {
+      temperatureUnit,
+      humidityUnit,
+      soilMoistureUnit,
+      lightIntensityUnit,
+    },
+  }), [
+    actuators,
+    crop,
+    growthStage,
+    humidityUnit,
+    lightIntensityUnit,
+    mode,
+    recommendedAction,
+    soilMoistureUnit,
+    temperatureUnit,
+  ]);
 
   const handleSend = useCallback(async (text, rawFiles) => {
     if (!text && rawFiles.length === 0) return;
+    if (conversationLimitReached) return;
 
     setIsThinking(true);
 
@@ -161,14 +201,19 @@ export default function AIchat({ crop, growthStage, mode, actuators, recommended
 
     const validFiles = processedFiles.filter(Boolean);
 
-    setMessages((prev) => [...prev, { role: 'user', text, files: validFiles }]);
+    const nextUserMessages = [...messages, { role: 'user', text, files: validFiles }];
+    if (!persistConversation(nextUserMessages)) {
+      setIsThinking(false);
+      return;
+    }
+    setMessages(nextUserMessages);
 
     const modeInstruction = responseMode === 'Concise'
-      ? 'Keep your response brief — 2 to 3 sentences maximum.'
-      : 'Structure your response clearly. Use bullet points or numbered lists when listing multiple items. Use paragraph breaks between distinct ideas.';
+      ? CHAT_COPY.conciseModeInstruction
+      : CHAT_COPY.detailedModeInstruction;
 
     const farmContext = buildFarmContext(farmProps);
-    const history = messages.map((m) => ({ role: m.role, content: m.text }));
+    const history = nextUserMessages.map((m) => ({ role: m.role, content: m.text }));
 
     try {
       const { content, hasImages } = await buildUserContent(text, validFiles, farmContext, modeInstruction);
@@ -245,26 +290,37 @@ export default function AIchat({ crop, growthStage, mode, actuators, recommended
       }
 
       const segs = parseMessageSegments(aiText);
-      setMessages((prev) => [...prev, { role: 'assistant', text: aiText, segments: segs }]);
+      const nextAssistantMessages = [...nextUserMessages, { role: 'assistant', text: aiText, segments: segs }];
+      if (persistConversation(nextAssistantMessages)) {
+        setMessages(nextAssistantMessages);
+      }
 
     } catch (err) {
       console.error("AI Chat Error:", err);
       const attemptedImage = validFiles && validFiles.some((f) => f.isImage);
       const errText = attemptedImage 
-        ? "⚠ Sorry, it seems I cannot process images now." 
-        : "⚠ Sorry, it seems an error has occurred.";
+        ? CHAT_COPY.imageError
+        : CHAT_COPY.genericError;
 
-      setMessages((prev) => [
-        ...prev,
+      const nextErrorMessages = [
+        ...nextUserMessages,
         { role: 'assistant', text: errText, segments: parseMessageSegments(errText) },
-      ]);
+      ];
+      if (persistConversation(nextErrorMessages)) {
+        setMessages(nextErrorMessages);
+      }
     } finally {
       setIsThinking(false);
     }
-  }, [messages, responseMode, farmProps]);
+  }, [conversationLimitReached, farmProps, messages, persistConversation, responseMode, setMessages]);
 
   return (
     <div className="flex flex-col w-full h-full font-newblack overflow-hidden relative" style={{ background: '#F5F7F6' }}>
+      {conversationLimitReached ? (
+        <div className="mx-3 sm:mx-6 md:mx-12 lg:mx-20 mt-2 rounded-lg border border-[#C73030]/20 bg-[#FFF4F4] px-3 py-2 text-sm text-[#8B1C1C]">
+          Reached conversation limit. Please open a new conversation to continue.
+        </div>
+      ) : null}
       
       {/* Message list */}
       <div className="flex-1 overflow-y-auto px-3 sm:px-6 md:px-12 lg:px-20 py-6 flex flex-col gap-6 pt-16">
@@ -278,7 +334,7 @@ export default function AIchat({ crop, growthStage, mode, actuators, recommended
               <img src="/logo_sahla.svg" alt="SAHLA" className="w-11 h-11 object-contain" />
             </div>
             <p className="text-base font-medium max-w-xs" style={{ color: 'rgba(25,37,20,0.45)' }}>
-              Ask me anything about your farm — sensors, actuators, irrigation, or crop advice.
+              {CHAT_COPY.welcomeHint}
             </p>
           </motion.div>
         )}

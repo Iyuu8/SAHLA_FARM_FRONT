@@ -1,48 +1,66 @@
 import React, { useState } from 'react'
 import { FiEdit2 } from 'react-icons/fi';
-import { user } from "./../utilities/data/profileSettings"
+import { NORMALIZED_USER, profileSettingOptions } from "./../utilities/data/profileSettings"
 import EditProfileModal from './../utilities/components/settings/EditProfileModal';
 import EditHomeAssistantModal from './../utilities/components/settings/EditHomeAssistantModal';
 import FarmDropdown from './../utilities/components/settings/FarmDropdown';
 import PrefDropdown from './../utilities/components/settings/PrefDropdown';
 import ProfilePictureEditorModal from './../utilities/components/settings/ProfilePictureEditorModal';
 import useProfileInfo from './../hooks/useProfileInfo';
+import useFarmPreferences from '../hooks/useFarmPreferences';
+import useActuatorsState from '../hooks/useActuatorsState';
 
-export default function ProfilePage({
-  mode,
-  setMode,
-  modeOptions,
-  manualControl,
-  setManualControl,
-  manualControlOptions,
-  growthStage,
-  setGrowthStage,
-  growthStageOptions,
-  crop,
-  setCrop,
-  cropOptions,
-  temperatureUnit,
-  setTemperatureUnit,
-  temperatureOptions,
-  humidityUnit,
-  setHumidityUnit,
-  humidityOptions,
-  soilMoistureUnit,
-  setSoilMoistureUnit,
-  soilMoistureOptions,
-  lightIntensityUnit,
-  setLightIntensityUnit,
-  lightIntensityOptions,
-  language,
-  setLanguage,
-  languageOptions,
-}) {
-  const { homeAssistantId, displayUnits, farmSettings } = user;
+/**
+ * Settings page for profile + farm preferences.
+ *
+ * How it works with Dashboard/AIchat:
+ * - User profile is persisted via useProfileInfo.
+ * - Farm preferences are loaded/saved by useFarmPreferences and reused by Dashboard and AIchat.
+ * - Actuators are loaded from shared storage to expose current global control mode context.
+ */
+export default function ProfilePage() {
+  const {
+    mode,
+    setMode,
+    growthStage,
+    setGrowthStage,
+    crop,
+    setCrop,
+    cropOptions,
+    addCropOption,
+    temperatureUnit,
+    setTemperatureUnit,
+    humidityUnit,
+    setHumidityUnit,
+    soilMoistureUnit,
+    setSoilMoistureUnit,
+    lightIntensityUnit,
+    setLightIntensityUnit,
+    language,
+    setLanguage,
+  } = useFarmPreferences();
+
+  const [actuators, setActuators] = useActuatorsState();
+
+  const {
+    modeOptions,
+    manualControlOptions,
+    growthStageOptions,
+    languageOptions,
+    temperatureOptions,
+    humidityOptions,
+    soilMoistureOptions,
+    lightIntensityOptions,
+  } = profileSettingOptions;
+
+  // Settings page reads normalized profile defaults so backend USER_INFO shape changes
+  // are absorbed in profileSettings normalization layer.
+  const { homeAssistantId, displayUnits, farmSettings } = NORMALIZED_USER;
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isHomeAssistantModalOpen, setIsHomeAssistantModalOpen] = useState(false);
   const [isPfpModalOpen, setIsPfpModalOpen] = useState(false);
 
-  const { profileInfo, updateProfileInfo, updateProfilePhoto } = useProfileInfo(user);
+  const { profileInfo, updateProfileInfo, updateProfilePhoto } = useProfileInfo(NORMALIZED_USER);
 
   const getConnectionParts = (connectionId) => {
     const splitIndex = connectionId.toLowerCase().indexOf('bearer');
@@ -63,10 +81,18 @@ export default function ProfilePage({
   });
 
   const homeAssistantIdDisplay = `${homeAssistantConnection.url}Bearer${homeAssistantConnection.token}`;
+  const allAuto = actuators.every((actuator) => actuator.mode === 'auto');
+  const globalControlMode = allAuto ? 'auto' : 'semi-auto';
+  const manualControlFromActuators = allAuto ? 'off' : 'on';
 
   return (
-    <div className='flex-1 h-full w-full bg-[#F5F7F6] overflow-hidden p-2 sm:p-3 md:p-4 font-newblack'>
-      <section className='relative top-1/2 -translate-y-1/2 h-auto w-full md:w-[95%] mx-auto bg-white rounded-xl shadow-[2px_2px_10px_0.5px_rgba(0,0,0,0.25)] flex flex-col gap-4 sm:gap-5 md:gap-6 p-4 sm:p-5 md:p-8 overflow-visible'>
+    <div className='flex-1 min-h-0 h-full w-full bg-[#F5F7F6] overflow-hidden p-2 sm:p-3 md:p-4 font-newblack flex items-center justify-center'>
+      <section className='relative w-full max-w-[1200px] h-full sm:h-[95%] md:h-[92%] max-h-[920px] mx-auto bg-white rounded-xl shadow-[2px_2px_10px_0.5px_rgba(0,0,0,0.25)] overflow-hidden'>
+        <div className='pointer-events-none absolute inset-x-0 top-0 h-6 sm:h-8 bg-gradient-to-b from-white via-white/90 to-transparent z-10' />
+        <div className='pointer-events-none absolute inset-x-0 bottom-0 h-6 sm:h-8 bg-gradient-to-t from-white via-white/90 to-transparent z-10' />
+
+        <div className='settings-scroll h-full min-h-0 overflow-y-auto overflow-x-hidden px-2 sm:px-3 md:px-4 py-2 sm:py-3 md:py-4'>
+          <div className='flex flex-col gap-4 sm:gap-5 md:gap-6 p-2 sm:p-3 md:p-4 pb-8 sm:pb-10 md:pb-12'>
 
         {/* ── PROFILE HEADER ── */}
         <div className='relative flex items-center gap-3 sm:gap-4 pr-20'>
@@ -123,9 +149,15 @@ export default function ProfilePage({
               />
               <FarmDropdown
                 label="Manual Control"
-                value={manualControl ?? farmSettings.manualControl}
+                value={manualControlFromActuators ?? farmSettings.manualControl}
                 options={manualControlOptions || []}
-                onChange={setManualControl}
+                onChange={(next) => {
+                  // Keep settings selector and dashboard actuator mode tied to the same data source.
+                  setActuators((prev) => prev.map((actuator) => ({
+                    ...actuator,
+                    mode: next === 'on' ? 'semi-auto' : 'auto',
+                  })));
+                }}
                 color={{ bg: '#192514', text: '#F8FFF6' }}
               />
               <FarmDropdown
@@ -139,10 +171,17 @@ export default function ProfilePage({
                 label="Crop"
                 value={crop ?? farmSettings.crop}
                 options={cropOptions || []}
-                onChange={setCrop}
+                onChange={(nextCrop) => {
+                  setCrop(nextCrop);
+                  addCropOption(nextCrop);
+                }}
                 color={{ bg: '#D6F7CB', text: '#000000' }}
               />
             </div>
+          </div>
+
+          <div className='text-xs sm:text-sm text-[rgba(25,37,20,0.65)]'>
+            Current global actuator control mode from Dashboard: <span className='font-semibold capitalize'>{globalControlMode}</span>
           </div>
 
           {/* ── DISPLAY UNITS ── */}
@@ -223,7 +262,6 @@ export default function ProfilePage({
           isOpen={isProfileModalOpen}
           onClose={() => setIsProfileModalOpen(false)}
           initialValues={profileInfo}
-          currentPassword={profileInfo.password}
           onSave={(nextValues) => {
             updateProfileInfo(nextValues);
             setIsProfileModalOpen(false);
@@ -249,6 +287,8 @@ export default function ProfilePage({
           }}
         />
 
+          </div>
+        </div>
       </section>
     </div>
   )
