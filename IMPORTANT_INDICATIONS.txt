@@ -7,6 +7,8 @@ REPORT SCOPE
 - Settings
 - AI Chat
 - Shared storage/state logic
+- Login
+- Sign Up
 
 This report does not describe other pages or features outside the scope above.
 
@@ -234,6 +236,52 @@ Priority 2: Shared persistence replacement
 Priority 3: AI context and conversation persistence strategy
 - Move operational context to backend-fed state.
 - Decide whether conversation storage is backend or local-only.
+
+====================================================
+11) LOGIN + SIGN UP (BACKEND OWNERSHIP REQUIRED)
+====================================================
+
+Current frontend behavior in scope:
+- Login and Sign Up pages are currently UI/demo-level flows.
+- Navigation occurs client-side without real backend authentication enforcement.
+- These pages should not be treated as production-auth complete.
+
+Backend ownership statement:
+- Login and Sign Up behavior should be fully handled by backend-auth flows.
+- Frontend should be considered a temporary shell until backend integration is complete.
+- No additional frontend-only logic is planned for auth completion in this phase.
+
+Required backend implementation for Login:
+- Real credential verification.
+- Session/token issuance and validation.
+- Error states for invalid credentials, locked accounts, and auth failures.
+
+Required backend implementation for Sign Up:
+- User creation endpoint with validation.
+- Duplicate email/username handling.
+- Password policy validation and secure hashing.
+- Post-signup onboarding state management.
+
+
+***********************************
+
+Critical onboarding gap to address:
+- regarding HA token and url: they are not specified in the sign up page but rather they use a state varialbe defined in the app level "isHAConfigured" ( it is set to  true by default ) false means that at least one of the two parameters are not defined, in this case all the pages of the front except for the settings page tells the user to go to the settings page to specify these parameters, when the state is true the system works as intended
+
+***********************************
+
+Expected post-signup behavior:
+1) Signup succeeds through backend.
+2) Backend/user state marks HA credentials as missing.
+3) Frontend is redirected into a mandatory modal (or blocking step) requesting:
+  - Home Assistant URL
+  - Long-Lived Access Token
+4) User cannot proceed to normal dashboard flow until submission is valid and persisted.
+
+Security requirements for this onboarding step:
+- HA token must be transmitted and stored securely server-side.
+- Token must not be exposed in frontend constants or insecure local persistence.
+- Backend should validate URL/token format and connectivity rules as needed.
 
 ====================================================
 END OF REPORT

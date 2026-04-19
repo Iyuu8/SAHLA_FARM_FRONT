@@ -1,4 +1,5 @@
 import { Routes, Route } from "react-router"
+import { useState } from 'react'
 import Dashboard from "./pages/dashboard.jsx"
 import AIchat from "./pages/aiChat.jsx"
 import History from "./pages/history.jsx"
@@ -8,9 +9,14 @@ import SignUp from "./auth/signup.jsx"
 import Settings from "./pages/settings.jsx"
 import Notifications from "./pages/notifications.jsx"
 import Layout from "./layout.jsx"
+import NotFound from './pages/notFound.jsx'
+import HACredentialsRequired from './pages/haCredentialsRequired.jsx'
 import useFarmPreferences from './hooks/useFarmPreferences'
 
 function App() {
+  // Temporary frontend flag until backend controls HA credentials onboarding state.
+  const [isHAConfigured] = useState(true);
+
   // App is intentionally thin: pages read/write shared state through storage-backed hooks.
   // History remains prop-driven, so we expose current unit preferences here.
   const {
@@ -19,6 +25,10 @@ function App() {
     soilMoistureUnit,
     lightIntensityUnit,
   } = useFarmPreferences();
+
+  const blockedPage = <HACredentialsRequired />;
+
+  const protectedElement = (element) => (isHAConfigured ? element : blockedPage);
 
   return (
     <>
@@ -31,29 +41,36 @@ function App() {
 
           <Route
             index
-            element={<Dashboard />}
+            element={protectedElement(<Dashboard />)}
+          />
+
+          <Route
+            path="/dashboard"
+            element={protectedElement(<Dashboard />)}
           />
 
           <Route
             path="/history"
-            element={
+            element={protectedElement(
               <History
                 temperatureUnit={temperatureUnit}
                 humidityUnit={humidityUnit}
                 soilMoistureUnit={soilMoistureUnit}
                 lightIntensityUnit={lightIntensityUnit}
               />
-            }
+            )}
           />
-          <Route path="/stream" element={<CamStream />} />
+          <Route path="/stream" element={protectedElement(<CamStream />)} />
 
-          <Route path="/chat" element={<AIchat />} />
+          <Route path="/chat" element={protectedElement(<AIchat />)} />
 
-          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/notifications" element={protectedElement(<Notifications />)} />
 
           <Route path="/settings" element={<Settings />} />
 
         </Route>
+
+        <Route path="*" element={<NotFound />} />
 
       </Routes>
     </>
