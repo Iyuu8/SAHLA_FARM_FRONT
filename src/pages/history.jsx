@@ -21,7 +21,12 @@ const ClockIcon = ({ size = 15, color = "#1A3D00", opacity = 0.73 }) => (
     />
   </svg>
 );
-export default function History() {
+export default function History({
+  temperatureUnit,
+  humidityUnit,
+  soilMoistureUnit,
+  lightIntensityUnit,
+}) {
   const [Input,setInput]=useState({
     date:"",
     time:"",
@@ -185,7 +190,15 @@ export default function History() {
           className="relative max-w-4xl w-full max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
-          <HistoryDetailCard data={selectedItem.details} onClose={closeModal} isMobile={isMobile}/>
+          <HistoryDetailCard
+            data={selectedItem.details}
+            onClose={closeModal}
+            isMobile={isMobile}
+            temperatureUnit={temperatureUnit}
+            humidityUnit={humidityUnit}
+            soilMoistureUnit={soilMoistureUnit}
+            lightIntensityUnit={lightIntensityUnit}
+          />
         </div>
       </div>
     )}

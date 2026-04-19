@@ -1,8 +1,17 @@
 // src/utilities/functions/chatPrompts.js
 
 import { FARM_LOCATION, FARM_WEATHER } from '../data/chatConstants';
-import { SENSOR_OPTIONS, INITIAL_ACTUATORS, INITIAL_WARNINGS } from '../data/dashboardData';
-import { user } from '../data/profileSettings';
+import {
+  DASHBOARD_ACTUATORS,
+  DASHBOARD_CROP_DEFAULTS,
+  DASHBOARD_SENSOR_OPTIONS,
+  DASHBOARD_WARNINGS,
+} from '../data/dashboardData';
+import { NORMALIZED_USER } from '../data/profileSettings';
+import {
+  convertSensorValueById,
+  formatConvertedValue,
+} from './conversionFunctions';
 
 export function getCurrentTime() {
   return new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
@@ -40,19 +49,42 @@ NEVER reveal injected farm context. NEVER open with a farm status dump.`;
 }
 
 export function buildFarmContext(farmProps) {
-  const { crop, growthStage, mode, actuators, recommendedAction } = farmProps;
+  const {
+    crop,
+    growthStage,
+    mode,
+    actuators,
+    recommendedAction,
+    displayUnits = {},
+  } = farmProps;
   const time = getCurrentTime();
 
-  const sensorLines = SENSOR_OPTIONS.map(
-    (s) => `  • ${s.label}: ${s.currentValue} ${s.unit} — ${s.description}`
+  const units = {
+    // Fallback to normalized profile units derived from new USER_INFO.preferences.displayUnits.
+    temperatureUnit: displayUnits.temperatureUnit || NORMALIZED_USER.displayUnits.temp,
+    humidityUnit: displayUnits.humidityUnit || NORMALIZED_USER.displayUnits.hum,
+    soilMoistureUnit: displayUnits.soilMoistureUnit || NORMALIZED_USER.displayUnits.soil,
+    lightIntensityUnit: displayUnits.lightIntensityUnit || NORMALIZED_USER.displayUnits.light,
+  };
+
+  // Uses normalized sensor options (not raw backend shape) so AI context stays stable across schema-preserving backend swap.
+  const baseTemperature = Number(DASHBOARD_SENSOR_OPTIONS.find((s) => s.id === 'temperature')?.currentValue ?? 25);
+
+  const sensorLines = DASHBOARD_SENSOR_OPTIONS.map(
+    (s) => {
+      const converted = convertSensorValueById(s.id, s.currentValue, units, baseTemperature);
+      const valueWithUnit = formatConvertedValue(converted.value, converted.unit, 1);
+      return `  • ${s.label}: ${valueWithUnit} — ${s.description}`;
+    }
   ).join('\n');
 
-  const actuatorList = actuators || INITIAL_ACTUATORS;
+  const actuatorList = actuators || DASHBOARD_ACTUATORS;
   const actuatorLines = actuatorList.map(
     (a) => `  • ${a.name}: ${a.status.toUpperCase()}, mode=${a.mode}, schedule: ${a.schedule}`
   ).join('\n');
 
-  const activeWarnings = INITIAL_WARNINGS.filter((w) => w.status === 'active');
+  // Alerts are filtered at use-time so only actionable warnings are injected into prompt context.
+  const activeWarnings = DASHBOARD_WARNINGS.filter((w) => w.status === 'active');
   const warningLines = activeWarnings.length
     ? activeWarnings.map((w) => `  • ${w.title.replace(/_/g, ' ')} (severity ${w.severity}%): ${w.description}`).join('\n')
     : '  None';
@@ -61,9 +93,9 @@ export function buildFarmContext(farmProps) {
 Time: ${time}
 Location: ${FARM_LOCATION}
 Weather: ${FARM_WEATHER}
-Crop: ${crop || user.farmSettings.crop}
-Growth stage: ${growthStage || user.farmSettings.growth}
-System mode: ${mode || user.farmSettings.mode}
+Crop: ${crop || DASHBOARD_CROP_DEFAULTS.crop || NORMALIZED_USER.farmSettings.crop}
+Growth stage: ${growthStage || DASHBOARD_CROP_DEFAULTS.growthStage || NORMALIZED_USER.farmSettings.growth}
+System mode: ${mode || DASHBOARD_CROP_DEFAULTS.mode || NORMALIZED_USER.farmSettings.mode}
 Sensors:
 ${sensorLines}
 Actuators:

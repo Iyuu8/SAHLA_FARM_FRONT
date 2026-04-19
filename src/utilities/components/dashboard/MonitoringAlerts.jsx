@@ -1,21 +1,15 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  TriangleAlert,
-  Sun,
-  Snowflake,
-  Droplet,
-  Droplets,
-} from 'lucide-react';
+import { TriangleAlert } from 'lucide-react';
 import AlertModal from './AlertModal';
-import { INITIAL_WARNINGS } from '../../data/dashboardData';
+import { DASHBOARD_WARNINGS } from '../../data/dashboardData';
 import { formatWarningsToUI } from './../../functions/transformWarningsDashboard'
 
 export default function MonitoringAlerts() {
   const [selectedAlert, setSelectedAlert] = useState(null);
 
   // Filters out the false values based on your instruction requirement
-  const activeWarnings = formatWarningsToUI(INITIAL_WARNINGS);
+  const activeWarnings = formatWarningsToUI(DASHBOARD_WARNINGS);
 
   return (
     <>
@@ -51,8 +45,6 @@ export default function MonitoringAlerts() {
             <p className="text-white/30 text-sm text-center mt-8">No active alerts</p>
           ) : (
             activeWarnings.map((warning, index) => {
-              const Icon = warning.icon;
-
               return (
                 <motion.button
                   key={warning.id}

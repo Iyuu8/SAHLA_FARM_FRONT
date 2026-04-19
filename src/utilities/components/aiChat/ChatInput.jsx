@@ -62,7 +62,7 @@ export default function ChatInput({ onSend, onNewChat, isThinking, responseMode,
   };
 
   return (
-    <div className="shrink-0 px-3 sm:px-6 md:px-12 lg:px-20 pb-4 pt-2">
+    <div className="shrink-0 px-2 sm:px-6 md:px-12 lg:px-20 pb-3 sm:pb-4 pt-2">
 
       {/* File chips */}
       <AnimatePresence>
@@ -74,11 +74,11 @@ export default function ChatInput({ onSend, onNewChat, isThinking, responseMode,
             className="flex flex-wrap gap-2 mb-2"
           >
             {attachedFiles.map((f, i) => (
-              <div key={i} className="flex items-center gap-1.5 bg-white border border-[rgba(25,37,20,0.12)] rounded-lg px-2.5 py-1 text-sm text-[#192514] font-medium">
+              <div key={i} className="flex items-center gap-1.5 bg-white border border-[rgba(25,37,20,0.12)] rounded-lg px-2 py-1 text-xs sm:text-sm text-[#192514] font-medium">
                 {f.type?.startsWith('image/')
                   ? <ImageIcon size={13} className="text-[#55BB33]" />
                   : <FileText  size={13} className="text-[#55BB33]" />}
-                <span className="truncate max-w-[140px]">{f.name}</span>
+                <span className="truncate max-w-[120px] sm:max-w-[180px]">{f.name}</span>
                 <button onClick={() => removeFile(i)} className="ml-1 opacity-50 hover:opacity-100 transition-opacity">
                   <X size={12} />
                 </button>
@@ -90,95 +90,96 @@ export default function ChatInput({ onSend, onNewChat, isThinking, responseMode,
 
       {/* Input row */}
       <div
-        className="flex items-center gap-2 bg-white rounded-2xl px-3 py-2"
+        className="bg-white rounded-2xl px-2.5 sm:px-3 py-2"
         style={{ border: '1.5px solid rgba(85,187,51,0.45)', boxShadow: '0px 4px 10px 0px rgba(0,0,0,0.06)' }}
       >
-        {/* Attach button */}
-        <button
-          onClick={() => fileInputRef.current?.click()}
-          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors hover:brightness-90"
-          style={{ background: '#55BB33' }}
-          title="Attach file or image"
-        >
-          <Plus size={17} color="#F8FFF6" strokeWidth={2.5} />
-        </button>
-        <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf,.txt,.csv,.doc,.docx" className="hidden" onChange={handleFileChange} />
-
-        {/* Textarea */}
-        <textarea
-          ref={textareaRef}
-          rows={1}
-          value={input}
-          onChange={handleTextareaChange}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask about your farm ..."
-          className="flex-1 resize-none bg-transparent outline-none text-base text-[#192514] placeholder:text-[#192514]/35 leading-relaxed py-1 max-h-[130px] overflow-y-auto font-newblack"
-        />
-
-        {/* New conversation button — only visible when there are messages */}
-        <AnimatePresence>
-          {hasMessages && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.18 }}
-              onClick={onNewChat}
-              disabled={isThinking}
-              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all disabled:opacity-35 hover:brightness-90"
-              style={{ background: '#192514' }}
-              title="Start new conversation"
-            >
-              <SquarePen size={15} color="#F8FFF6" strokeWidth={2} />
-            </motion.button>
-          )}
-        </AnimatePresence>
-
-        {/* Response mode */}
-        <div ref={modeMenuRef} className="relative shrink-0">
-          <button
-            onClick={() => setShowModeMenu((p) => !p)}
-            className="flex items-center gap-1 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors hover:brightness-90"
-            style={{ background: '#55BB33', color: '#F8FFF6' }}
-          >
-            {responseMode}
-            <ChevronDown size={13} strokeWidth={2.5} />
-          </button>
-
-          <AnimatePresence>
-            {showModeMenu && (
-              <motion.div
-                initial={{ opacity: 0, y: -4, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -4, scale: 0.95 }}
-                transition={{ duration: 0.14 }}
-                className="absolute bottom-full right-0 mb-1 bg-white rounded-xl overflow-hidden z-50"
-                style={{ border: '1px solid rgba(25,37,20,0.10)', boxShadow: '0px 8px 20px rgba(0,0,0,0.12)', minWidth: '110px' }}
-              >
-                {['Detailed', 'Concise'].map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => { setResponseMode(opt); setShowModeMenu(false); }}
-                    className="w-full text-left px-4 py-2.5 text-sm font-semibold transition-colors"
-                    style={{ color: responseMode === opt ? '#55BB33' : '#192514', background: responseMode === opt ? 'rgba(85,187,51,0.08)' : 'transparent' }}
-                  >
-                    {opt}
-                  </button>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className="min-w-0">
+          <textarea
+            ref={textareaRef}
+            rows={1}
+            value={input}
+            onChange={handleTextareaChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask about your farm ..."
+            className="w-full resize-none bg-transparent outline-none text-[15px] sm:text-base text-[#192514] placeholder:text-[#192514]/35 leading-relaxed py-1.5 max-h-[170px] overflow-y-auto font-newblack"
+          />
         </div>
 
-        {/* Send */}
-        <button
-          onClick={handleSend}
-          disabled={!canSend}
-          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all disabled:opacity-35"
-          style={{ background: 'transparent', border: '1.5px solid rgba(85,187,51,0.55)', color: '#55BB33' }}
-        >
-          <Send size={16} strokeWidth={2} />
-        </button>
+        <div className="w-full flex items-center justify-between gap-2 pt-1">
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors hover:brightness-90"
+            style={{ background: '#55BB33' }}
+            title="Attach file or image"
+          >
+            <Plus size={17} color="#F8FFF6" strokeWidth={2.5} />
+          </button>
+          <input ref={fileInputRef} type="file" multiple accept="image/*,.pdf,.txt,.csv,.doc,.docx" className="hidden" onChange={handleFileChange} />
+
+          <div className="flex items-center gap-2 ml-auto">
+            <AnimatePresence>
+              {hasMessages && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.18 }}
+                  onClick={onNewChat}
+                  disabled={isThinking}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all disabled:opacity-35 hover:brightness-90"
+                  style={{ background: '#192514' }}
+                  title="Start new conversation"
+                >
+                  <SquarePen size={15} color="#F8FFF6" strokeWidth={2} />
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            <div ref={modeMenuRef} className="relative shrink-0">
+              <button
+                onClick={() => setShowModeMenu((p) => !p)}
+                className="flex items-center gap-1 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors hover:brightness-90"
+                style={{ background: '#55BB33', color: '#F8FFF6' }}
+              >
+                {responseMode}
+                <ChevronDown size={13} strokeWidth={2.5} />
+              </button>
+
+              <AnimatePresence>
+                {showModeMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                    transition={{ duration: 0.14 }}
+                    className="absolute bottom-full right-0 mb-1 bg-white rounded-xl overflow-hidden z-50"
+                    style={{ border: '1px solid rgba(25,37,20,0.10)', boxShadow: '0px 8px 20px rgba(0,0,0,0.12)', minWidth: '110px' }}
+                  >
+                    {['Detailed', 'Concise'].map((opt) => (
+                      <button
+                        key={opt}
+                        onClick={() => { setResponseMode(opt); setShowModeMenu(false); }}
+                        className="w-full text-left px-4 py-2.5 text-sm font-semibold transition-colors"
+                        style={{ color: responseMode === opt ? '#55BB33' : '#192514', background: responseMode === opt ? 'rgba(85,187,51,0.08)' : 'transparent' }}
+                      >
+                        {opt}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <button
+              onClick={handleSend}
+              disabled={!canSend}
+              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all disabled:opacity-35"
+              style={{ background: 'transparent', border: '1.5px solid rgba(85,187,51,0.55)', color: '#55BB33' }}
+            >
+              <Send size={16} strokeWidth={2} />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
