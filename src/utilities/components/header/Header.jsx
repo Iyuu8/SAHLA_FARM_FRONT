@@ -63,7 +63,8 @@ export default function Header() {
   return (
     <div className='flex w-full justify-between items-center'>
       <div className='flex items-center  w-full gap-2'>
-        <LogoIcon/> 
+         
+        <div className='md:hidden'><LogoIcon/></div>
         <span className='text-[#192514] text-[15px] lg:text-[32px] md:text-[26px] font-normal font-newblack'>SAHLA Farm</span>
       </div>
       
@@ -87,13 +88,13 @@ export default function Header() {
   <span className='hidden font-newblack md:block text-[#192514] opacity-80 text-[15px] '>
     Notifications
   </span>
-  <div className='
+  <div className={`${numberOfNotifications > 0 ? "" : "hidden"}
       absolute -top-[3px] -right-[0.5px]
       md:static md:top-auto md:right-auto
       bg-[#E22A49] w-[18px] h-[18px] md:w-[23px] md:h-[23px]
       flex justify-center items-center rounded-full
-      text-white text-[10px] md:text-xs font-bold
-    '>
+      text-white text-[10px] md:text-xs font-bold`}
+      >
       {numberOfNotifications}
     </div>
 

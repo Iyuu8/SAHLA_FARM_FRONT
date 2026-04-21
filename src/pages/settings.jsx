@@ -7,6 +7,7 @@ import FarmDropdown from './../utilities/components/settings/FarmDropdown';
 import PrefDropdown from './../utilities/components/settings/PrefDropdown';
 import ProfilePictureEditorModal from './../utilities/components/settings/ProfilePictureEditorModal';
 import useProfileInfo from './../hooks/useProfileInfo';
+import { useTranslation } from '../hooks/useTranslation';
 
 export default function ProfilePage({
   mode,
