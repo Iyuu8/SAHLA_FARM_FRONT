@@ -5,7 +5,6 @@ export default function EditProfileModal({
   isOpen,
   onClose,
   initialValues,
-  currentPassword,
   onSave,
 }) {
   const [formValues, setFormValues] = useState({
@@ -13,8 +12,6 @@ export default function EditProfileModal({
     email: '',
     address: '',
     age: '',
-    currentPasswordInput: '',
-    newPassword: '',
   });
   const [error, setError] = useState('');
 
@@ -25,8 +22,6 @@ export default function EditProfileModal({
       email: initialValues.email || '',
       address: initialValues.address || '',
       age: initialValues.age === 0 ? '0' : (initialValues.age ? String(initialValues.age) : ''),
-      currentPasswordInput: '',
-      newPassword: '',
     });
     setError('');
   }, [isOpen, initialValues]);
@@ -47,17 +42,6 @@ export default function EditProfileModal({
   };
 
   const handleSave = () => {
-    if (formValues.newPassword) {
-      if (!formValues.currentPasswordInput) {
-        setError('Enter current password to set a new password.');
-        return;
-      }
-      if (formValues.currentPasswordInput !== currentPassword) {
-        setError('Current password is incorrect.');
-        return;
-      }
-    }
-
     const parsedAge = Number.parseInt(formValues.age, 10);
     if (!Number.isInteger(parsedAge) || parsedAge < 0) {
       setError('Age must be a valid integer.');
@@ -70,7 +54,6 @@ export default function EditProfileModal({
       email: formValues.email.trim(),
       address: formValues.address.trim(),
       age: parsedAge,
-      password: formValues.newPassword ? formValues.newPassword : undefined,
     });
   };
 
@@ -120,13 +103,14 @@ export default function EditProfileModal({
           </label>
 
           <label className='flex flex-col gap-1 text-sm text-[#192514]'>
-            <span className='font-semibold'>Current Password</span>
+            <span className='font-semibold'>Password</span>
             <input
               type='password'
-              value={formValues.currentPasswordInput}
-              onChange={(e) => handleChange('currentPasswordInput', e.target.value)}
+              value=''
+              onChange={() => {}}
               className='rounded-lg border border-[rgba(23,37,20,0.2)] px-3 py-2 outline-none focus:border-[#57BD36]'
-              placeholder='Required to change password'
+              placeholder='Password change requires backend and is disabled in this build'
+              disabled
             />
           </label>
 
@@ -134,13 +118,18 @@ export default function EditProfileModal({
             <span className='font-semibold'>New Password</span>
             <input
               type='password'
-              value={formValues.newPassword}
-              onChange={(e) => handleChange('newPassword', e.target.value)}
+              value=''
+              onChange={() => {}}
               className='rounded-lg border border-[rgba(23,37,20,0.2)] px-3 py-2 outline-none focus:border-[#57BD36]'
-              placeholder='Leave empty to keep current'
+              placeholder='Disabled until backend hashing/auth is implemented'
+              disabled
             />
           </label>
         </div>
+
+        <p className='mt-3 text-xs text-[rgba(25,37,20,0.62)]'>
+          Password updates are intentionally disabled in frontend simulation because current password/token validation must be handled by backend hashing/auth.
+        </p>
 
         {error ? <p className='mt-3 text-sm text-[#C73030]'>{error}</p> : null}
 

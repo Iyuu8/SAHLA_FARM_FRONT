@@ -8,9 +8,8 @@ import {
   FaUser,
 } from 'react-icons/fa6'
 import { Link } from 'react-router'
-import { FiShoppingCart } from 'react-icons/fi'
 import { FaExclamationCircle } from 'react-icons/fa'
-import { BarChart3 } from 'lucide-react'
+import { Bot, Phone } from 'lucide-react'
 import LoginFeatureContainer from '../utilities/components/login/loginFeature'
 import { useNavigate } from 'react-router'
 
@@ -27,6 +26,9 @@ export default function SignUp() {
     e.preventDefault()
     navigate('/login')
   }
+
+  const SmartAutomationIcon = () => <Bot size={38} />
+  const UnifiedPlatformIcon = () => <Phone size={28} />
 
   return (
     <div className='flex min-h-screen bg-[#F8FFF6] font-newblack'>
@@ -165,14 +167,14 @@ export default function SignUp() {
           <LoginFeatureContainer
             title='Smart Automation'
             description='monitor & automate instantly'
-            Icon={FiShoppingCart}
+            Icon={SmartAutomationIcon}
             size={10}
             colors={{ bg: 'rgba(215,255,202,0.6)', icon: 'rgba(46,105,0,0.27)' }}
           />
           <LoginFeatureContainer
             title='Unified Platform'
             description='everything in one single place'
-            Icon={BarChart3}
+            Icon={UnifiedPlatformIcon}
             size={10}
             colors={{ bg: 'rgba(215,255,202,0.6)', icon: 'rgba(46,105,0,0.27)' }}
           />

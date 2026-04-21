@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
 import { FaEye, FaLock, FaRegEnvelope } from 'react-icons/fa6'
 import { Link } from 'react-router'
-import { FiShoppingCart } from 'react-icons/fi'
 import { FaExclamationCircle } from 'react-icons/fa'
-import { BarChart3 } from 'lucide-react'
+import { Bot, Phone } from 'lucide-react'
 import LoginFeatureContainer from '../utilities/components/login/loginFeature'
 import { useNavigate } from 'react-router'
  
@@ -19,13 +18,16 @@ export default function Login() {
     e.preventDefault();
     navigate("/dashboard");
   }
+
+  const SmartAutomationIcon = () => <Bot size={38} />;
+  const UnifiedPlatformIcon = () => <Phone size={28} />;
  
   return (
     <div className='flex min-h-screen bg-[#F8FFF6] font-newblack'>
       {/* left side */}
       <div className='flex flex-col w-full laptop:w-1/2 justify-between h-screen min-h-screen pt-[clamp(18px,3.6vh,48px)] pb-[clamp(10px,1.8vh,24px)] single-short:pt-[12px] single-short:pb-[8px] single-tall:pt-[54px] single-tall:pb-[30px] single-taller:pt-[66px] single-taller:pb-[36px]'>
         <div className='flex flex-col items-center justify-center flex-[0.9] min-h-[clamp(110px,16vh,220px)] gap-[clamp(6px,1.1vh,14px)] single-short:min-h-[94px] single-short:gap-[6px] single-tall:min-h-[240px] single-tall:gap-[14px] single-taller:min-h-[280px] single-taller:gap-[18px]'>
-          <h1 className='font-bold text-black text-[28px] xs:text-[30px] md:text-[34px] laptop:text-[36px] single-tall:text-[42px] single-taller:text-[48px] text-center'>WELCOLME BACK !</h1>
+          <h1 className='font-bold text-black text-[28px] xs:text-[30px] md:text-[34px] laptop:text-[36px] single-tall:text-[42px] single-taller:text-[48px] text-center'>WELCOME BACK!</h1>
           <p className='text-[#636364] font-normal text-[16px] xs:text-[18px] md:text-[20px] laptop:text-[23px] single-tall:text-[25px] single-taller:text-[28px] text-center px-4'>Welcome back! Please enter your details.</p>
         </div>
  
@@ -73,7 +75,7 @@ export default function Login() {
           <div className='flex justify-between w-[85%] xs:w-[70%] text-[#192514] text-[15px] single-short:text-[14px] single-tall:text-[20px] single-taller:text-[22px]'>
             <label className='font-medium flex items-center'>
               <input type="checkbox" className='w-[30px]' />
-              Remeber me
+              Remember me
             </label>
             <Link to="/" className='font-bold underline'>forgot password</Link>
           </div>
@@ -120,7 +122,7 @@ export default function Login() {
           <LoginFeatureContainer
             title='Smart Automation'
             description='monitor & automate instantly'
-            Icon={FiShoppingCart}
+            Icon={SmartAutomationIcon}
             size={10}
             colors={{bg:"rgba(215,255,202,0.6)",icon:"rgba(46,105,0,0.27)"}}
 
@@ -128,7 +130,7 @@ export default function Login() {
           <LoginFeatureContainer
             title='Unified Platform'
             description='everything in one single place'
-            Icon={BarChart3}
+            Icon={UnifiedPlatformIcon}
             size={10}
             colors={{bg:"rgba(215,255,202,0.6)",icon:"rgba(46,105,0,0.27)"}}
           />

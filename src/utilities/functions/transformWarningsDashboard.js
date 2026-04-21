@@ -1,16 +1,3 @@
-import {
-  Sun,
-  Snowflake,
-  Droplet,
-  Droplets,
-  CloudRain,
-  Wind,
-  CloudSun,
-  TriangleAlert // Used as a fallback icon
-} from 'lucide-react';
-
-// You can remove all the Lucide-react imports!
-
 export const WARNING_CONFIG_MAP = {
   'frost risk': {
     displayTitle: 'Risk of frost, Low temperature',
@@ -63,21 +50,23 @@ export const WARNING_CONFIG_MAP = {
 export function formatWarningsToUI(apiWarnings) {
   if (!apiWarnings || !Array.isArray(apiWarnings)) return [];
 
-  return apiWarnings.map((warning) => {
+  return apiWarnings
+    .filter((warning) => String(warning.status || '').toLowerCase() === 'active')
+    .map((warning) => {
     // Normalize the title string (e.g. "high_temperature_detected" -> "high temperature detected")
     const normalizedKey = warning.title.replace(/_/g, ' ').toLowerCase();
 
     // Look up the config, or use a fallback if an unknown warning arrives
     const config = WARNING_CONFIG_MAP[normalizedKey] || {
       displayTitle: warning.title.replace(/_/g, ' '),
-      icon: TriangleAlert,
+      icon: '/htemp.svg',
       color: '#FFFFFF',
     };
 
     return {
       id: warning.id,
       title: config.displayTitle,
-      status: true, // It's in the array, therefore it's active
+      status: warning.status,
       icon: config.icon,
       color: config.color,
       // Pass along description and severity so the Modal can still use them!

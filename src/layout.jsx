@@ -34,7 +34,7 @@ export default function Layout() {
             <Header></Header>
 
           </header>
-          <main className={`flex flex-1  ${location.pathname === "/notifications" ? "overflow-y-auto" : "min-h-0"}`}>
+          <main className={`flex flex-1 ${location.pathname === "/notifications" ? "overflow-y-auto" : "min-h-0"}`}>
             <Outlet/>
           </main>
         </div>

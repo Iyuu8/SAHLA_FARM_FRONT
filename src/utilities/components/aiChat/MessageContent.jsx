@@ -57,7 +57,7 @@ export default function MessageContent({ segments: blocks }) {
   }
 
   return (
-    <div className="flex flex-col" style={{ gap: '0px' }}>
+    <div className="flex flex-col break-words" style={{ gap: '0px', overflowWrap: 'anywhere' }}>
       {grouped.map((block, idx) => {
 
         if (block.type === 'spacer') {
