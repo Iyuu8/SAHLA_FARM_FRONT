@@ -20,6 +20,13 @@ export default function Notifications() {
     yesterday: filtered.filter(n => n.date === "yesterday"),
     earlier:   filtered.filter(n => n.date === "earlier"),
   };
+
+  const typeBorder = {
+    warning:  "border-l-4 border-[#FF6B35]",
+    actuator: "border-l-4 border-[#55BB33]",
+    weather:  "border-l-4 border-[#60A5FA]",
+  };
+
   const markAsRead = (id) => {
     setNotifications(prev =>
       prev.map(n => n.id === id ? { ...n, isRead: true } : n)
@@ -53,6 +60,9 @@ export default function Notifications() {
         <button className='text-[#55BB33] text-[14px] md:text-[20px] font-bold' onClick={markAllAsRead} >Mark all read</button>
       </div >
       <div className='flex-1 overflow-y-auto scroll-smooth max-h-full custom-scroll'>
+        {unreadCount === 0 && filter === "unread" && <div className="text-center text-gray-400 py-10">
+          No unread notifications
+        </div>}
         {groups.today.length > 0 && <div className='flex flex-col'>
           <h1 className='text-[16px] md:text-[24px] font-bold'>TODAY</h1>
           <div className='flex flex-col w-full gap-1'>

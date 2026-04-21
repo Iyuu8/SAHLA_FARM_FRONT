@@ -21,6 +21,279 @@ const ClockIcon = ({ size = 15, color = "#1A3D00", opacity = 0.73 }) => (
     />
   </svg>
 );
+
+
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAY_NAMES = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+
+function DatePicker({ value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [viewYear, setViewYear] = useState(new Date().getFullYear());
+  const [viewMonth, setViewMonth] = useState(new Date().getMonth());
+  const ref = useRef(null);
+  const pad = (n) => String(n).padStart(2, "0");
+  const today = new Date();
+
+  const selectedDate = value ? (() => {
+    const [d, m, y] = value.split("-");
+    return { y: +`20${y}`, m: +m - 1, d: +d };
+  })() : null;
+
+  const displayValue = value || null;
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setIsOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const changeMonth = (dir) => {
+    let m = viewMonth + dir, y = viewYear;
+    if (m > 11) { m = 0; y++; }
+    if (m < 0)  { m = 11; y--; }
+    setViewMonth(m); setViewYear(y);
+  };
+
+  const changeYear = (dir) => setViewYear((y) => y + dir);
+
+  const pickDay = (d) => {
+    const yy = String(viewYear).slice(-2);
+    onChange(`${pad(d)}-${pad(viewMonth + 1)}-${yy}`);
+    setIsOpen(false);
+  };
+
+  const firstDay = new Date(viewYear, viewMonth, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+  const prevMonthDays = new Date(viewYear, viewMonth, 0).getDate();
+
+  return (
+    <div className="relative w-full" ref={ref}>
+
+      {/* Trigger */}
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className={`
+          bg-white rounded-lg border-2 outline-none cursor-pointer
+          flex justify-between items-center transition-all duration-200
+          px-2 py-1 text-[10px] md:text-[16px]
+          ${isOpen
+            ? "border-[#55BB33] shadow-[0_0_4px_0_#55BB33]"
+            : "border-[#C0C5D0] hover:border-[#55BB33] hover:shadow-[0_0_4px_0_#55BB33]"
+          }
+        `}
+      >
+        <span className={!displayValue ? "text-gray-400" : "text-gray-700"}>
+          {displayValue || "e.g. 13-02-26"}
+        </span>
+        <svg
+          className={`flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}
+            w-3 h-3 md:w-3.5 md:h-3.5 lg:w-4 lg:h-4
+          `}
+          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+
+      {/* Dropdown — width matches trigger, no min-width */}
+      {isOpen && (
+        <div className="absolute top-full left-0 w-full mt-1.5 md:mt-2 bg-white rounded-xl shadow-[0_0_8px_#4b53489c] z-50 overflow-hidden">
+
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-gray-100
+            px-1.5 py-1 md:px-2 md:py-1.5 lg:px-3 lg:py-2
+          ">
+            <button
+              onClick={() => changeMonth(-1)}
+              className="rounded hover:bg-[rgba(176,255,146,0.49)] text-gray-600 leading-none
+                px-1 text-xs md:text-sm lg:text-base
+              "
+            >‹</button>
+
+            <div className="flex items-center gap-0.5">
+              <button
+                onClick={() => changeYear(-1)}
+                className="rounded hover:bg-[rgba(176,255,146,0.49)] text-gray-400 leading-none
+                  px-0.5 text-[7px] md:text-[9px] lg:text-[10px]
+                "
+              >▲</button>
+              <span className="font-semibold text-gray-700 text-center whitespace-nowrap
+                text-[8px] md:text-[11px] lg:text-[13px]
+              ">
+                {MONTHS[viewMonth]} {viewYear}
+              </span>
+              <button
+                onClick={() => changeYear(1)}
+                className="rounded hover:bg-[rgba(176,255,146,0.49)] text-gray-400 leading-none
+                  px-0.5 text-[7px] md:text-[9px] lg:text-[10px]
+                "
+              >▼</button>
+            </div>
+
+            <button
+              onClick={() => changeMonth(1)}
+              className="rounded hover:bg-[rgba(176,255,146,0.49)] text-gray-600 leading-none
+                px-1 text-xs md:text-sm lg:text-base
+              "
+            >›</button>
+          </div>
+
+          {/* Grid */}
+          <div className="p-1 md:p-1.5 lg:p-2">
+
+            {/* Day names */}
+            <div className="grid grid-cols-7">
+              {DAY_NAMES.map((n) => (
+                <div key={n} className="text-center font-semibold text-gray-400
+                  text-[6px] py-0.5
+                  md:text-[8px] md:py-1
+                  lg:text-[9px]
+                ">
+                  {n}
+                </div>
+              ))}
+            </div>
+
+            {/* Days */}
+            <div className="grid grid-cols-7">
+              {Array.from({ length: firstDay }, (_, i) => (
+                <div key={`prev-${i}`} className="text-center text-gray-300
+                  text-[7px] py-0.5
+                  md:text-[10px] md:py-1
+                  lg:text-[11px]
+                ">
+                  {prevMonthDays - firstDay + 1 + i}
+                </div>
+              ))}
+
+              {Array.from({ length: daysInMonth }, (_, i) => {
+                const d = i + 1;
+                const isToday =
+                  d === today.getDate() &&
+                  viewMonth === today.getMonth() &&
+                  viewYear === today.getFullYear();
+                const isSelected =
+                  selectedDate &&
+                  selectedDate.d === d &&
+                  selectedDate.m === viewMonth &&
+                  selectedDate.y === viewYear;
+
+                return (
+                  <div
+                    key={d}
+                    onClick={() => pickDay(d)}
+                    className={`
+                      text-center rounded cursor-pointer transition-all duration-150
+                      text-[7px] py-0.5
+                      md:text-[10px] md:py-1
+                      lg:text-[11px] lg:py-1.5
+                      ${isSelected
+                        ? "bg-[#55BB33] text-white font-medium"
+                        : isToday
+                          ? "font-bold text-[#55BB33] hover:bg-[rgba(176,255,146,0.49)]"
+                          : "text-gray-700 hover:bg-[rgba(176,255,146,0.49)]"
+                      }
+                    `}
+                  >
+                    {d}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+
+function TimePicker({ value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef(null);
+  const pad = (n) => String(n).padStart(2, "0");
+
+  const selHour = value ? +value.split(":")[0] : null;
+  const selMin  = value ? +value.split(":")[1] : null;
+
+  useEffect(() => {
+    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setIsOpen(false); };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const pick = (type, val) => {
+    const h = type === "h" ? val : (selHour ?? 0);
+    const m = type === "m" ? val : (selMin  ?? 0);
+    onChange(`${pad(h)}:${pad(m)}`);
+    if (type === "m") setIsOpen(false);
+  };
+
+  const hours   = Array.from({ length: 24 }, (_, i) => i);
+  const minutes = Array.from({ length: 12 }, (_, i) => i * 5);
+
+  return (
+    <div className="relative w-full" ref={ref}>
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className={`bg-white rounded-lg text-[10px] md:text-[16px] border-2 outline-none md:px-4 px-2 py-1 cursor-pointer flex justify-between items-center transition-all duration-200 ${
+          isOpen ? "border-[#55BB33] shadow-[0_0_4px_0_#55BB33]" : "border-[#C0C5D0] hover:border-[#55BB33] hover:shadow-[0_0_4px_0_#55BB33]"
+        }`}
+      >
+        <span className={!value ? "text-gray-400" : "text-gray-700"}>
+          {value || "e.g. 13:00"}
+        </span>
+        <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-[0_0_8px_#4b53489c] z-50 overflow-hidden">
+          <div className="grid grid-cols-2">
+            {/* Hours */}
+            <div className="border-r border-gray-100">
+              <div className="text-[9px] text-gray-400 font-semibold text-center py-2 bg-gray-50 border-b border-gray-100 tracking-widest">HOUR</div>
+              <div className="max-h-48 overflow-y-auto hide-scrollbar">
+                {hours.map((h) => (
+                  <div
+                    key={h}
+                    onClick={() => pick("h", h)}
+                    className={`px-4 py-2.5 cursor-pointer transition-all duration-150 text-[10px] md:text-[16px] text-center border-b border-gray-100 last:border-b-0
+                      ${selHour === h ? "bg-[#55BB33] text-white font-medium" : "text-gray-700 hover:bg-[rgba(176,255,146,0.49)]"}`}
+                  >
+                    {pad(h)}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Minutes */}
+            <div>
+              <div className="text-[9px] text-gray-400 font-semibold text-center py-2 bg-gray-50 border-b border-gray-100 tracking-widest">MIN</div>
+              <div className="max-h-48 overflow-y-auto hide-scrollbar">
+                {minutes.map((m) => (
+                  <div
+                    key={m}
+                    onClick={() => pick("m", m)}
+                    className={`px-4 py-2.5 cursor-pointer transition-all duration-150 text-[10px] md:text-[16px] text-center border-b border-gray-100 last:border-b-0
+                      ${selMin === m ? "bg-[#55BB33] text-white font-medium" : "text-gray-700 hover:bg-[rgba(176,255,146,0.49)]"}`}
+                  >
+                    {pad(m)}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function History() {
 export default function History({
   temperatureUnit,
   humidityUnit,
@@ -65,19 +338,28 @@ export default function History({
     const weatherMatch = Input.weather === "All" || p.weather.toLowerCase() === Input.weather.toLowerCase();
     return dateMatch && timeMatch && cropMatch && stageMatch && weatherMatch;
   })
-
+  console.log(Input);
   return (
     <div className='flex flex-col h-full max-h-full overflow-hidden md:p-3 p-1 gap-4 w-full'>
       <div className='flex flex-wrap justify-between gap-3 flex-none'>
-        <div  className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
+        {/* <div  className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
           <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>Date</label>
-          <input className='bg-white rounded-lg hover:border-[#55BB33] border-[#C0C5D0] border-1 text-[10px] md:text-[16px] border outline-none px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33]' placeholder='e.g. 13-02-26 ' 
+          <input className='bg-white rounded-lg hover:border-[#55BB33] border-[#C0C5D0] border-1 text-[10px] md:text-[16px] border outline-none px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33]' placeholder='e.g. 13-02-26 ' type="date"
             value={Input.date} onChange={(e)=> setInput({...Input,date:e.target.value})}/>
         </div>
         <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
           <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>Time</label>
-          <input className='bg-white rounded-lg hover:border-[#55BB33] border-[#C0C5D0] border-1 text-[10px] md:text-[16px] border outline-none px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33]' placeholder='e.g. 13:00 '
+          <input className='bg-white rounded-lg hover:border-[#55BB33] border-[#C0C5D0] border-1 text-[10px] md:text-[16px] border outline-none px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33]' placeholder='e.g. 13:00 ' type="time"
            value={Input.time} onChange={(e)=> setInput({...Input,time:e.target.value})}/>
+        </div> */}
+        <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
+          <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>Date</label>
+          <DatePicker value={Input.date} onChange={(v) => setInput({ ...Input, date: v })} />
+        </div>
+
+        <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
+          <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>Time</label>
+          <TimePicker value={Input.time} onChange={(v) => setInput({ ...Input, time: v })} />
         </div>
         <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
           <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>Crop</label>
@@ -133,10 +415,35 @@ export default function History({
 
       {/* Body Rows */}
       <div className="flex-1 overflow-y-auto min-h-0 bg-white custom-scrollbar">
+        {FilteredHistoryData.length === 0 && 
+    
+            // ── Empty state ──
+            <div className="flex flex-col items-center justify-center h-full py-16 gap-3">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#55BB33" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.5">
+                <circle cx="11" cy="11" r="8"/>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                <line x1="8" y1="11" x2="14" y2="11"/>
+              </svg>
+              <p className="text-[#192514] font-bold text-[14px] md:text-[18px] opacity-50">
+                No records found
+              </p>
+              <p className="text-[#192514] text-[11px] md:text-[16px] opacity-40">
+                Try adjusting your filters
+              </p>
+              <button
+                onClick={() => setInput({ date: "", time: "", crop: "", growthStage: "All", weather: "All" })}
+                className="mt-2 px-4 py-2 bg-[#192514] text-[#E8FFE0] text-[10px] md:text-[16px] font-semiBold rounded-lg cursor-pointer hover:bg-[#55BB33] hover:text-white transition-colors duration-200"
+              >
+                Clear filters
+              </button>
+            </div>
+        }
         {FilteredHistoryData.map((item) => (
           <div 
             key={item.id} 
-            className={`grid grid-cols-5 items-center border-b border-[#bdbdbd7c] transition-colors duration-200 hover:bg-[#B0FF92] hover:bg-opacity-40 cursor-pointer
+            className={`grid grid-cols-5 items-center border-b border-[#bdbdbd7c]
+               transition-colors duration-200 hover:bg-[#B0FF92] hover:bg-opacity-40 
+               cursor-pointer
             `}
             onClick={() => handleItemClick(item)}
           >
