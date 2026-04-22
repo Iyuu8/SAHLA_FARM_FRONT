@@ -2,8 +2,9 @@ import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-function ToggleSwitch({ checked, onToggle }) {
+function ToggleSwitch({ checked, onToggle, ariaLabel, onText, offText }) {
   return (
     <button
       type='button'
@@ -11,15 +12,16 @@ function ToggleSwitch({ checked, onToggle }) {
       className={`relative w-[92px] h-[34px] rounded-full transition-colors ${
         checked ? 'bg-[#DFE8DD]' : 'bg-[#294231]'
       }`}
-      aria-label='Toggle actuator mode'
+      aria-label={ariaLabel}
       aria-pressed={checked}
     >
       <span
-        className={`absolute top-[2px] h-[30px] w-[42px] rounded-full text-[#F8FFF6] flex items-center justify-center text-lg leading-none transition-all ${
-          checked ? 'left-[2px] bg-[#55BB33]' : 'left-[48px] bg-[#3D674C]'
+        // CHANGED: Replaced left-[..px] with start/end-[2px] for RTL support, and adjusted text size for longer translations.
+        className={`absolute top-[2px] h-[30px] min-w-[42px] px-2 rounded-full text-[#F8FFF6] flex items-center justify-center text-xs sm:text-sm font-bold leading-none transition-all ${
+          checked ? 'start-[2px] bg-[#55BB33]' : 'end-[2px] bg-[#3D674C]'
         }`}
       >
-        {checked ? 'ON' : 'OFF'}
+        {checked ? onText : offText}
       </span>
     </button>
   );
@@ -31,6 +33,8 @@ export default function EditActuatorsModal({
   actuators,
   onToggleActuatorMode,
 }) {
+  const { t } = useTranslation();
+
   useEffect(() => {
     if (!isOpen) return undefined;
     const previousOverflow = document.body.style.overflow;
@@ -56,19 +60,21 @@ export default function EditActuatorsModal({
         transition={{ duration: 0.24, ease: 'easeOut' }}
       >
         <div className='flex items-center justify-between'>
-          <h3 className='text-lg sm:text-xl text-[#192514]'>Edit Actuator Modes</h3>
+          <h3 className='text-lg sm:text-xl text-[#192514]'>
+            {t('dashboard.editActuators.title')}
+          </h3>
           <button
             type='button'
             onClick={onClose}
             className='text-[#192514] hover:opacity-75 transition-opacity'
-            aria-label='Close modal'
+            aria-label={t('dashboard.editActuators.closeAriaLabel')}
           >
             <X size={20} />
           </button>
         </div>
 
         <p className='text-sm text-[rgba(25,37,20,0.62)] mt-2'>
-          Toggle each actuator: ON means semi-auto, OFF means auto.
+          {t('dashboard.editActuators.description')}
         </p>
 
         <div className='mt-4 flex flex-col gap-3'>
@@ -85,13 +91,17 @@ export default function EditActuatorsModal({
                 <div>
                   <p className='text-base text-[#192514]'>{actuator.name}</p>
                   <p className='text-sm text-[rgba(25,37,20,0.62)] capitalize'>
-                    {actuator.mode}
+                    {/* Translates "auto" or "semi-auto" */}
+                    {t(`dashboard.editActuators.modes.${actuator.mode}`, actuator.mode)}
                   </p>
                 </div>
 
                 <ToggleSwitch
                   checked={isSemiAuto}
                   onToggle={() => onToggleActuatorMode(actuator.id)}
+                  ariaLabel={t('dashboard.editActuators.toggleAriaLabel')}
+                  onText={t('dashboard.editActuators.on')}
+                  offText={t('dashboard.editActuators.off')}
                 />
               </motion.div>
             );
@@ -104,7 +114,7 @@ export default function EditActuatorsModal({
             className='rounded-lg px-4 py-2 text-sm text-[#192514] bg-[#E8ECE7] hover:bg-[#DDE3DC] transition-colors'
             onClick={onClose}
           >
-            Close
+            {t('dashboard.editActuators.close')}
           </button>
         </div>
       </motion.div>

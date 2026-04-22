@@ -3,8 +3,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { ChevronDown, Thermometer } from 'lucide-react';
 import { CHART_RANGE_OPTIONS } from '../../data/dashboardData';
+import { useTranslation } from 'react-i18next';
+
 
 function RangeSelector({ activeRange, onChange, isCompact }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
   const selected = CHART_RANGE_OPTIONS.find((option) => option.key === activeRange) || CHART_RANGE_OPTIONS[2];
@@ -32,7 +35,7 @@ function RangeSelector({ activeRange, onChange, isCompact }) {
         }`}
         whileTap={{ scale: 0.98 }}
       >
-        {selected.label}
+        {t(`dashboard.chart.ranges.${selected.key}`)}
         <motion.span
           animate={{ rotate: open ? 180 : 0 }}
           transition={{ duration: 0.2 }}
@@ -64,7 +67,7 @@ function RangeSelector({ activeRange, onChange, isCompact }) {
                     : 'text-[#192514] hover:bg-[#EEF5EB]'
                 }`}
               >
-                {option.label}
+                {t(`dashboard.chart.ranges.${option.key}`)}
               </button>
             ))}
           </motion.div>
@@ -81,6 +84,7 @@ export default function ChartCard({
   onChangeRange,
   className = '',
 }) {
+  const { t } = useTranslation();
   const [pinnedPoint, setPinnedPoint] = useState(null);
   const [isCompact, setIsCompact] = useState(false);
 
@@ -157,7 +161,7 @@ export default function ChartCard({
         <h3 className='inline-flex min-w-0 max-w-[68%] sm:max-w-none items-center gap-1 sm:gap-2 text-[1.05rem] sm:text-xl md:text-[2.1rem] text-[#192514] leading-tight'>
           <Thermometer size={isCompact ? 24 : 30} strokeWidth={1.8} />
           <span className='capitalize block'>
-            {selectedSensor?.label || 'Temperature'} {selectedSensor?.unit || '°C'}
+            {selectedSensor?.label || t('dashboard.chart.fallbackSensor')} {selectedSensor?.unit || '°C'}
           </span>
         </h3>
 

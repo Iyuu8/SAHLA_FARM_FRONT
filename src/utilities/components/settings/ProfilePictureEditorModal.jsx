@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 
 const VIEWPORT_SIZE = 280;
 const FRAME_DIAMETER = 200;
@@ -13,6 +14,7 @@ export default function ProfilePictureEditorModal({
   onClose,
   onConfirm,
 }) {
+  const { t } = useTranslation();
   const inputRef = useRef(null);
   const imageRef = useRef(null);
 
@@ -55,7 +57,7 @@ export default function ProfilePictureEditorModal({
       setError('');
     };
     nextImage.onerror = () => {
-      setError('Could not load this image. Please try another file.');
+      setError(t('profile.pfpEditorModal.errorLoad'));
       setImageUrl('');
     };
     nextImage.src = imageUrl;
@@ -63,7 +65,7 @@ export default function ProfilePictureEditorModal({
       nextImage.onload = null;
       nextImage.onerror = null;
     };
-  }, [imageUrl]);
+  }, [imageUrl, t]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -100,7 +102,7 @@ export default function ProfilePictureEditorModal({
   const selectImageFile = (file) => {
     if (!file) return;
     if (!file.type.startsWith('image/')) {
-      setError('Please choose an image file.');
+      setError(t('profile.pfpEditorModal.errorFileType'));
       return;
     }
 
@@ -188,7 +190,7 @@ export default function ProfilePictureEditorModal({
 
   const handleConfirm = () => {
     if (!imageRef.current || !imageSize.width || !imageSize.height) {
-      setError('Please add an image first.');
+      setError(t('profile.pfpEditorModal.errorNoImage'));
       return;
     }
 
@@ -198,7 +200,7 @@ export default function ProfilePictureEditorModal({
     const ctx = canvas.getContext('2d');
 
     if (!ctx) {
-      setError('Could not process image. Please try again.');
+      setError(t('profile.pfpEditorModal.errorProcess'));
       return;
     }
 
@@ -242,7 +244,7 @@ export default function ProfilePictureEditorModal({
   return createPortal(
     <div className='fixed inset-0 z-[1000] flex items-center justify-center bg-black/30 backdrop-blur-[3px] p-4'>
       <div className='w-full max-w-[620px] rounded-2xl bg-white p-5 sm:p-6 shadow-[0_10px_34px_rgba(0,0,0,0.28)]'>
-        <h3 className='text-lg sm:text-xl font-bold text-[#192514]'>Change Profile Picture</h3>
+        <h3 className='text-lg sm:text-xl font-bold text-[#192514]'>{t('profile.pfpEditorModal.title')}</h3>
 
         {!imageUrl ? (
           <div
@@ -250,14 +252,14 @@ export default function ProfilePictureEditorModal({
             onDrop={handleDrop}
             onDragOver={handleDragOver}
           >
-            <p className='text-sm sm:text-base text-[#192514] font-semibold'>Drop image here</p>
-            <p className='text-xs sm:text-sm text-[rgba(25,37,20,0.65)] mt-1'>or</p>
+            <p className='text-sm sm:text-base text-[#192514] font-semibold'>{t('profile.pfpEditorModal.dropImage')}</p>
+            <p className='text-xs sm:text-sm text-[rgba(25,37,20,0.65)] mt-1'>{t('profile.pfpEditorModal.or')}</p>
             <button
               type='button'
               onClick={() => inputRef.current?.click()}
               className='mt-3 rounded-lg px-4 py-2 text-sm font-semibold text-white bg-[#57BD36] hover:bg-[#4ea531] transition-colors'
             >
-              Browse file
+              {t('profile.pfpEditorModal.browse')}
             </button>
             <input
               ref={inputRef}
@@ -308,7 +310,7 @@ export default function ProfilePictureEditorModal({
             </div>
 
             <label className='flex flex-col gap-1 text-sm text-[#192514]'>
-              <span className='font-semibold'>Zoom</span>
+              <span className='font-semibold'>{t('profile.pfpEditorModal.zoom')}</span>
               <input
                 type='range'
                 min='1'
@@ -325,7 +327,7 @@ export default function ProfilePictureEditorModal({
               onClick={() => inputRef.current?.click()}
               className='w-fit rounded-lg px-3 py-1.5 text-sm font-semibold text-[#192514] bg-[#E8ECE7] hover:bg-[#DDE3DC] transition-colors'
             >
-              Choose another image
+              {t('profile.pfpEditorModal.chooseAnother')}
             </button>
             <input
               ref={inputRef}
@@ -345,7 +347,7 @@ export default function ProfilePictureEditorModal({
             className='rounded-lg px-4 py-2 text-sm font-semibold text-[#192514] bg-[#E8ECE7] hover:bg-[#DDE3DC] transition-colors'
             onClick={onClose}
           >
-            Cancel
+            {t('profile.pfpEditorModal.cancel')}
           </button>
           <button
             type='button'
@@ -353,7 +355,7 @@ export default function ProfilePictureEditorModal({
             onClick={handleConfirm}
             disabled={!imageUrl}
           >
-            Confirm
+            {t('profile.pfpEditorModal.confirm')}
           </button>
         </div>
       </div>

@@ -7,9 +7,10 @@ import FarmDropdown from './../utilities/components/settings/FarmDropdown';
 import PrefDropdown from './../utilities/components/settings/PrefDropdown';
 import ProfilePictureEditorModal from './../utilities/components/settings/ProfilePictureEditorModal';
 import useProfileInfo from './../hooks/useProfileInfo';
-import { useTranslation } from '../hooks/useTranslation';
 import useFarmPreferences from '../hooks/useFarmPreferences';
 import useActuatorsState from '../hooks/useActuatorsState';
+import { useTranslation } from 'react-i18next';
+
 
 /**
  * Settings page for profile + farm preferences.
@@ -20,6 +21,7 @@ import useActuatorsState from '../hooks/useActuatorsState';
  * - Actuators are loaded from shared storage to expose current global control mode context.
  */
 export default function ProfilePage() {
+  const { t } = useTranslation();
   const {
     mode,
     setMode,
@@ -126,7 +128,7 @@ export default function ProfilePage() {
             onClick={() => setIsProfileModalOpen(true)}
             className='absolute top-[20%] right-0 bg-[#55BB33] hover:bg-[#4ea531] text-white text-[1.5ch] font-normal px-5 py-1 rounded-lg transition-colors flex items-center'
           >
-            Edit
+            {t('profile.edit')}
           </button>
         </div>
 
@@ -134,11 +136,11 @@ export default function ProfilePage() {
 
         {/* ── FARM SETTINGS ── */}
         <div className='flex flex-col gap-4'>
-          <h2 className='text-base sm:text-[2ch] font-semibold  text-[#192514]'>Farm Settings & Preferences</h2>
+          <h2 className='text-base sm:text-[2ch] font-semibold  text-[#192514]'>{t('profile.farm_settings_title')}</h2>
 
           <div className='flex flex-col gap-2'>
             <span className='text-[1.5ch] font-semibold text-[rgba(25,37,20,0.9)] border-b border-[#192514] pb-1 w-fit'>
-              Farm Settings
+              {t('profile.farm_settings_subtitle')}
             </span>
             <div className='flex flex-wrap gap-2 sm:gap-3 mt-1'>
               <FarmDropdown
@@ -182,13 +184,13 @@ export default function ProfilePage() {
           </div>
 
           <div className='text-xs sm:text-sm text-[rgba(25,37,20,0.65)]'>
-            Current global actuator control mode from Dashboard: <span className='font-semibold capitalize'>{globalControlMode}</span>
+            {t('profile.global_mode')} <span className='font-semibold capitalize'>{globalControlMode}</span>
           </div>
 
           {/* ── DISPLAY UNITS ── */}
           <div className='flex flex-col gap-2 mt-2'>
             <span className='text-[1.5ch] font-semibold text-[rgba(25,37,20,0.9)] border-b border-[#192514] pb-1 w-fit'>
-              Display Units
+              {t('profile.display_units')}
             </span>
             <div className='flex flex-wrap gap-2 sm:gap-3 mt-1'>
               <PrefDropdown
@@ -221,6 +223,7 @@ export default function ProfilePage() {
                 options={languageOptions || []}
                 onChange={setLanguage}
               />
+              
             </div>
           </div>
         </div>
@@ -229,7 +232,7 @@ export default function ProfilePage() {
 
         {/* ── HOME ASSISTANT CONNECTION ── */}
         <div className='flex flex-col gap-4'>
-          <h2 className='text-base sm:text-[2ch] font-bold text-[#192514]'>Home Assistant Connection</h2>
+          <h2 className='text-base sm:text-[2ch] font-bold text-[#192514]'>{t('profile.ha_connection')}</h2>
           <div className='bg-gray-100 rounded-xl p-3 sm:p-4 flex flex-col lg:flex-row items-stretch lg:items-center gap-4 lg:gap-5'>
             {/* HA icon */}
             <div className='w-12 h-12 sm:w-14 sm:h-14 bg-[rgba(16,53,0,0.2)] rounded-xl flex items-center justify-center flex-shrink-0 mx-auto lg:mx-0'>
@@ -237,8 +240,8 @@ export default function ProfilePage() {
             </div>
 
             <div className='flex items-center justify-center lg:justify-start gap-2'>
-              <span className='text-sm sm:text-base font-bold text-[#192514]'>Status:</span>
-              <span className='text-sm sm:text-base font-bold text-[#2E6900]'>Online</span>
+              <span className='text-sm sm:text-base font-bold text-[#192514]'>{t('profile.status')}</span>
+              <span className='text-sm sm:text-base font-bold text-[#2E6900]'>{t('profile.online')}</span>
               <span className='w-2 h-2 rounded-full bg-[#57BD36] inline-block shadow-[0px_0px_5px_3px_rgb(104,225,65)]'></span>
             </div>
 
@@ -253,7 +256,7 @@ export default function ProfilePage() {
                 onClick={() => setIsHomeAssistantModalOpen(true)}
                 className='bg-[#57BD36] hover:bg-[#4ea531] text-[#F8FFF6] text-[1.8ch] font-semibold px-4 py-1 rounded-[12px] transition-colors whitespace-nowrap font-newblack'
               >
-                Change
+                {t('profile.edit')}
               </button>
             </div>
           </div>

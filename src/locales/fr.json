@@ -1,0 +1,291 @@
+{
+  "profile": {
+    "edit": "Modifier",
+    "farm_settings_title": "Paramètres et Préférences de la Ferme",
+    "farm_settings_subtitle": "Paramètres de la Ferme",
+    "labels": {
+      "mode": "Mode",
+      "manual_control": "Contrôle Manuel",
+      "growth": "Croissance",
+      "crop": "Culture",
+      "temperature": "Température",
+      "humidity": "Humidité",
+      "soil_moisture": "Humidité du Sol",
+      "light_intensity": "Intensité Lumineuse",
+      "language": "Langue"
+    },
+    "global_mode": "Mode de contrôle global actuel des actionneurs depuis le tableau de bord :",
+    "display_units": "Unités d'Affichage",
+    "ha_connection": "Connexion Home Assistant",
+    "status": "Statut :",
+    "online": "En ligne",
+    "change": "Changer",
+    "editHaModal": {
+      "title": "Modifier la Connexion Home Assistant",
+      "urlLabel": "URL Home Assistant",
+      "urlPlaceholder": "http://sahla-homeassistant.local:8123",
+      "tokenLabel": "Jeton d'Accès Longue Durée",
+      "tokenPlaceholder": "Entrez le jeton d'accès",
+      "errorRequired": "L'URL et le jeton sont requis.",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "editProfileModal": {
+      "title": "Modifier le Profil",
+      "userNameLabel": "Nom d'Utilisateur",
+      "emailLabel": "Email",
+      "addressLabel": "Adresse",
+      "ageLabel": "Âge",
+      "passwordLabel": "Mot de Passe",
+      "passwordPlaceholder": "Le changement de mot de passe nécessite le backend et est désactivé dans cette version",
+      "newPasswordLabel": "Nouveau Mot de Passe",
+      "newPasswordPlaceholder": "Désactivé jusqu'à ce que le hachage/l'authentification backend soit implémenté",
+      "passwordInfoText": "Les mises à jour de mot de passe sont intentionnellement désactivées dans la simulation frontend car la validation actuelle du mot de passe/jeton doit être gérée par le hachage/l'authentification backend.",
+      "errorInvalidAge": "L'âge doit être un entier valide.",
+      "cancel": "Annuler",
+      "save": "Enregistrer"
+    },
+    "pfpEditorModal": {
+      "title": "Changer la Photo de Profil",
+      "dropImage": "Déposez l'image ici",
+      "or": "ou",
+      "browse": "Parcourir les fichiers",
+      "zoom": "Zoom",
+      "chooseAnother": "Choisir une autre image",
+      "cancel": "Annuler",
+      "confirm": "Confirmer",
+      "errorFileType": "Veuillez choisir un fichier image.",
+      "errorLoad": "Impossible de charger cette image. Veuillez essayer un autre fichier.",
+      "errorNoImage": "Veuillez d'abord ajouter une image.",
+      "errorProcess": "Impossible de traiter l'image. Veuillez réessayer."
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "all": "TOUTES",
+    "unread": "NON LUES",
+    "mark_all_read": "Tout marquer comme lu",
+    "no_unread": "Aucune notification non lue",
+    "today": "AUJOURD'HUI",
+    "yesterday": "HIER",
+    "earlier": "PLUS TÔT"
+  },
+  "history": {
+    "months": {
+      "january": "Janvier",
+      "february": "Février",
+      "march": "Mars",
+      "april": "Avril",
+      "may": "Mai",
+      "june": "Juin",
+      "july": "Juillet",
+      "august": "Août",
+      "september": "Septembre",
+      "october": "Octobre",
+      "november": "Novembre",
+      "december": "Décembre"
+    },
+    "days": {
+      "su": "Di",
+      "mo": "Lu",
+      "tu": "Ma",
+      "we": "Me",
+      "th": "Je",
+      "fr": "Ve",
+      "sa": "Sa"
+    },
+    "labels": {
+      "date": "Date",
+      "time": "Heure",
+      "crop": "Culture",
+      "growth_stage": "Stade de Croissance",
+      "weather": "Météo"
+    },
+    "placeholders": {
+      "date": "ex. 13-02-26",
+      "time": "ex. 13:00",
+      "crop": "ex. orange",
+      "select_growth_stage": "Sélectionner le stade de croissance",
+      "select_weather": "Sélectionner la météo",
+      "select_option": "Sélectionner une option"
+    },
+    "timepicker": {
+      "hour": "HEURE",
+      "min": "MIN"
+    },
+    "buttons": {
+      "reset": "RÉINITIALISER",
+      "clear_filters": "Effacer les filtres"
+    },
+    "empty_state": {
+      "no_records": "Aucun enregistrement trouvé",
+      "adjust_filters": "Essayez d'ajuster vos filtres"
+    },
+    "loading": "chargement de plus d'enregistrements...",
+    "options": {
+      "all": "Tous",
+      "sunny": "Ensoleillé",
+      "cloudy": "Nuageux",
+      "night": "Nuit",
+      "windy": "Venteux",
+      "stormy": "Orageux",
+      "rainy": "Pluvieux"
+    },
+    "growth_stages": {
+      "all": "Tous",
+      "germination": "Germination",
+      "seedling": "Semis",
+      "vegetative_growth": "Croissance Végétative",
+      "flowering": "Floraison",
+      "fruiting": "Fructification",
+      "maturity": "Maturité"
+    }
+  },
+  "camStream": {
+    "status": {
+      "live": "EN DIRECT",
+      "off": "DÉSACTIVÉ",
+      "streamOffline": "flux hors ligne",
+      "errorConnection": "Échec de connexion. Vérifiez l'IP et le réseau."
+    },
+    "controls": {
+      "stopStream": "arrêter le flux",
+      "startStream": "démarrer le flux",
+      "takeSnapshot": "prendre une capture"
+    },
+    "gallery": {
+      "title": "Galerie",
+      "clearAll": "Tout effacer",
+      "savedToGallery": "enregistré dans la galerie",
+      "capturedAt": "capturé à",
+      "download": "Télécharger",
+      "delete": "Supprimer",
+      "close": "Fermer"
+    },
+    "modals": {
+      "saveTitle": "Enregistrer cette capture dans la galerie ?",
+      "saveDesc": "Elle sera ajoutée à vos captures récentes pour que vous puissiez la voir ou la télécharger plus tard.",
+      "deleteAllTitle": "Supprimer toutes les captures de la galerie ?",
+      "deleteSingleTitle": "Supprimer cette capture ?",
+      "cannotRecoverThem": "Vous ne pourrez pas les récupérer.",
+      "cannotRecoverIt": "Vous ne pourrez pas la récupérer.",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "deleteBtn": "Supprimer"
+    }
+  },
+  "dashboard": {
+    "alertModal": {
+      "close": "Fermer",
+      "fallbackSubtitle": "Vérifier les paramètres du système",
+      "liveAlert": "Alerte en Direct",
+      "systemAlert": "Alerte Système",
+      "severityLabel": "SÉVÉRITÉ",
+      "severity": {
+        "HIGH": "ÉLEVÉE",
+        "MODERATE": "MODÉRÉE",
+        "LOW": "FAIBLE"
+      },
+      "description": "Description"
+    },
+    "chart": {
+      "fallbackSensor": "Température",
+      "tooltipValue": "Valeur",
+      "ranges": {
+        "day": "Jour",
+        "week": "Semaine",
+        "month": "Mois"
+      }
+    },
+    "cropInfo": {
+      "title": "Informations sur la Culture",
+      "crop": "Culture",
+      "enterCrop": "Entrer la culture",
+      "growthStage": "Stade de Croissance",
+      "selectStage": "Sélectionner le stade",
+      "stages": {
+        "germination": "Germination",
+        "seedling": "Semis",
+        "vegetativeGrowth": "Croissance Végétative",
+        "flowering": "Floraison",
+        "fruiting": "Fructification",
+        "maturity": "Maturité"
+      },
+      "mode": "Mode",
+      "selectMode": "Sélectionner le mode",
+      "modes": {
+        "balanced": "équilibré",
+        "waterSaving": "économie d'eau",
+        "energySaving": "économie d'énergie",
+        "growthPriority": "priorité croissance"
+      },
+      "recommendedActions": "Actions Recommandées",
+      "explanationOfActions": "Explication des Actions",
+      "recommendedText": "Vos plantes surchauffent et le sol est très sec. Arrosez-les rapidement et, si possible, fournissez un peu d'ombre ou une couverture pour réduire le stress thermique et prévenir d'autres dommages.",
+      "explanationText": "Tous les systèmes fonctionnent en mode automatique. La ferme surveille la température, l'humidité du sol et l'intensité lumineuse en continu. Les actionneurs s'activeront automatiquement lorsque les seuils seront dépassés."
+    },
+    "editActuators": {
+      "title": "Modifier les Modes des Actionneurs",
+      "description": "Basculer chaque actionneur : ON signifie semi-auto, OFF signifie auto.",
+      "on": "ON",
+      "off": "OFF",
+      "close": "Fermer",
+      "toggleAriaLabel": "Basculer le mode de l'actionneur",
+      "closeAriaLabel": "Fermer la fenêtre",
+      "modes": {
+        "auto": "auto",
+        "semi-auto": "semi-auto"
+      }
+    },
+    "manualModeCard": {
+      "toggleAriaLabel": "Basculer le mode manuel",
+      "editAriaLabel": "Modifier les modes des actionneurs",
+      "on": "ON",
+      "off": "OFF",
+      "modes": {
+        "auto": "auto",
+        "semi-auto": "semi-auto",
+        "mixed": "mixte"
+      }
+    },
+    "monitoringAlerts": {
+      "title": "Alertes de Surveillance",
+      "subtitle": "Suivez les situations environnementales critiques en temps réel.",
+      "noAlerts": "Aucune alerte active"
+    },
+    "sensors": {
+      "temperature": {
+        "label": "Température",
+        "description": "Température de l'air ambiant"
+      },
+      "humidity": {
+        "label": "Humidité",
+        "description": "Humidité de l'air ambiant"
+      },
+      "soilMoisture": {
+        "label": "Humidité du Sol",
+        "description": "Niveau d'humidité dans le sol"
+      },
+      "lightIntensity": {
+        "label": "Intensité Lumineuse",
+        "description": "Intensité actuelle de la lumière du soleil"
+      }
+    }
+  },
+  "header": {
+    "farmName": "Ferme SAHLA",
+    "notifications": "Notifications",
+    "am": "AM",
+    "pm": "PM"
+  },
+  "sidebar": {
+    "home": "Accueil",
+    "chat": "Chat",
+    "camera": "Caméra",
+    "history": "Historique",
+    "notifications": "Notifications",
+    "profile": "Profil",
+    "logout": "Déconnexion",
+    "settings": "Paramètres"
+  }
+}

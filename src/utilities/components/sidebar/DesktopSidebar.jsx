@@ -2,18 +2,20 @@ import React from 'react'
 import { Link } from 'react-router'
 import { useLocation } from 'react-router';
 import Tooltip from './Tooltip';
+import { useTranslation } from 'react-i18next';
 
 
 
 
 export default function DesktopSidebar({ userName = "user", LogOutIcon , NotificationIcon , HistoryIcon , HomeIcon , CameraIcon , ChatIcon , LogoIcon ,ProfileIcon}) {
   const location = useLocation();
+  const { t } = useTranslation();
   const navItems = [
-  { name: "Home",          path: "/",              icon: HomeIcon         },
-  { name: "Chat AI",       path: "/chat",          icon: ChatIcon         },
-  { name: "Camera",        path: "/stream",        icon: CameraIcon       },
-  { name: "History",       path: "/history",       icon: HistoryIcon      },
-  { name: "Notifications", path: "/notifications", icon: NotificationIcon },
+  { name: t('sidebar.home'),          path: "/",              icon: HomeIcon         },
+  { name: t('sidebar.chat'),       path: "/chat",          icon: ChatIcon         },
+  { name: t('sidebar.camera'),        path: "/stream",        icon: CameraIcon       },
+  { name: t('sidebar.history'),       path: "/history",       icon: HistoryIcon      },
+  { name: t('sidebar.notifications'), path: "/notifications", icon: NotificationIcon },
 ];
 
   return (
@@ -39,7 +41,7 @@ export default function DesktopSidebar({ userName = "user", LogOutIcon , Notific
             </span>
           </Link>
           <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none absolute left-14 ml-2 top-6 -translate-y-1/2 z-50'>
-            <Tooltip title="Settings"/>
+            <Tooltip title={t('sidebar.settings')}/>
           </div>
         </div>
         
@@ -78,7 +80,7 @@ export default function DesktopSidebar({ userName = "user", LogOutIcon , Notific
           </nav>
           <div className='relative group'>
             <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none absolute left-full ml-2 top-1/2 -translate-y-1/2 z-50'>
-              <Tooltip title="Log Out"/>
+              <Tooltip title={t('sidebar.logout')}/>
             </div>            
             <button
               className="w-11 h-11 rounded-xl flex items-center justify-center

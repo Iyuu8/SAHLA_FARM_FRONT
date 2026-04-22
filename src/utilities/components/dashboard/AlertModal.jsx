@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const getSeverityInfo = (severity) => {
   const num = Number(severity);
@@ -17,6 +18,7 @@ const getSeverityInfo = (severity) => {
 };
 
 export default function AlertModal({ alert, config, onClose }) {
+  const { t } = useTranslation();
   if (!alert || !config) return null;
 
   // Change: Destructure 'icon' instead of 'Icon' (since it's now a string path)
@@ -27,7 +29,7 @@ export default function AlertModal({ alert, config, onClose }) {
   const alertSubtitle = alert.label || 
     (alert.title 
       ? alert.title.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()) 
-      : 'Check system parameters');
+      : t('dashboard.alertModal.fallbackSubtitle'));
 
   return createPortal(
     <motion.div
@@ -51,7 +53,7 @@ export default function AlertModal({ alert, config, onClose }) {
           type="button"
           onClick={onClose}
           className="absolute top-5 right-5 w-9 h-9 flex items-center justify-center rounded-full hover:bg-black/5 transition-colors"
-          aria-label="Close"
+          aria-label={t('dashboard.alertModal.close')}
         >
           <X size={24} style={{ stroke: color }} strokeWidth={2} />
         </button>
@@ -90,11 +92,11 @@ export default function AlertModal({ alert, config, onClose }) {
                 className="text-[13px] font-bold tracking-[0.14em] uppercase"
                 style={{ color }}
               >
-                Live Alert
+                {t('dashboard.alertModal.liveAlert')}
               </span>
             </div>
             <h2 className="text-[32px] font-extrabold text-[#192514] leading-tight mb-2">
-              System Alert
+              {t('dashboard.alertModal.systemAlert')}
             </h2>
             <p className="text-[16px] font-medium leading-snug" style={{ color: '#192514' }}>
               {alertSubtitle}
@@ -114,7 +116,7 @@ export default function AlertModal({ alert, config, onClose }) {
             className="text-[12px] font-bold tracking-[0.12em] uppercase whitespace-nowrap font-newblack"
             style={{ color }}
           >
-            SEVERITY
+            {t('dashboard.alertModal.severityLabel')}
           </span>
           <div
             className="flex-1 h-[6px] rounded-full overflow-hidden"
@@ -132,13 +134,13 @@ export default function AlertModal({ alert, config, onClose }) {
             className="text-[12px] font-bold tracking-[0.12em] uppercase whitespace-nowrap font-newblack"
             style={{ color }}
           >
-            {severityInfo.label}
+            {t(`dashboard.alertModal.severity.${severityInfo.label}`)}
           </span>
         </div>
 
         {/* Description Section */}
         <div className="description-container">
-          <h3 className="text-[20px] font-bold text-[#192514] mb-2.5">Description</h3>
+          <h3 className="text-[20px] font-bold text-[#192514] mb-2.5">{t('dashboard.alertModal.description')}</h3>
           <p className="text-[15px] leading-[1.65]" style={{ color: 'rgba(17, 40, 0, 0.90)' }}>
             {alert.description}
           </p>

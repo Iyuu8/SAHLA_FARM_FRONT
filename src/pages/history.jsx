@@ -1,6 +1,8 @@
 import React, { useState ,useEffect ,useRef} from 'react'
 import { profileSettingOptions } from '../utilities/data/profileSettings';
 import HistoryData from '../utilities/data/HistoryData';
+import { useTranslation } from 'react-i18next';
+
 
 import HistoryDetailCard from '../utilities/components/history/HistoryDetailCard';
 const CalendarIcon = ({ size = 15, color = "#55BB33" }) => (
@@ -23,10 +25,12 @@ const ClockIcon = ({ size = 15, color = "#1A3D00", opacity = 0.73 }) => (
 );
 
 
-const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-const DAY_NAMES = ["Su","Mo","Tu","We","Th","Fr","Sa"];
 
 function DatePicker({ value, onChange }) {
+  const { t } = useTranslation();
+  const MONTHS = [`${t('history.months.january')}`, `${t('history.months.february')}`, `${t('history.months.march')}`, `${t('history.months.april')}`, `${t('history.months.may')}`, `${t('history.months.june')}`, `${t('history.months.july')}`, `${t('history.months.august')}`, `${t('history.months.september')}`, `${t('history.months.october')}`, `${t('history.months.november')}`, `${t('history.months.december')}`];
+  const DAY_NAMES = [`${t('history.days.su')}`,`${t('history.days.mo')}`,`${t('history.days.tu')}`,`${t('history.days.we')}`,`${t('history.days.th')}`,`${t('history.days.fr')}`,`${t('history.days.sa')}`];
+
   const [isOpen, setIsOpen] = useState(false);
   const [viewYear, setViewYear] = useState(new Date().getFullYear());
   const [viewMonth, setViewMonth] = useState(new Date().getMonth());
@@ -67,7 +71,8 @@ function DatePicker({ value, onChange }) {
   const firstDay = new Date(viewYear, viewMonth, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   const prevMonthDays = new Date(viewYear, viewMonth, 0).getDate();
-
+  
+  
   return (
     <div className="relative w-full" ref={ref}>
 
@@ -85,7 +90,7 @@ function DatePicker({ value, onChange }) {
         `}
       >
         <span className={!displayValue ? "text-gray-400" : "text-gray-700"}>
-          {displayValue || "e.g. 13-02-26"}
+          {displayValue || `${t('history.placeholders.date')}`}
         </span>
         <svg
           className={`flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}
@@ -212,6 +217,7 @@ function DatePicker({ value, onChange }) {
 
 
 function TimePicker({ value, onChange }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
   const pad = (n) => String(n).padStart(2, "0");
@@ -244,7 +250,7 @@ function TimePicker({ value, onChange }) {
         }`}
       >
         <span className={!value ? "text-gray-400" : "text-gray-700"}>
-          {value || "e.g. 13:00"}
+          {value || `${t('history.placeholders.time')}`}
         </span>
         <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -256,7 +262,7 @@ function TimePicker({ value, onChange }) {
           <div className="grid grid-cols-2">
             {/* Hours */}
             <div className="border-r border-gray-100">
-              <div className="text-[9px] text-gray-400 font-semibold text-center py-2 bg-gray-50 border-b border-gray-100 tracking-widest">HOUR</div>
+              <div className="text-[9px] text-gray-400 font-semibold text-center py-2 bg-gray-50 border-b border-gray-100 tracking-widest">{t('history.timepicker.hour')}</div>
               <div className="max-h-48 overflow-y-auto hide-scrollbar">
                 {hours.map((h) => (
                   <div
@@ -272,7 +278,7 @@ function TimePicker({ value, onChange }) {
             </div>
             {/* Minutes */}
             <div>
-              <div className="text-[9px] text-gray-400 font-semibold text-center py-2 bg-gray-50 border-b border-gray-100 tracking-widest">MIN</div>
+              <div className="text-[9px] text-gray-400 font-semibold text-center py-2 bg-gray-50 border-b border-gray-100 tracking-widest">{t('history.timepicker.min')}</div>
               <div className="max-h-48 overflow-y-auto hide-scrollbar">
                 {minutes.map((m) => (
                   <div
@@ -293,19 +299,20 @@ function TimePicker({ value, onChange }) {
   );
 }
 
-export default function History() {
+
 export default function History({
   temperatureUnit,
   humidityUnit,
   soilMoistureUnit,
   lightIntensityUnit,
 }) {
+  const { t } = useTranslation();
   const [Input,setInput]=useState({
     date:"",
     time:"",
     crop:"",
-    growthStage:"All",
-    weather:"All"
+    growthStage: `${t('history.growth_stages.all')}`,
+    weather: `${t('history.options.all')}`,
   });
   const [selectedItem, setSelectedItem] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -334,8 +341,8 @@ export default function History({
     const dateMatch = Input.date === "" || p.date.includes(Input.date);
     const timeMatch = Input.time === "" || p.time.includes(Input.time);
     const cropMatch = Input.crop === "" || p.crop.toLowerCase().includes(Input.crop.toLowerCase());
-    const stageMatch = Input.growthStage === "All" || p.growthStage.toLowerCase() === Input.growthStage.toLowerCase();
-    const weatherMatch = Input.weather === "All" || p.weather.toLowerCase() === Input.weather.toLowerCase();
+    const stageMatch = Input.growthStage === `${t('history.growth_stages.all')}` || p.growthStage.toLowerCase() === Input.growthStage.toLowerCase();
+    const weatherMatch = Input.weather === `${t('history.options.all')}` || p.weather.toLowerCase() === Input.weather.toLowerCase();
     return dateMatch && timeMatch && cropMatch && stageMatch && weatherMatch;
   })
   console.log(Input);
@@ -353,26 +360,26 @@ export default function History({
            value={Input.time} onChange={(e)=> setInput({...Input,time:e.target.value})}/>
         </div> */}
         <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
-          <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>Date</label>
+          <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>{t('history.labels.date')}</label>
           <DatePicker value={Input.date} onChange={(v) => setInput({ ...Input, date: v })} />
         </div>
 
         <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
-          <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>Time</label>
+          <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>{t('history.labels.time')}</label>
           <TimePicker value={Input.time} onChange={(v) => setInput({ ...Input, time: v })} />
         </div>
         <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
-          <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>Crop</label>
-          <input className='bg-white rounded-lg hover:border-[#55BB33] border-[#C0C5D0] text-[10px] md:text-[16px] border-1 border outline-none px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33]' placeholder='e.g. orange'
+          <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>{t('history.labels.crop')}</label>
+          <input className='bg-white rounded-lg hover:border-[#55BB33] border-[#C0C5D0] text-[10px] md:text-[16px] border-1 border outline-none px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33]' placeholder={`${t('history.placeholders.crop')}`} type="text"
            value={Input.crop} onChange={(e)=> setInput({...Input,crop:e.target.value})}/>
         </div>
         
         <div className="flex flex-col flex-1 md:min-w-[150px] min-w-[80px]">
-                <span className="font-newblack font-bold text-black/70 text-[10px] md:text-[16px]">Growth Stage</span>
+                <span className="font-newblack font-bold text-black/70 text-[10px] md:text-[16px]">{t('history.labels.growth_stage')}</span>
                 <CustomDropdown
                   value={Input.growthStage}
                   onChange={(val) => setInput({...Input, growthStage: val})}
-                  options={["All", ...growthStageOptions] || []}
+                  options={[`${t('history.growth_stages.all')}`, ...growthStageOptions] || []}
                   placeholder="Select growth stage"
                 />
                 
@@ -382,11 +389,11 @@ export default function History({
         </div>
         
         <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
-                <span className="font-newblack font-bold text-black/70 text-[10px] md:text-[16px]">Weather</span>
+                <span className="font-newblack font-bold text-black/70 text-[10px] md:text-[16px]">{t('history.labels.weather')}</span>
                 <CustomDropdown
                   value={Input.weather}
                   onChange={(val) => setInput({...Input, weather: val})}
-                  options={["All","Sunny","Cloudy","night","windy","stormy","rainy"] || []}
+                  options={[`${t('history.options.all')}`, `${t('history.options.sunny')}`, `${t('history.options.cloudy')}`, `${t('history.options.night')}`, `${t('history.options.windy')}`, `${t('history.options.stormy')}`, `${t('history.options.rainy')}`] || []}
                   placeholder="Select growth stage"
                 />
              
@@ -398,15 +405,16 @@ export default function History({
             date:"",
             time:"",
             crop:"",
-            growthStage:"All",
-            weather:"All"})}>
-          RESET
+            growthStage: `${t('history.growth_stages.all')}`,
+            weather: `${t('history.options.all')}`,
+          })}>
+          {t('history.buttons.reset')}
         </div>
       </div>
       <div className="flex-1 flex flex-col min-h-0 w-full rounded-xl  overflow-hidden bg-white">
       {/* Header Row - Now Sticky */}
       <div className="grid grid-cols-5 bg-[#192514] border-b-2 border-[#57BD36] sticky top-0 z-10">
-        {["Date", "Time", "Crop", "Growth Stage", "Weather"].map((header) => (
+        {[`${t('history.labels.date')}`, `${t('history.labels.time')}`, `${t('history.labels.crop')}`, `${t('history.labels.growth_stage')}`, `${t('history.labels.weather')}`].map((header) => (
           <div key={header} className="text-[#E8FFE0] font-bold py-4 text-center text-[10px] md:text-[16px] uppercase tracking-wider">
             {header}
           </div>
@@ -425,16 +433,22 @@ export default function History({
                 <line x1="8" y1="11" x2="14" y2="11"/>
               </svg>
               <p className="text-[#192514] font-bold text-[14px] md:text-[18px] opacity-50">
-                No records found
+                {t('history.empty_state.no_records')}
               </p>
               <p className="text-[#192514] text-[11px] md:text-[16px] opacity-40">
-                Try adjusting your filters
+                {t('history.empty_state.adjust_filters')}
               </p>
               <button
-                onClick={() => setInput({ date: "", time: "", crop: "", growthStage: "All", weather: "All" })}
+                onClick={() => setInput({
+                  date:"",
+                  time:"",
+                  crop:"",
+                  growthStage: `${t('history.growth_stages.all')}`,
+                  weather: `${t('history.options.all')}`,
+                })}
                 className="mt-2 px-4 py-2 bg-[#192514] text-[#E8FFE0] text-[10px] md:text-[16px] font-semiBold rounded-lg cursor-pointer hover:bg-[#55BB33] hover:text-white transition-colors duration-200"
               >
-                Clear filters
+                {t('history.buttons.clear_filters')}
               </button>
             </div>
         }
@@ -483,7 +497,7 @@ export default function History({
 
       {/* Footer */}
       <div className="py-4 text-center text-[#1A3D00] font-bold bg-white text-sm">
-        loading more records...
+        {t('history.loading')}
       </div>
     </div>
     {/* Modal Overlay */}
@@ -516,6 +530,7 @@ export default function History({
 
 
 const CustomDropdown = ({ value, onChange, options, placeholder }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from 'react-i18next';
 
 // ── Live clock ────────────────────────────────────────────────────────────────
 function useClock() {
@@ -103,6 +104,7 @@ const Corner = ({ pos, isMobile }) => {
 export default function CamStream() {
   const isMobile = useIsMobile();
   const time     = useClock();
+  const { t } = useTranslation();
 
   const [confirmDelete, setConfirmDelete] = useState(null); 
   const [streaming, setStreaming]     = useState(false);
@@ -227,14 +229,15 @@ export default function CamStream() {
 
   // ── Confirm toast ─────────────────────────────────────────────────────────────
   function ConfirmToast({ onConfirm, onCancel }) {
+    const { t } = useTranslation();
   return (
     <div className="fixed inset-0 z-[9999]  flex items-center justify-center bg-black/40 backdrop-blur-[3px] p-4
     ">
       <div className="bg-white md:px-7 md:py-5 px-5 py-3 flex flex-col justify-start items-start gap-4 font-newblack max-w-[540px] rounded-2xl p-5 sm:p-6 shadow-[0_10px_34px_rgba(0,0,0,0.28)]
       ">
-        <h3 className='text-lg sm:text-xl font-bold text-[#192514]'>Save this snapshot to the gallery?</h3>
+        <h3 className='text-lg sm:text-xl font-bold text-[#192514]'>{t('camStream.modals.saveTitle')}</h3>
         <p className="text-[#000000] md:text-[16px] text-[11px] ">
-          It will be added to your recent captures for you to view or download later.
+          {t('camStream.modals.saveDesc')}
         </p>
 
         <div className='mt-5 flex justify-end self-end gap-2'>
@@ -243,14 +246,14 @@ export default function CamStream() {
             className='rounded-lg px-4 py-2 text-sm font-semibold text-[#192514] bg-[#E8ECE7] hover:bg-[#DDE3DC] transition-colors'
             onClick={onCancel}
           >
-            Cancel
+            {t('camStream.modals.cancel')}
           </button>
           <button
             type='button'
             className='rounded-lg px-4 py-2 text-sm font-semibold text-white bg-[#57BD36] hover:bg-[#4ea531] transition-colors'
             onClick={onConfirm}
           >
-            Save
+            {t('camStream.modals.save')}
           </button>
         </div>  
       </div>
@@ -259,6 +262,7 @@ export default function CamStream() {
 }
 
   function ConfirmDelete({ onConfirm, onCancel, type }) {
+    const { t } = useTranslation();
     return (
       <div
         onClick={onCancel}
@@ -275,14 +279,14 @@ export default function CamStream() {
 
           {/* Message */}
           <h3 className='text-lg sm:text-xl font-bold text-[#192514]'>{type === "all"
-              ? "Delete all snapshots from the gallery?"
-              : "Delete this snapshot?"
+              ? `${t('camStream.modals.deleteAllTitle')}`
+              : `${t('camStream.modals.deleteSingleTitle')}`
             }</h3>
           <p className="text-[#000000] md:text-[16px] text-[11px] ">
-            You will not be able to recover {type === "all"
-              ? "them"
-              : "it"
-            }.
+             {type === "all"
+              ? `${t('camStream.modals.cannotRecoverThem')}`
+              : `${t('camStream.modals.cannotRecoverIt')}`
+            }
           </p>
 
           {/* Buttons */}
@@ -292,14 +296,14 @@ export default function CamStream() {
               className="bg-red-500 hover:bg-red-600 transition-colors border-none rounded-md
                 md:px-4 md:py-2 px-3 py-1.5 text-white font-bold md:text-[14px] text-[11px] cursor-pointer"
             >
-              Delete
+              {t('camStream.modals.deleteBtn')}
             </button>
             <button
               onClick={onCancel}
               className="bg-[#E8FFE0] hover:bg-[#D6F7CB] transition-colors border-none rounded-md
                 md:px-4 md:py-2 px-3 py-1.5 text-[#192514] font-bold md:text-[14px] text-[11px] cursor-pointer"
             >
-              Cancel
+              {t('camStream.modals.cancel')}
             </button>
           </div>
         </div>
@@ -331,7 +335,7 @@ export default function CamStream() {
             animation: streaming ? "pulse 1.2s ease-in-out infinite" : "none",
           }} />
           <span style={{ color: "#ff2222", fontSize: isMobile ? 11 : 16, fontWeight: "bold", letterSpacing: 1 }}>
-            {streaming ? "LIVE" : "OFF"}
+            {streaming ? t('camStream.status.live') : t('camStream.status.off')}
           </span>
         </div>
 
@@ -345,7 +349,7 @@ export default function CamStream() {
           }}
           alt="IP Webcam Stream"
           onError={() => {
-            if (streaming) setCamError("Failed to connect. Check IP & Network.");
+            if (streaming) setCamError(`${t('camStream.status.errorConnection')}`);
           }}
         />
 
@@ -356,7 +360,7 @@ export default function CamStream() {
             display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8,
           }}>
             <CameraIcon size={isMobile ? 32 : 52} color="#55BB33" />
-            <span style={{ color: "#55BB33", fontSize: 13, opacity: 0.8 }}>stream offline</span>
+            <span style={{ color: "#55BB33", fontSize: 13, opacity: 0.8 }}>{t('camStream.status.streamOffline')}</span>
           </div>
         )}
 
@@ -386,7 +390,7 @@ export default function CamStream() {
           <div className="absolute bottom-[14px] right-[14px] z-[3] bg-white
           rounded-lg px-[10px] py-1 text-[#55BB33] flex items-center gap-1.5
           text-[11px] md:text-[16px] font-semibold font-newblack">
-            <CheckIcon size={isMobile ? 12 : 10} color="#55BB33" /> saved to gallery
+            <CheckIcon size={isMobile ? 12 : 10} color="#55BB33" /> {t('camStream.gallery.savedToGallery')}
           </div>
         )}
 
@@ -408,8 +412,8 @@ export default function CamStream() {
           onMouseLeave={e => e.currentTarget.style.backgroundColor = streaming ? "#cc3333" : "#55BB33"}
         >
           {streaming
-            ? <div className="flex justify-between items-center gap-[3px] md:gap-2"><StopIcon size={iconSize} color="white" /> stop stream</div>
-            : <div className="flex justify-between items-center gap-[3px] md:gap-2"><PlayIcon size={iconSize} color="white" /> start stream</div>
+            ? <div className="flex justify-between items-center gap-[3px] md:gap-2"><StopIcon size={iconSize} color="white" />{t('camStream.controls.stopStream')}</div>
+            : <div className="flex justify-between items-center gap-[3px] md:gap-2"><PlayIcon size={iconSize} color="white" /> {t('camStream.controls.startStream')}</div>
           }
         </button>
 
@@ -425,7 +429,7 @@ export default function CamStream() {
           onMouseEnter={e => { if (streaming) e.currentTarget.style.backgroundColor = "#3d9922"; }}
           onMouseLeave={e => { e.currentTarget.style.backgroundColor = "#55BB33"; }}
         >
-          <CameraIcon size={iconSize} color="white" /> take snapshot
+          <CameraIcon size={iconSize} color="white" /> {t('camStream.controls.takeSnapshot')}
         </button>
       </div>
 
@@ -434,13 +438,13 @@ export default function CamStream() {
         <div ref={galleryRef}>
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] md:text-[16px] font-bold text-gray-600 font-newblack tracking-widest uppercase">
-              Gallery ({gallery.length})
+              {t('camStream.gallery.title')} ({gallery.length})
             </span>
             <button
               onClick={() => setConfirmDelete({ type: "all" })}
               className="flex items-center gap-1 text-red-400 hover:text-red-600 transition-colors md:text-[16px] uppercase text-[11px] font-bold font-newblack"
             >
-              Clear all
+              {t('camStream.gallery.clearAll')}
             </button>
           </div>
 
@@ -500,26 +504,26 @@ export default function CamStream() {
                     onClick={() => handleDownload(snap)}
                     className="bg-[#55BB33] border-none rounded-md px-4 py-2 text-white font-semibold md:text-[16px] text-[11px] cursor-pointer flex items-center gap-1.5 font-newblack hover:bg-[#3d9922] transition-colors duration-200"
                   >
-                    <DownloadIcon size={isMobile ? 13 : 16} color="white" /> Download
+                    <DownloadIcon size={isMobile ? 13 : 16} color="white" /> {t('camStream.gallery.download')}
                   </button>
                   <button
                     onClick={() => handleDelete(snap.id)}
                     className="rounded-md px-4  py-2 text-white hover:bg-red-600 bg-red-500 font-semibold md:text-[16px] text-[11px] cursor-pointer flex items-center gap-1.5 font-newblack"
                   >
-                    <TrashIcon size={isMobile ? 13 : 16} color="#ffffff" /> <span>Delete</span>
+                    <TrashIcon size={isMobile ? 13 : 16} color="#ffffff" /> <span>{t('camStream.gallery.delete')}</span>
                   </button>
                   <button
                     type='button'
                     className='rounded-lg px-4 py-2 md:text-[16px] text-[11px] font-semibold text-[#192514] bg-[#E8ECE7] hover:bg-[#DDE3DC] transition-colors'
                     onClick={() => setLightbox(null)}
                   >
-                    Close
+                    {t('camStream.gallery.close')}
                   </button>
                   
                 </div>
                 
                 <span className="text-[#e8ffe0] text-[11px] md:text-[16px] opacity-70 font-newblack [text-shadow:0_1px_1px_rgba(0,0,0,0.1)]">
-                  captured at {snap.date} — {snap.time}
+                  {t('camStream.gallery.capturedAt')} {snap.date} — {snap.time}
                 </span>
               </div>
             );

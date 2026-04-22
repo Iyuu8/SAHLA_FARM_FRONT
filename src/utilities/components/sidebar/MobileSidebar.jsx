@@ -1,18 +1,20 @@
 import { Link } from 'react-router'
 import { useLocation } from 'react-router';
 import { X } from "lucide-react"
+import { useTranslation } from 'react-i18next';
 
 
 
 
 export default function MobileSidebar({isOpen, setIsOpen , userName = "user" , LogOutIcon , NotificationIcon , HistoryIcon , HomeIcon , CameraIcon , ChatIcon , LogoIcon ,ProfileIcon}) {
   const location = useLocation();
+  const { t } = useTranslation();
   const navItems = [
-  { name: "Home",          path: "/",              icon: HomeIcon         },
-  { name: "Chat AI",       path: "/chat",          icon: ChatIcon         },
-  { name: "Camera",        path: "/stream",        icon: CameraIcon       },
-  { name: "History",       path: "/history",       icon: HistoryIcon      },
-  { name: "Notifications", path: "/notifications", icon: NotificationIcon },
+  { name: t('sidebar.home'),          path: "/",              icon: HomeIcon         },
+  { name: t('sidebar.chat'),       path: "/chat",          icon: ChatIcon         },
+  { name: t('sidebar.camera'),        path: "/stream",        icon: CameraIcon       },
+  { name: t('sidebar.history'),       path: "/history",       icon: HistoryIcon      },
+  { name: t('sidebar.notifications'), path: "/notifications", icon: NotificationIcon },
 ];
   return (
     <>
@@ -100,7 +102,7 @@ export default function MobileSidebar({isOpen, setIsOpen , userName = "user" , L
                 
                 <LogOutIcon />
                 <span className='text-white group-hover:cursor-pointer'>
-                  Log Out
+                  {t('sidebar.logout')}
                 </span>
               </button>
               

@@ -1,9 +1,11 @@
 import React from 'react'
 import { useState,useContext , useMemo} from 'react';
 import { NotificationsContext } from '../layout';
+import { useTranslation } from 'react-i18next';
 
 
 export default function Notifications() {
+  const { t } = useTranslation();
   const {notifications=[],setNotifications} = useContext(NotificationsContext);
   const { unreadCount, totalCount } = useMemo(() => {
   return {
@@ -21,11 +23,6 @@ export default function Notifications() {
     earlier:   filtered.filter(n => n.date === "earlier"),
   };
 
-  const typeBorder = {
-    warning:  "border-l-4 border-[#FF6B35]",
-    actuator: "border-l-4 border-[#55BB33]",
-    weather:  "border-l-4 border-[#60A5FA]",
-  };
 
   const markAsRead = (id) => {
     setNotifications(prev =>
@@ -39,7 +36,7 @@ export default function Notifications() {
   };
   return (
     <div className='flex flex-col h-full md:p-1 pl-1 font-newblack w-full ml-2'>
-      <div className='text-[#192514] md:text-[32px] text-[24px] font-bold font-newblack'>Notifications</div>
+      <div className='text-[#192514] md:text-[32px] text-[24px] font-bold font-newblack'>{t('notifications.title')}</div>
       <div className='flex justify-between items-center pr-3 pb-3'>
         <div className='flex md:gap-3 gap-2 '>
          <button
@@ -47,24 +44,24 @@ export default function Notifications() {
             className={`font-bold text-[11px] md:text-[17px] px-2 h-7 rounded-3xl transition-all duration-200
               ${filter === "all" ? "text-[#55BB33] bg-[#D6F7CB]" : "bg-[#DDEADB] text-[#192514]"}`}
           >
-            ALL ({totalCount})
+            {t('notifications.all')} ({totalCount})
           </button>  
           <button
             onClick={() => setFilter("unread")}
             className={`font-bold text-[11px] md:text-[17px] px-2 h-7 rounded-3xl transition-all duration-200
               ${filter === "unread" ? "bg-[#D6F7CB] text-[#55BB33]" : "bg-[#DDEADB] text-[#192514]"}`}
           >
-            UNREAD ({unreadCount})
+            {t('notifications.unread')} ({unreadCount})
           </button>
         </div>
-        <button className='text-[#55BB33] text-[14px] md:text-[20px] font-bold' onClick={markAllAsRead} >Mark all read</button>
+        <button className='text-[#55BB33] text-[14px] md:text-[20px] font-bold' onClick={markAllAsRead} >{t('notifications.mark_all_read')}</button>
       </div >
       <div className='flex-1 overflow-y-auto scroll-smooth max-h-full custom-scroll'>
         {unreadCount === 0 && filter === "unread" && <div className="text-center text-gray-400 py-10">
-          No unread notifications
+          {t('notifications.no_unread')}
         </div>}
         {groups.today.length > 0 && <div className='flex flex-col'>
-          <h1 className='text-[16px] md:text-[24px] font-bold'>TODAY</h1>
+          <h1 className='text-[16px] md:text-[24px] font-bold'>{t('notifications.today')}</h1>
           <div className='flex flex-col w-full gap-1'>
             {(groups?.today || []).map((item)=>{
               return(
@@ -84,7 +81,7 @@ export default function Notifications() {
           </div>
           </div>}
           {groups.yesterday.length > 0 && <div className='flex flex-col'>
-          <h1 className='text-[16px] md:text-[24px] font-bold'>YESTERDAY</h1>
+          <h1 className='text-[16px] md:text-[24px] font-bold'>{t('notifications.yesterday')}</h1>
           <div className='flex flex-col w-full gap-1'>
             {groups.yesterday.map((item)=>{
               return(
@@ -104,7 +101,7 @@ export default function Notifications() {
           </div>
           </div>}
           {groups.earlier.length > 0 && <div className='flex flex-col'>
-          <h1 className='md:text-[24px] text-[16px] font-bold'>EARLIER</h1>
+          <h1 className='md:text-[24px] text-[16px] font-bold'>{t('notifications.earlier')}</h1>
           <div className='flex flex-col w-full gap-1'>
             {groups.earlier.map((item)=>{
               return(

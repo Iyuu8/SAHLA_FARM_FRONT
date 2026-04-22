@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function EditHomeAssistantModal({
   isOpen,
@@ -8,6 +9,7 @@ export default function EditHomeAssistantModal({
   initialToken,
   onSave,
 }) {
+  const { t } = useTranslation();
   const [url, setUrl] = useState('');
   const [token, setToken] = useState('');
   const [error, setError] = useState('');
@@ -35,7 +37,7 @@ export default function EditHomeAssistantModal({
     const trimmedToken = token.trim();
 
     if (!trimmedUrl || !trimmedToken) {
-      setError('URL and token are required.');
+      setError(t('profile.editHaModal.errorRequired'));
       return;
     }
 
@@ -46,25 +48,25 @@ export default function EditHomeAssistantModal({
   return createPortal(
     <div className='fixed inset-0 z-[999] flex items-center justify-center bg-black/30 backdrop-blur-[3px] p-4'>
       <div className='w-full max-w-[560px] rounded-2xl bg-white p-5 sm:p-6 shadow-[0_10px_34px_rgba(0,0,0,0.28)]'>
-        <h3 className='text-lg sm:text-xl font-bold text-[#192514]'>Change Home Assistant Connection</h3>
+        <h3 className='text-lg sm:text-xl font-bold text-[#192514]'>{t('profile.editHaModal.title')}</h3>
 
         <div className='mt-4 flex flex-col gap-3'>
           <label className='flex flex-col gap-1 text-sm text-[#192514]'>
-            <span className='font-semibold'>Home Assistant URL</span>
+            <span className='font-semibold'>{t('profile.editHaModal.urlLabel')}</span>
             <input
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder='http://sahla-homeassistant.local:8123'
+              placeholder={t('profile.editHaModal.urlPlaceholder')}
               className='rounded-lg border border-[rgba(23,37,20,0.2)] px-3 py-2 outline-none focus:border-[#57BD36]'
             />
           </label>
 
           <label className='flex flex-col gap-1 text-sm text-[#192514]'>
-            <span className='font-semibold'>Long-Lived Access Token</span>
+            <span className='font-semibold'>{t('profile.editHaModal.tokenLabel')}</span>
             <input
               value={token}
               onChange={(e) => setToken(e.target.value)}
-              placeholder='Enter access token'
+              placeholder={t('profile.editHaModal.tokenPlaceholder')}
               className='rounded-lg border border-[rgba(23,37,20,0.2)] px-3 py-2 outline-none focus:border-[#57BD36]'
             />
           </label>
@@ -78,14 +80,14 @@ export default function EditHomeAssistantModal({
             className='rounded-lg px-4 py-2 text-sm font-semibold text-[#192514] bg-[#E8ECE7] hover:bg-[#DDE3DC] transition-colors'
             onClick={onClose}
           >
-            Cancel
+            {t('profile.editHaModal.cancel')}
           </button>
           <button
             type='button'
             className='rounded-lg px-4 py-2 text-sm font-semibold text-white bg-[#57BD36] hover:bg-[#4ea531] transition-colors'
             onClick={handleSave}
           >
-            Save
+            {t('profile.editHaModal.save')}
           </button>
         </div>
       </div>
