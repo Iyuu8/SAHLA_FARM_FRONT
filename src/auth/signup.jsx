@@ -7,11 +7,12 @@ import {
   FaRegEnvelope,
   FaUser,
 } from 'react-icons/fa6'
-import { Link } from 'react-router'
+import { Link } from 'react-router-dom'
 import { FaExclamationCircle } from 'react-icons/fa'
 import { Bot, Phone } from 'lucide-react'
 import LoginFeatureContainer from '../utilities/components/login/loginFeature'
-import { useNavigate } from 'react-router'
+import { useNavigate } from 'react-router-dom'
+import { supabase } from '../supabaseClient';
 
 export default function SignUp() {
   const [username, setUsername] = useState('')
@@ -21,14 +22,175 @@ export default function SignUp() {
   const [address, setAddress] = useState('')
   const [showPass, setShowPass] = useState(false)
   const navigate = useNavigate()
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  
+  // Field-specific errors
+  const [passwordError, setPasswordError] = useState('');
+  const [emailError, setEmailError] = useState('');
 
-  const handleSubmit = (e) => {
+  // Validate password in real-time
+  const validatePassword = (value) => {
+    if (value.length > 0 && value.length < 8) {
+      setPasswordError('Password must be at least 8 characters long');
+      return false;
+    } else {
+      setPasswordError('');
+      return true;
+    }
+  };
+
+  // Check if email exists in real-time (debounced)
+  const checkEmailExists = async (value) => {
+    if (!value) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('user_id')
+        .eq('email', value)
+        .single();
+      
+      // Note: This is a simple check. For better security, use Supabase's built-in method
+      if (data) {
+        setEmailError('This email is already registered. Please use a different email or login.');
+        return true;
+      } else {
+        setEmailError('');
+        return false;
+      }
+    } catch (err) {
+      // No user found with this email
+      setEmailError('');
+      return false;
+    }
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    validatePassword(value);
+  };
+
+  const handleEmailChange = async (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    if (value) {
+      await checkEmailExists(value);
+    } else {
+      setEmailError('');
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    navigate('/login')
+    setError('');
+    
+    // Validate password before submission
+    if (!validatePassword(password)) {
+      setError('Please fix the errors before submitting');
+      return;
+    }
+
+    // Check if email exists before submission
+    const emailExists = await checkEmailExists(email);
+    if (emailExists) {
+      setError('This email is already registered. Please use a different email or login.');
+      return;
+    }
+    
+    setLoading(true)
+
+    try {
+      // Sign up with Supabase
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username: username,
+            age: parseInt(age),
+            address: address,
+          },
+          emailRedirectTo: window.location.origin + '/login'
+        }
+      })
+      
+      if (signUpError) {
+        // Handle specific Supabase errors
+        if (signUpError.message.includes('already registered')) {
+          throw new Error('This email is already registered. Please use a different email or login.');
+        } else if (signUpError.message.includes('password')) {
+          throw new Error('Password must be at least 8 characters long.');
+        } else {
+          throw signUpError;
+        }
+      }
+      
+      if (data.user) {
+        console.log("the user data", data.user);
+        // Store additional user data in user_profiles table
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .insert([
+            {
+              user_id: data.user.id,
+              username: username,
+              email: email, // Store email in profiles table for easy checking
+              age: parseInt(age),
+              address: address,
+              created_at: new Date(),
+              updated_at: new Date()
+            }
+          ])
+          
+        if (profileError) {
+          console.error('Error saving profile:', profileError)
+          // Don't throw here - user is already created in auth
+        }
+      }
+      
+      // Show success message
+      setSuccess(true);
+      
+      // Redirect to login after 3 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
+      
+    } catch (error) {
+      setError(error.message);
+      setSuccess(false);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const SmartAutomationIcon = () => <Bot size={38} />
   const UnifiedPlatformIcon = () => <Phone size={28} />
+
+/*   // Show success message
+  if (success) {
+    return (
+      <div className='flex min-h-screen bg-[#F8FFF6] items-center justify-center'>
+        <div className='text-center max-w-md mx-auto p-8'>
+          <div className='bg-green-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6'>
+            <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className='text-2xl font-bold text-gray-800 mb-2'>Account Created Successfully!</h2>
+          <p className='text-gray-600 mb-4'>
+            Please check your email for verification link.
+          </p>
+          <p className='text-sm text-gray-500'>
+            Redirecting to login page...
+          </p>
+        </div>
+      </div>
+    );
+  } */
 
   return (
     <div className='flex min-h-screen bg-[#F8FFF6] font-newblack'>
@@ -38,6 +200,13 @@ export default function SignUp() {
           <h1 className='font-bold text-black text-[28px] xs:text-[30px] md:text-[34px] laptop:text-[36px] single-tall:text-[40px] single-taller:text-[45px] text-center'>CREATE ACCOUNT</h1>
           <p className='text-[#636364] font-normal text-[15px] xs:text-[16px] md:text-[18px] laptop:text-[20px] single-tall:text-[23px] single-taller:text-[26px] text-center px-4'>Fill in the details below to get started.</p>
         </div>
+
+        {/* General Error Message */}
+        {error && (
+          <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mx-auto w-[80%] xs:w-[70%] mb-4'>
+            <span className='block sm:inline'>{error}</span>
+          </div>
+        )}
 
         <form
           className='flex items-center justify-center flex-[1.5] gap-[clamp(8px,1.2vh,14px)] flex-col mt-[clamp(4px,1vh,12px)] min-h-[clamp(360px,52vh,500px)] single-short:min-h-[350px] single-short:gap-[7px] single-short:mt-[4px] single-tall:min-h-[700px] single-tall:gap-[12px] single-tall:mt-[12px] single-taller:min-h-[790px] single-taller:gap-[14px] single-taller:mt-[16px]'
@@ -60,29 +229,36 @@ export default function SignUp() {
 
           <label className='flex flex-col items-start w-[80%] xs:w-[70%] gap-[4px]'>
             <h2 className='text-[#444] font-medium font-family-poppins w-full text-[14px] md:text-[15px] single-tall:text-[20px] single-taller:text-[22px]'>Email Address</h2>
-            <div className='flex border-2 rounded-[10px] border-[#D9D9D9] px-4 items-center py-[1px] w-full min-h-[40px] single-tall:min-h-[66px] single-tall:py-[8px] single-taller:min-h-[74px] single-taller:py-[10px]'>
+            <div className={`flex border-2 rounded-[10px] px-4 items-center py-[1px] w-full min-h-[40px] single-tall:min-h-[66px] single-tall:py-[8px] single-taller:min-h-[74px] single-taller:py-[10px] ${
+              emailError ? 'border-red-500' : 'border-[#D9D9D9]'
+            }`}>
               <span className='font-light text-[22px] single-tall:text-[33px] single-taller:text-[36px] text-[#929292]'><FaRegEnvelope /></span>
               <input
-                type='text'
+                type='email'
                 className='outline-none text-[clamp(1.3ch,1.7vw,2ch)] single-tall:text-[2.4ch] single-taller:text-[2.65ch] text-[#444444] px-[10px] py-[2px] bg-transparent max-w-[80%]'
                 placeholder='you@example.com'
                 required
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
                 value={email}
               />
             </div>
+            {emailError && (
+              <p className='text-red-500 text-xs mt-1'>{emailError}</p>
+            )}
           </label>
 
           <label className='flex flex-col items-start w-[80%] xs:w-[70%] gap-[4px]'>
             <h2 className='text-[#444] font-medium font-family-poppins w-full text-[14px] md:text-[15px] single-tall:text-[20px] single-taller:text-[22px]'>Password</h2>
-            <div className='flex border-2 rounded-[10px] border-[#D9D9D9] px-4 items-center py-[1px] w-full min-h-[40px] single-tall:min-h-[66px] single-tall:py-[8px] single-taller:min-h-[74px] single-taller:py-[10px]'>
+            <div className={`flex border-2 rounded-[10px] px-4 items-center py-[1px] w-full min-h-[40px] single-tall:min-h-[66px] single-tall:py-[8px] single-taller:min-h-[74px] single-taller:py-[10px] ${
+              passwordError ? 'border-red-500' : 'border-[#D9D9D9]'
+            }`}>
               <span className='font-light text-[22px] single-tall:text-[32px] single-taller:text-[35px] text-[#929292]'><FaLock /></span>
               <input
                 type={showPass ? 'text' : 'password'}
                 className='outline-none text-[clamp(1.3ch,1.7vw,2ch)] single-tall:text-[2.4ch] single-taller:text-[2.65ch] text-[#444444] px-[10px] py-[2px] bg-transparent max-w-[80%]'
-                placeholder='your password'
+                placeholder='your password (min 8 characters)'
                 required
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={handlePasswordChange}
                 value={password}
               />
               <button
@@ -91,6 +267,12 @@ export default function SignUp() {
                 onClick={() => setShowPass(!showPass)}
               ><FaEye /></button>
             </div>
+            {passwordError && (
+              <p className='text-red-500 text-xs mt-1'>{passwordError}</p>
+            )}
+            {!passwordError && password && (
+              <p className='text-green-500 text-xs mt-1'>✓ Password is valid</p>
+            )}
           </label>
 
           <div className='w-[80%] xs:w-[70%] grid grid-cols-[35fr_65fr] gap-2 single-tall:gap-3 single-taller:gap-4'>
@@ -103,6 +285,8 @@ export default function SignUp() {
                   className='outline-none text-[clamp(1.1ch,1.3vw,1.6ch)] single-tall:text-[1.95ch] single-taller:text-[2.2ch] text-[#444444] px-[8px] py-[2px] bg-transparent w-full min-w-0'
                   placeholder='your age'
                   required
+                  min={1}
+                  max={150}
                   onChange={(e) => setAge(e.target.value)}
                   value={age}
                 />
@@ -126,8 +310,12 @@ export default function SignUp() {
           </div>
 
           <div className='w-[85%] xs:w-[70%] flex justify-center mb-[clamp(4px,1vh,10px)] mt-[clamp(4px,1vh,12px)] flex-col items-center gap-[clamp(5px,0.8vh,10px)] single-tall:mt-[16px] single-tall:mb-[16px] single-tall:gap-[12px] single-taller:mt-[20px] single-taller:mb-[18px] single-taller:gap-[14px]'>
-            <button className='bg-[#55BB33] w-[90%] xs:w-[80%] py-[6px] single-tall:py-[13px] single-taller:py-[16px] rounded-[6px] font-bold text-white font-family-poppins cursor-pointer transition-all duration-300 hover:bg-[#66cd43] md:text-[20px] text-[18px] single-tall:text-[28px] single-taller:text-[31px] shadow-sm shadow-[#55BB33]'>
-              Create Account
+            <button 
+              type='submit'
+              disabled={loading || !!passwordError || !!emailError}
+              className='bg-[#55BB33] w-[90%] xs:w-[80%] py-[6px] single-tall:py-[13px] single-taller:py-[16px] rounded-[6px] font-bold text-white font-family-poppins cursor-pointer transition-all duration-300 hover:bg-[#66cd43] md:text-[20px] text-[18px] single-tall:text-[28px] single-taller:text-[31px] shadow-sm shadow-[#55BB33] disabled:opacity-50 disabled:cursor-not-allowed'
+            >
+              {loading ? 'Creating Account...' : 'Create Account'}
             </button>
             <Link to='/login' className='font-bold underline text-[#1A3D00] text-center text-[13px] md:text-[14px] single-tall:text-[19px] single-taller:text-[21px]'>Already have an account? Sign in</Link>
           </div>

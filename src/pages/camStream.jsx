@@ -12,7 +12,6 @@ function useClock() {
   }, []);
   return time;
 }
-
 const PlayIcon = ({ size = 25, color = "#192514" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
     <polygon points="5,3 19,12 5,21" />

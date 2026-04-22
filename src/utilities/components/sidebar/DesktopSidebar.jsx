@@ -5,6 +5,8 @@ import Tooltip from './Tooltip';
 import { useTranslation } from 'react-i18next';
 
 
+import { supabase } from "../../../supabaseClient";
+import { useNavigate } from 'react-router'
 
 
 export default function DesktopSidebar({ userName = "user", LogOutIcon , NotificationIcon , HistoryIcon , HomeIcon , CameraIcon , ChatIcon , LogoIcon ,ProfileIcon}) {
@@ -18,6 +20,12 @@ export default function DesktopSidebar({ userName = "user", LogOutIcon , Notific
   { name: t('sidebar.notifications'), path: "/notifications", icon: NotificationIcon },
 ];
 
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) console.error('Logout error:', error.message);
+    navigate('/login');
+  };
   return (
     <aside className="px-2 w-[84px] h-screen fixed left-0 top-0 z-30 flex flex-col items-center py-5 overflow-visible" 
     style={{background: "linear-gradient(180deg, rgba(43, 32, 51, 1) 0%, rgba(28, 35, 42, 1) 100%)"}}>
@@ -88,7 +96,7 @@ export default function DesktopSidebar({ userName = "user", LogOutIcon , Notific
                 hover:bg-red-500/10 hover:border-red-500/60
                 transition-all duration-200 mt-auto"
                 style={{boxShadow: "0 0 10px 0.5px rgba(226, 42, 73, 1)"}}
-              onClick={() => alert("logout")}
+              onClick={handleLogout}
             >
               
               <LogOutIcon />

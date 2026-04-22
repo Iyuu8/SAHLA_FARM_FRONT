@@ -1,0 +1,187 @@
+import React, { useState } from 'react'
+import { FaRegEnvelope, FaArrowLeft } from 'react-icons/fa6'
+import { Link } from 'react-router-dom'
+import { supabase } from '../supabaseClient'
+import { Bot, Phone } from 'lucide-react'
+import LoginFeatureContainer from '../utilities/components/login/loginFeature'
+
+export default function ForgotPassword() {
+  const [email, setEmail] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
+  const [cooldown, setCooldown] = useState(0)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError('')
+    setLoading(true)
+
+    try {
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
+
+      if (resetError) {
+        // Handle rate limiting
+        if (resetError.message.includes('rate limit')) {
+          setCooldown(60)
+          throw new Error('Too many requests. Please wait 60 seconds before trying again.')
+        }
+        throw resetError
+      }
+
+      setSuccess(true)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Cooldown timer
+  React.useEffect(() => {
+    if (cooldown > 0) {
+      const timer = setTimeout(() => setCooldown(cooldown - 1), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [cooldown])
+
+  const SmartAutomationIcon = () => <Bot size={38} />
+  const UnifiedPlatformIcon = () => <Phone size={28} />
+
+  if (success) {
+    return (
+      <div className='flex min-h-screen bg-[#F8FFF6] items-center justify-center'>
+        <div className='text-center max-w-md mx-auto p-8'>
+          <div className='bg-green-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6'>
+            <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2 className='text-2xl font-bold text-gray-800 mb-2'>Check Your Email</h2>
+          <p className='text-gray-600 mb-4'>
+            We've sent a password reset link to <strong>{email}</strong>
+          </p>
+          <p className='text-sm text-gray-500 mb-6'>
+            Click the link in the email to reset your password. The link will expire in 1 hour.
+          </p>
+          <Link 
+            to='/login' 
+            className='inline-flex items-center gap-2 text-[#55BB33] hover:underline'
+          >
+            <FaArrowLeft size={14} />
+            Back to Login
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className='flex min-h-screen bg-[#F8FFF6] font-newblack'>
+      {/* left side */}
+      <div className='flex flex-col w-full laptop:w-1/2 justify-between h-screen min-h-screen'>
+        <div className='flex flex-col items-center justify-center flex-1'>
+          <div className='w-full max-w-md mx-auto p-8'>
+            {/* <Link to='/login' className='inline-flex items-center gap-2 text-gray-600 hover:text-[#55BB33] mb-8'>
+              <FaArrowLeft size={14} />
+              Back to Login
+            </Link> */}
+
+            <div className='text-center mb-8'>
+              <h1 className='font-bold text-black text-3xl mb-2'>Forgot Password?</h1>
+              <p className='text-[#636364]'>
+                Enter your email address and we'll send you a link to reset your password.
+              </p>
+            </div>
+
+            {error && (
+              <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4'>
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className='space-y-6'>
+              <label className='flex flex-col items-start gap-2'>
+                <h2 className='text-[#444] font-medium'>Email Address</h2>
+                <div className='flex border-2 rounded-lg border-[#D9D9D9] px-4 items-center w-full'>
+                  <span className='text-[#929292]'><FaRegEnvelope /></span>
+                  <input
+                    type='email'
+                    className='outline-none text-[#444444] px-3 py-2 bg-transparent w-full'
+                    placeholder='you@example.com'
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+              </label>
+
+              <button
+                type='submit'
+                disabled={loading || cooldown > 0}
+                className='w-full bg-[#55BB33] text-white py-3 rounded-lg font-bold hover:bg-[#66cd43] transition disabled:opacity-50'
+              >
+                {loading ? 'Sending...' : 
+                 cooldown > 0 ? `Wait ${cooldown}s` : 'Send Reset Link'}
+              </button>
+            </form>
+
+            <p className='text-center text-gray-600 mt-6'>
+              Remember your password?{' '}
+              <Link to='/login' className='text-[#55BB33] font-bold hover:underline'>
+                Sign In
+              </Link>
+            </p>
+          </div>
+        </div>
+
+        {/* demo mode notice */}
+        <div className='flex justify-center pb-8'>
+          <div className='bg-[#dcecd0] rounded-xl border-[#D9D9D9] px-6 py-4 max-w-md text-[#3e9322]'>
+            <div className='flex items-center gap-2'>
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+              <span className='font-medium'>Demo Mode</span>
+            </div>
+            <p className='mt-1 text-sm'>
+              Enter any email to test the password reset flow
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* right side */}
+      <div className='min-h-screen hidden laptop:flex laptop:w-1/2 bg-gradient-to-br from-[#C0E0B8] to-[#60BF40] flex-col justify-between'>
+        <div className='px-8 pt-6'>
+          <h1 className='text-white text-3xl font-bold'>SAHLA FARM</h1>
+        </div>
+        <div className='w-full flex justify-center'>
+          <img src='/SAHLA_logo.png' alt='SAHLA logo' className='w-64' />
+        </div>
+        <div className='px-8 pb-8'>
+          <h1 className='text-white font-bold text-4xl mb-4'>Reset Your Password</h1>
+          <p className='text-white text-lg'>We'll help you get back into your account</p>
+        </div>
+        <div className='flex w-full justify-between px-8 py-6 gap-4'>
+          <LoginFeatureContainer
+            title='Smart Automation'
+            description='monitor & automate instantly'
+            Icon={SmartAutomationIcon}
+            size={10}
+            colors={{ bg: 'rgba(215,255,202,0.6)', icon: 'rgba(46,105,0,0.27)' }}
+          />
+          <LoginFeatureContainer
+            title='Unified Platform'
+            description='everything in one single place'
+            Icon={UnifiedPlatformIcon}
+            size={10}
+            colors={{ bg: 'rgba(215,255,202,0.6)', icon: 'rgba(46,105,0,0.27)' }}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}

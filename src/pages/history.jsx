@@ -313,6 +313,8 @@ export default function History({
     crop:"",
     growthStage: `${t('history.growth_stages.all')}`,
     weather: `${t('history.options.all')}`,
+    growthStage:"All",
+    weather:"All"
   });
   const [selectedItem, setSelectedItem] = useState(null);
   const [showModal, setShowModal] = useState(false);

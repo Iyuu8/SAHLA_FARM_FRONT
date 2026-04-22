@@ -242,10 +242,6 @@ export default function ProfilePage() {
             <div className='flex items-center justify-center lg:justify-start gap-2'>
               <span className='text-sm sm:text-base font-bold text-[#192514]'>{t('profile.status')}</span>
               <span className='text-sm sm:text-base font-bold text-[#2E6900]'>{t('profile.online')}</span>
-              <span className='w-2 h-2 rounded-full bg-[#57BD36] inline-block shadow-[0px_0px_5px_3px_rgb(104,225,65)]'></span>
-            </div>
-
-            <div className='flex flex-1 flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 lg:ml-4 min-w-0'>
               <input
                 type="text"
                 value={homeAssistantIdDisplay}

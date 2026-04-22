@@ -4,18 +4,26 @@ import { X } from "lucide-react"
 import { useTranslation } from 'react-i18next';
 
 
+import { supabase } from "../../../supabaseClient";
+import { useNavigate } from 'react-router'
 
 
 export default function MobileSidebar({isOpen, setIsOpen , userName = "user" , LogOutIcon , NotificationIcon , HistoryIcon , HomeIcon , CameraIcon , ChatIcon , LogoIcon ,ProfileIcon}) {
   const location = useLocation();
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const navItems = [
-  { name: t('sidebar.home'),          path: "/",              icon: HomeIcon         },
-  { name: t('sidebar.chat'),       path: "/chat",          icon: ChatIcon         },
-  { name: t('sidebar.camera'),        path: "/stream",        icon: CameraIcon       },
-  { name: t('sidebar.history'),       path: "/history",       icon: HistoryIcon      },
-  { name: t('sidebar.notifications'), path: "/notifications", icon: NotificationIcon },
-];
+  { name: "Home",          path: "/",              icon: HomeIcon         },
+  { name: "Chat AI",       path: "/chat",          icon: ChatIcon         },
+  { name: "Camera",        path: "/stream",        icon: CameraIcon       },
+  { name: "History",       path: "/history",       icon: HistoryIcon      },
+  { name: "Notifications", path: "/notifications", icon: NotificationIcon },
+  ];
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) console.error('Logout error:', error.message);
+    navigate('/login');
+  };
   return (
     <>
       
@@ -92,7 +100,7 @@ export default function MobileSidebar({isOpen, setIsOpen , userName = "user" , L
             </nav>
             <div className='flex items-center justify-center px-2 w-full' >
               <button
-                onClick={() => alert("logout")}
+                onClick={handleLogout}
                 className="m-auto rounded-xl flex items-center justify-center px-2 py-2 gap-2 w-full bg-red-600
                  text-white
                   transition-all duration-200 mt-auto"

@@ -1,17 +1,22 @@
-import { Routes, Route } from "react-router"
-import { useState } from 'react'
-import Dashboard from "./pages/dashboard.jsx"
-import AIchat from "./pages/aiChat.jsx"
-import History from "./pages/history.jsx"
-import CamStream from "./pages/camStream.jsx"
-import Login from "./auth/login.jsx"
-import SignUp from "./auth/signup.jsx"
-import Settings from "./pages/settings.jsx"
-import Notifications from "./pages/notifications.jsx"
-import Layout from "./layout.jsx"
-import NotFound from './pages/notFound.jsx'
-import HACredentialsRequired from './pages/haCredentialsRequired.jsx'
-import useFarmPreferences from './hooks/useFarmPreferences'
+import { Routes, Route } from "react-router";
+import { useState } from "react";
+import Dashboard from "./pages/dashboard.jsx";
+import AIchat from "./pages/aiChat.jsx";
+import History from "./pages/history.jsx";
+import CamStream from "./pages/camStream.jsx";
+import Login from "./auth/login.jsx";
+import SignUp from "./auth/signup.jsx";
+import Settings from "./pages/settings.jsx";
+import Notifications from "./pages/notifications.jsx";
+import Layout from "./layout.jsx";
+import NotFound from "./pages/notFound.jsx";
+import HACredentialsRequired from "./pages/haCredentialsRequired.jsx";
+import useFarmPreferences from "./hooks/useFarmPreferences";
+import ProtectedRoute from "./pages/ProtectedRoute .jsx";
+import ForgotPassword from './auth/ForgotPassword'
+import ResetPassword from './auth/ResetPassword'
+
+
 
 function App() {
   // Temporary frontend flag until backend controls HA credentials onboarding state.
@@ -28,53 +33,56 @@ function App() {
 
   const blockedPage = <HACredentialsRequired />;
 
-  const protectedElement = (element) => (isHAConfigured ? element : blockedPage);
+  const protectedElement = (element) =>
+    isHAConfigured ? element : blockedPage;
 
   return (
     <>
       <Routes>
-
+        {/* Public routes — no auth needed */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        
+        {/* Protected routes — ProtectedRoute checks Supabase session */}
+        <Route element={<ProtectedRoute/>}>
+          <Route path="/" element={<Layout />}>
+            <Route index element={protectedElement(<Dashboard />)} />
 
-        <Route path="/" element={<Layout />}>
+            <Route
+              path="/dashboard"
+              element={protectedElement(<Dashboard />)}
+            />
 
-          <Route
-            index
-            element={protectedElement(<Dashboard />)}
-          />
+            <Route
+              path="/history"
+              element={protectedElement(
+                <History
+                  temperatureUnit={temperatureUnit}
+                  humidityUnit={humidityUnit}
+                  soilMoistureUnit={soilMoistureUnit}
+                  lightIntensityUnit={lightIntensityUnit}
+                />,
+              )}
+            />
+            <Route path="/stream" element={protectedElement(<CamStream />)} />
 
-          <Route
-            path="/dashboard"
-            element={protectedElement(<Dashboard />)}
-          />
+            <Route path="/chat" element={protectedElement(<AIchat />)} />
 
-          <Route
-            path="/history"
-            element={protectedElement(
-              <History
-                temperatureUnit={temperatureUnit}
-                humidityUnit={humidityUnit}
-                soilMoistureUnit={soilMoistureUnit}
-                lightIntensityUnit={lightIntensityUnit}
-              />
-            )}
-          />
-          <Route path="/stream" element={protectedElement(<CamStream />)} />
+            <Route
+              path="/notifications"
+              element={protectedElement(<Notifications />)}
+            />
 
-          <Route path="/chat" element={protectedElement(<AIchat />)} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
 
-          <Route path="/notifications" element={protectedElement(<Notifications />)} />
-
-          <Route path="/settings" element={<Settings />} />
-
+          <Route path="*" element={<NotFound />} />
         </Route>
-
-        <Route path="*" element={<NotFound />} />
-
       </Routes>
     </>
   );
 }
 
-export default App
+export default App;

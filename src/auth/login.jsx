@@ -5,18 +5,49 @@ import { FaExclamationCircle } from 'react-icons/fa'
 import { Bot, Phone } from 'lucide-react'
 import LoginFeatureContainer from '../utilities/components/login/loginFeature'
 import { useNavigate } from 'react-router'
- 
-
+import { supabase } from '../supabaseClient';
+import { io } from 'socket.io-client'
  
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
+  const [error, setError] = useState('');
  
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/dashboard");
+    setError('');
+    try {
+      const { data, error: signinError } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+      if (signinError) throw signinError;
+      if (data.session) {
+        const { data: { session } } = await supabase.auth.getSession();
+        /* const socket = io('http://localhost:3000', {
+          auth: {
+            token: session.access_token
+          },
+          transports: ['websocket']
+        });
+
+        socket.on('connect', () => {
+          console.log('Connected to WebSocket server');
+        });
+
+        socket.emit("sendMessage", "Hello from Frontend");
+        socket.on("recieveMessage", (data) => {
+          console.log("message from Backend", data);
+        })
+        
+        localStorage.setItem('socket_connected', 'true'); */
+        navigate("/dashboard");
+      } 
+    } catch (error) {
+      setError(error.message);
+    }
   }
 
   const SmartAutomationIcon = () => <Bot size={38} />;
@@ -77,7 +108,7 @@ export default function Login() {
               <input type="checkbox" className='w-[30px]' />
               Remember me
             </label>
-            <Link to="/" className='font-bold underline'>forgot password</Link>
+            <Link to="/forgot-password" className='font-bold underline'>forgot password</Link>
           </div>
  
           <div className='w-[85%] xs:w-[70%] flex justify-center mb-[clamp(6px,1.2vh,20px)] mt-[clamp(8px,1.8vh,24px)] flex-col items-center gap-[clamp(6px,1vh,14px)] single-short:mt-[8px] single-short:mb-[6px] single-short:gap-[6px] single-tall:mt-[26px] single-tall:mb-[26px] single-tall:gap-[14px] single-taller:mt-[32px] single-taller:mb-[30px] single-taller:gap-[18px]'>
