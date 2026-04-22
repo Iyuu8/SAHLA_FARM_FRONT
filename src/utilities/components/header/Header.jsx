@@ -2,6 +2,9 @@ import React from 'react'
 import { Link } from 'react-router'
 import { NotificationsContext } from '../../../layout';
 import { useState,useEffect,useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+
+
 const LogoIcon = () => (
   <svg className='w-7 h-7 md:w-9 md:h-9 lg:w-11 lg:h-11' width="45" height="45" viewBox="0 0 44 45" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M22.4877 23.6092C22.4877 23.6092 24.8105 19.3465 29.7453 18.3817C29.7453 18.3817 22.5846 15.3262 15.0848 18.3817C15.0848 18.3817 19.1489 18.8649 22.4877 23.6092Z" fill="#55BB33"/>
@@ -42,6 +45,7 @@ const BellIcon = () => (
   </svg>
 );
 export default function Header() {
+  const { t } = useTranslation();
   const [time, setTime] = useState("");
   const { notifications = [] } = useContext(NotificationsContext);
   const numberOfNotifications =
@@ -51,7 +55,7 @@ export default function Header() {
       const now = new Date();
       let hours = now.getHours();
       const minutes = now.getMinutes().toString().padStart(2, "0");
-      const ampm = hours >= 12 ? "PM" : "AM";
+      const ampm = hours >= 12 ? t('header.pm') : t('header.am');
       hours = hours % 12 || 12;
       setTime(`${hours}:${minutes} ${ampm}`);
     };
@@ -59,13 +63,13 @@ export default function Header() {
     updateTime();                                    // run immediately on mount
     const interval = setInterval(updateTime, 60000); // update every minute
     return () => clearInterval(interval);            // cleanup on unmount
-  }, []);
+  }, [t]);
   return (
     <div className='flex w-full justify-between items-center'>
       <div className='flex items-center  w-full gap-2'>
          
         <div className='md:hidden'><LogoIcon/></div>
-        <span className='text-[#192514] text-[15px] lg:text-[32px] md:text-[26px] font-normal font-newblack'>SAHLA Farm</span>
+        <span className='text-[#192514] text-[15px] lg:text-[32px] md:text-[26px] font-normal font-newblack'>{t("header.farmName")}</span>
       </div>
       
       <div className='flex justify-end  gap-1 w-full'>
@@ -86,7 +90,7 @@ export default function Header() {
     
   </div>
   <span className='hidden font-newblack md:block text-[#192514] opacity-80 text-[15px] '>
-    Notifications
+    {t("header.notifications")}
   </span>
   <div className={`${numberOfNotifications > 0 ? "" : "hidden"}
       absolute -top-[3px] -right-[0.5px]

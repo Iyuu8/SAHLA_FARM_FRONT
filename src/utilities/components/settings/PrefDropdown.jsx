@@ -34,12 +34,12 @@ export default function PrefDropdown({ label, value, options, onChange }) {
       </button>
 
       {isOpen && (
-        <div className='absolute left-0 top-full mt-2 z-40 min-w-full w-max rounded-xl border border-[rgba(23,37,20,0.15)] bg-[#F4F6F4] p-1 shadow-[0_8px_22px_rgba(0,0,0,0.14)]'>
+        <div className='absolute start-0 top-full mt-2 z-40 min-w-full w-max rounded-xl border border-[rgba(23,37,20,0.15)] bg-[#F4F6F4] p-1 shadow-[0_8px_22px_rgba(0,0,0,0.14)]'>
           {normalizedOptions.map((option) => (
             <button
               key={option.value}
               type='button'
-              className='block w-full text-left px-3 py-1.5 rounded-lg text-xs sm:text-sm transition-colors text-[#192514] hover:bg-[#DEDEDE]'
+              className='block w-full text-start px-3 py-1.5 rounded-lg text-xs sm:text-sm transition-colors text-[#192514] hover:bg-[#DEDEDE]'
               onClick={() => {
                 if (onChange) onChange(option.value);
                 setIsOpen(false);

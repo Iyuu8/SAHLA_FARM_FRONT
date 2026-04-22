@@ -1,5 +1,6 @@
 import { ClipboardCheck } from 'lucide-react';
 import CropInfoDropdown from './CropInfoDropdown';
+import { useTranslation } from 'react-i18next';
 
 /**
  * CropInfoCard
@@ -26,6 +27,7 @@ export default function CropInfoCard({
   setMode,
   actuators = [],
 }) {
+  const { t } = useTranslation();
   const hasSemiAuto = actuators.some((a) => a.mode === 'semi-auto');
 
   const recommendedText =
@@ -52,36 +54,48 @@ export default function CropInfoCard({
 
           {/* CROP — text input */}
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-white whitespace-nowrap">Crop</span>
+            <span className="text-sm font-semibold text-white whitespace-nowrap">{t('dashboard.cropInfo.crop')}</span>
             <CropInfoDropdown
               value={crop}
               options={cropOptions}
               onChange={setCrop}
               onAddOption={onAddCropOption}
-              placeholder="Enter crop"
+              placeholder={t('dashboard.cropInfo.enterCrop')}
               isCropInput
             />
           </div>
 
           {/* GROWTH STAGE */}
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-white whitespace-nowrap">Growth Stage</span>
+            <span className="text-sm font-semibold text-white whitespace-nowrap">{t('dashboard.cropInfo.growthStage')}</span>
             <CropInfoDropdown
               value={growthStage}
-              options={['Germination', 'Seedling', 'Vegetative Growth', 'Flowering', 'Fruiting', 'Maturity']}
+              options={[
+                t('dashboard.cropInfo.stages.germination'), 
+                t('dashboard.cropInfo.stages.seedling'), 
+                t('dashboard.cropInfo.stages.vegetativeGrowth'), 
+                t('dashboard.cropInfo.stages.flowering'), 
+                t('dashboard.cropInfo.stages.fruiting'), 
+                t('dashboard.cropInfo.stages.maturity')
+              ]}
               onChange={setGrowthStage}
-              placeholder="Select stage"
+              placeholder={t('dashboard.cropInfo.selectStage')}
             />
           </div>
 
           {/* MODE */}
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-white whitespace-nowrap">Mode</span>
+            <span className="text-sm font-semibold text-white whitespace-nowrap">{t('dashboard.cropInfo.mode')}</span>
             <CropInfoDropdown
               value={mode}
-              options={['balanced', 'water saving', 'energy saving', 'growth priority']}
+              options={[
+                t('dashboard.cropInfo.modes.balanced'), 
+                t('dashboard.cropInfo.modes.waterSaving'), 
+                t('dashboard.cropInfo.modes.energySaving'), 
+                t('dashboard.cropInfo.modes.growthPriority')
+              ]}
               onChange={setMode}
-              placeholder="Select mode"
+              placeholder={t('dashboard.cropInfo.selectMode')}
             />
           </div>
         </div>
@@ -100,7 +114,7 @@ export default function CropInfoCard({
               className="text-xs sm:text-sm font-bold"
               style={{ color: 'rgba(236,243,234,1)' }}
             >
-              {hasSemiAuto ? 'Recommended Actions' : 'Explanation of Actions'}
+              {hasSemiAuto ? t('dashboard.cropInfo.recommendedActions') : t('dashboard.cropInfo.explanationOfActions')}
             </span>
             <ClipboardCheck
               size={14}
@@ -109,7 +123,7 @@ export default function CropInfoCard({
             />
           </div>
           <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.80)' }}>
-            {hasSemiAuto ? recommendedText : explanationText}
+            {hasSemiAuto ? t('dashboard.cropInfo.recommendedText') : t('dashboard.cropInfo.explanationText')}
           </p>
         </div>
 

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { TriangleAlert } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import AlertModal from './AlertModal';
 import { DASHBOARD_WARNINGS } from '../../data/dashboardData';
-import { formatWarningsToUI } from './../../functions/transformWarningsDashboard'
+import { formatWarningsToUI } from './../../functions/transformWarningsDashboard';
 
 export default function MonitoringAlerts() {
+  const { t } = useTranslation();
   const [selectedAlert, setSelectedAlert] = useState(null);
 
   // Filters out the false values based on your instruction requirement
@@ -27,12 +29,12 @@ export default function MonitoringAlerts() {
         <div className="px-5 pt-6 pb-4 shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-[#EBB5A3] font-normal text-lg sm:text-[1.15rem] tracking-wide leading-none">
-              Monitoring Alerts
+              {t('dashboard.monitoringAlerts.title')}
             </span>
             <TriangleAlert size={18} color="#EBB5A3" strokeWidth={2} />
           </div>
           <p className="text-[rgba(255,255,255,0.5)] text-[1.1ch] mt-2 leading-relaxed font-normal">
-            Track critical environmental situations in real time.
+            {t('dashboard.monitoringAlerts.subtitle')}
           </p>
         </div>
 
@@ -42,7 +44,9 @@ export default function MonitoringAlerts() {
                      [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
           {activeWarnings.length === 0 ? (
-            <p className="text-white/30 text-sm text-center mt-8">No active alerts</p>
+            <p className="text-white/30 text-sm text-center mt-8">
+              {t('dashboard.monitoringAlerts.noAlerts')}
+            </p>
           ) : (
             activeWarnings.map((warning, index) => {
               return (
@@ -50,7 +54,8 @@ export default function MonitoringAlerts() {
                   key={warning.id}
                   type="button"
                   onClick={() => setSelectedAlert(warning)}
-                  className="w-full rounded-xl px-4 py-4 flex items-center justify-between text-left"
+                  // CHANGED: text-left to text-start for RTL support
+                  className="w-full rounded-xl px-4 py-4 flex items-center justify-between text-start"
                   style={{
                     // Opacity divided significantly to match the subtle dark glassy card style
                     background:
@@ -67,13 +72,15 @@ export default function MonitoringAlerts() {
                   }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <span className="text-[#FFE7DF] text-[0.9rem] font-normal leading-snug pr-3">
-                    {warning.title}
+                  {/* CHANGED: pr-3 to pe-3 (padding-inline-end) for RTL support */}
+                  <span className="text-[#FFE7DF] text-[0.9rem] font-normal leading-snug pe-3">
+                    {/* Wraps dynamic title in a translation hook, defaulting to the raw title string */}
+                    {t(`warnings.${warning.id}.title`, warning.title)}
                   </span>
                   <div
                     className="shrink-0 w-5 h-5" 
                     style={{
-                        backgroundColor: warning.color, /* <-- Changed from iconColor to warning.color */
+                        backgroundColor: warning.color,
                         WebkitMaskImage: `url(${warning.icon})`,
                         maskImage: `url(${warning.icon})`,
                         WebkitMaskSize: 'contain',

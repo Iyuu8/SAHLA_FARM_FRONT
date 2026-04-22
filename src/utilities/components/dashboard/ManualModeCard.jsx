@@ -1,22 +1,25 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { SquarePen } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
-function ToggleSwitch({ checked, onChange }) {
+function ToggleSwitch({ checked, onChange, ariaLabel, onText, offText }) {
   return (
     <button
       type='button'
       onClick={onChange}
       className='relative w-full h-[36px] rounded-full transition-colors bg-[#F8FFF6]'
-      aria-label='Toggle manual mode'
+      aria-label={ariaLabel}
       aria-pressed={checked}
     >
       <span
-        className={`absolute top-[2px] h-[32px] w-[46px] rounded-full text-[#F8FFF6] flex items-center justify-center text-base leading-none transition-all ${
-          checked ? 'left-[2px] bg-[#55BB33]' : 'left-[calc(100%-48px)] bg-[#3A644B]'
+        // CHANGED: Replaced left-[...] with start-[2px] / end-[2px] for RTL support.
+        // Adjusted width to min-w-[46px] and added padding/text sizing for translations.
+        className={`absolute top-[2px] h-[32px] min-w-[46px] px-2 rounded-full text-[#F8FFF6] flex items-center justify-center text-xs sm:text-sm font-bold leading-none transition-all ${
+          checked ? 'start-[2px] bg-[#55BB33]' : 'end-[2px] bg-[#3A644B]'
         }`}
       >
-        {checked ? 'ON' : 'OFF'}
+        {checked ? onText : offText}
       </span>
     </button>
   );
@@ -27,6 +30,7 @@ export default function ManualModeCard({
   onToggleGlobalMode,
   onOpenEdit,
 }) {
+  const { t } = useTranslation();
   const isSemiAuto = globalMode === 'semi-auto';
 
   return (
@@ -39,12 +43,15 @@ export default function ManualModeCard({
     >
       <div className='w-full max-w-[132px] sm:max-w-[138px] md:max-w-[146px]'>
         <div className='flex items-center justify-between gap-2'>
-          <span className='text-[0.98rem] sm:text-[1.05rem] leading-none capitalize'>{globalMode}</span>
+          <span className='text-[0.98rem] sm:text-[1.05rem] leading-none capitalize'>
+            {/* Translates globalMode dynamically, falling back to the raw string if not found */}
+            {t(`dashboard.manualModeCard.modes.${globalMode}`, globalMode)}
+          </span>
           <motion.button
             type='button'
             onClick={onOpenEdit}
             className='text-[#F8FFF6] hover:opacity-85 transition-opacity'
-            aria-label='Edit actuator modes'
+            aria-label={t('dashboard.manualModeCard.editAriaLabel')}
             whileTap={{ scale: 0.92 }}
           >
             <SquarePen size={19} />
@@ -55,6 +62,9 @@ export default function ManualModeCard({
           <ToggleSwitch
             checked={isSemiAuto}
             onChange={() => onToggleGlobalMode(!isSemiAuto)}
+            ariaLabel={t('dashboard.manualModeCard.toggleAriaLabel')}
+            onText={t('dashboard.manualModeCard.on')}
+            offText={t('dashboard.manualModeCard.off')}
           />
         </div>
       </div>

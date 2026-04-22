@@ -1,8 +1,11 @@
 import { useMemo } from 'react';
+import i18n from '../i18n';
 import { profileSettingOptions, NORMALIZED_USER } from '../utilities/data/profileSettings';
 import { DASHBOARD_CROP_DEFAULTS, DASHBOARD_DEFAULT_UNITS } from '../utilities/data/dashboardData';
 import { STORAGE_KEYS } from '../utilities/data/storageKeys';
 import usePersistentState from './usePersistentState';
+
+
 
 const FARM_PREFERENCES_DEFAULTS = {
   mode: DASHBOARD_CROP_DEFAULTS.mode || NORMALIZED_USER.farmSettings.mode || 'balanced',
@@ -22,6 +25,29 @@ const FARM_PREFERENCES_DEFAULTS = {
  * This hook is the single source for user-editable farm settings in frontend simulation.
  * Any page can call this hook and get synchronized values through localStorage.
  */
+const langMap = { 
+  "English": "en", "en": "en", 
+  "Français": "fr", "fr": "fr", "French": "fr", "french": "fr",
+  "العربية": "ar", "ar": "ar", "Arabic": "ar", "arabic": "ar"
+};
+
+const getSavedLanguage = () => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEYS.farmPreferences);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return parsed?.language || FARM_PREFERENCES_DEFAULTS.language || "English";
+    }
+  } catch {
+    return FARM_PREFERENCES_DEFAULTS.language || "English";
+  }
+  return FARM_PREFERENCES_DEFAULTS.language || "English";
+};
+
+const savedLanguage = getSavedLanguage();
+const savedCode = langMap[savedLanguage] || "en";
+i18n.changeLanguage(savedCode);
+document.documentElement.dir = savedCode === "ar" ? "rtl" : "ltr";
 export default function useFarmPreferences() {
   const [preferences, setPreferences] = usePersistentState(
     STORAGE_KEYS.farmPreferences,
@@ -51,7 +77,19 @@ export default function useFarmPreferences() {
   const setHumidityUnit = (next) => setPreferences((prev) => ({ ...prev, humidityUnit: next }));
   const setSoilMoistureUnit = (next) => setPreferences((prev) => ({ ...prev, soilMoistureUnit: next }));
   const setLightIntensityUnit = (next) => setPreferences((prev) => ({ ...prev, lightIntensityUnit: next }));
-  const setLanguage = (next) => setPreferences((prev) => ({ ...prev, language: next }));
+  const setLanguage = (next) => {
+    // map label to code
+    const code = langMap[next] || "en";
+
+    // activate i18next
+    i18n.changeLanguage(code);
+
+    // RTL for Arabic
+    document.documentElement.dir = code === "ar" ? "rtl" : "ltr";
+
+    // save to preferences as usual
+    setPreferences((prev) => ({ ...prev, language: code }));
+  };
 
   const addCropOption = (nextCrop) => {
     const normalized = String(nextCrop || '').trim();

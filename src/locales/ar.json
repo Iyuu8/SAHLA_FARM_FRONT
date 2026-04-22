@@ -1,0 +1,274 @@
+{
+  "profile": {
+    "edit": "تعديل",
+    "farm_settings_title": "إعدادات المزرعة والتفضيلات",
+    "farm_settings_subtitle": "إعدادات المزرعة",
+    "labels": {
+      "mode": "الوضع",
+      "manual_control": "التحكم اليدوي",
+      "growth": "مرحلة النمو",
+      "crop": "المحصول",
+      "temperature": "درجة الحرارة",
+      "humidity": "الرطوبة",
+      "soil_moisture": "رطوبة التربة",
+      "light_intensity": "شدة الإضاءة",
+      "language": "اللغة"
+    },
+    "global_mode": "وضع التحكم العام الحالي من لوحة القيادة:",
+    "display_units": "وحدات العرض",
+    "ha_connection": "اتصال المساعد المنزلي",
+    "status": "الحالة:",
+    "online": "متصل",
+    "change": "تغيير",
+    "editHaModal": {
+        "title": "تغيير إعدادات اتصال Home Assistant",
+        "urlLabel": "رابط Home Assistant",
+        "urlPlaceholder": "http://sahla-homeassistant.local:8123",
+        "tokenLabel": "رمز الوصول طويل الأمد",
+        "tokenPlaceholder": "أدخل رمز الوصول",
+        "errorRequired": "الرابط والرمز مطلوبان.",
+        "cancel": "إلغاء",
+        "save": "حفظ"
+      },
+    "editProfileModal": {
+      "title": "تعديل الملف الشخصي",
+      "userNameLabel": "اسم المستخدم",
+      "emailLabel": "البريد الإلكتروني",
+      "addressLabel": "العنوان",
+      "ageLabel": "العمر",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "تغيير كلمة المرور يتطلب خادمًا وهو معطل في هذه النسخة",
+      "newPasswordLabel": "كلمة المرور الجديدة",
+      "newPasswordPlaceholder": "معطل حتى يتم تنفيذ مصادقة الخادم",
+      "passwordInfoText": "تم تعطيل تحديثات كلمة المرور عمدًا في الواجهة الأمامية لأن التحقق من كلمة المرور يجب أن يتم التعامل معه بواسطة الخادم.",
+      "errorInvalidAge": "يجب أن يكون العمر رقمًا صحيحًا.",
+      "cancel": "إلغاء",
+      "save": "حفظ"
+    },
+    "pfpEditorModal": {
+      "title": "تغيير الصورة الشخصية",
+      "dropImage": "أسقط الصورة هنا",
+      "or": "أو",
+      "browse": "تصفح الملفات",
+      "zoom": "تكبير",
+      "chooseAnother": "اختر صورة أخرى",
+      "cancel": "إلغاء",
+      "confirm": "تأكيد",
+      "errorFileType": "يرجى اختيار ملف صورة.",
+      "errorLoad": "تعذر تحميل هذه الصورة. يرجى تجربة ملف آخر.",
+      "errorNoImage": "يرجى إضافة صورة أولاً.",
+      "errorProcess": "تعذر معالجة الصورة. يرجى المحاولة مرة أخرى."
+    }
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "all": "الكل",
+    "unread": "غير مقروء",
+    "mark_all_read": "تحديد الكل كمقروء",
+    "no_unread": "لا توجد إشعارات غير مقروءة",
+    "today": "اليوم",
+    "yesterday": "أمس",
+    "earlier": "سابقاً"
+  },
+  "history": {
+    "months": {
+      "january": "يناير", "february": "فبراير", "march": "مارس", "april": "أبريل", "may": "مايو", "june": "يونيو", "july": "يوليو", "august": "أغسطس", "september": "سبتمبر", "october": "أكتوبر", "november": "نوفمبر", "december": "ديسمبر"
+    },
+    "days": {
+      "su": "أح", "mo": "إث", "tu": "ثلا", "we": "أر", "th": "خم", "fr": "جم", "sa": "سب"
+    },
+    "labels": {
+      "date": "التاريخ",
+      "time": "الوقت",
+      "crop": "المحصول",
+      "growth_stage": "مرحلة النمو",
+      "weather": "الطقس"
+    },
+    "placeholders": {
+      "date": "مثال: 13-02-26",
+      "time": "مثال: 13:00",
+      "crop": "مثال: برتقال",
+      "select_growth_stage": "حدد مرحلة النمو",
+      "select_weather": "حدد الطقس",
+      "select_option": "حدد خياراً"
+    },
+    "timepicker": {
+      "hour": "ساعة",
+      "min": "دقيقة"
+    },
+    "buttons": {
+      "reset": "إعادة ضبط",
+      "clear_filters": "مسح الفلاتر"
+    },
+    "empty_state": {
+      "no_records": "لم يتم العثور على سجلات",
+      "adjust_filters": "حاول تعديل الفلاتر"
+    },
+    "loading": "جاري تحميل المزيد من السجلات...",
+    "options": {
+      "all": "الكل",
+      "sunny": "مشمس",
+      "cloudy": "غائم",
+      "night": "ليل",
+      "windy": "عاصف",
+      "stormy": "عاصف (رعديد)",
+      "rainy": "ممطر"
+    },
+    "growth_stages": {
+      "all": "الكل",
+      "germination": "إنبات",
+      "seedling": "شتلة",
+      "vegetative_growth": "نمو خضري",
+      "flowering": "تزهير",
+      "fruiting": "إثمار",
+      "maturity": "نضج"
+    }
+  },
+  "camStream": {
+    "status": {
+      "live": "مباشر",
+      "off": "متوقف",
+      "streamOffline": "البث متوقف",
+      "errorConnection": "فشل الاتصال. تحقق من عنوان IP والشبكة."
+    },
+    "controls": {
+      "stopStream": "إيقاف البث",
+      "startStream": "بدء البث",
+      "takeSnapshot": "التقاط صورة"
+    },
+    "gallery": {
+      "title": "المعرض",
+      "clearAll": "مسح الكل",
+      "savedToGallery": "تم الحفظ في المعرض",
+      "capturedAt": "تم الالتقاط في",
+      "download": "تنزيل",
+      "delete": "حذف",
+      "close": "إغلاق"
+    },
+    "modals": {
+      "saveTitle": "هل تريد حفظ هذه الصورة في المعرض؟",
+      "saveDesc": "سيتم إضافتها إلى لقطاتك الأخيرة لتتمكن من عرضها أو تنزيلها لاحقًا.",
+      "deleteAllTitle": "هل تريد حذف جميع الصور من المعرض؟",
+      "deleteSingleTitle": "هل تريد حذف هذه الصورة؟",
+      "cannotRecoverThem": "لن تتمكن من استعادتهم.",
+      "cannotRecoverIt": "لن تتمكن من استعادتها.",
+      "cancel": "إلغاء",
+      "save": "حفظ",
+      "deleteBtn": "حذف"
+    }
+  },
+  "dashboard": {
+    "alertModal": {
+      "close": "إغلاق",
+      "fallbackSubtitle": "تحقق من معلمات النظام",
+      "liveAlert": "تنبيه مباشر",
+      "systemAlert": "تنبيه النظام",
+      "severityLabel": "الخطورة",
+      "severity": {
+        "HIGH": "عالية",
+        "MODERATE": "متوسطة",
+        "LOW": "منخفضة"
+      },
+      "description": "الوصف"
+    },
+    "chart": {
+      "fallbackSensor": "درجة الحرارة",
+      "tooltipValue": "القيمة",
+      "ranges": {
+        "day": "يوم",
+        "week": "أسبوع",
+        "month": "شهر"
+      }
+    },
+    "cropInfo": {
+      "title": "معلومات المحصول",
+      "crop": "المحصول",
+      "enterCrop": "أدخل المحصول",
+      "growthStage": "مرحلة النمو",
+      "selectStage": "حدد المرحلة",
+      "stages": {
+        "germination": "الإنبات",
+        "seedling": "الشتلة",
+        "vegetativeGrowth": "النمو الخضري",
+        "flowering": "الإزهار",
+        "fruiting": "الإثمار",
+        "maturity": "النضج"
+      },
+      "mode": "الوضع",
+      "selectMode": "حدد الوضع",
+      "modes": {
+        "balanced": "متوازن",
+        "waterSaving": "توفير المياه",
+        "energySaving": "توفير الطاقة",
+        "growthPriority": "أولوية النمو"
+      },
+      "recommendedActions": "الإجراءات الموصى بها",
+      "explanationOfActions": "شرح الإجراءات",
+      "recommendedText": "نباتاتك ترتفع حرارتها والتربة جافة جدًا. اسقها على الفور، وإذا أمكن، قم بتوفير بعض الظل أو الغطاء لتقليل الإجهاد الحراري ومنع المزيد من الضرر.",
+      "explanationText": "جميع الأنظمة تعمل في الوضع التلقائي. تراقب المزرعة درجة الحرارة ورطوبة التربة وشدة الإضاءة بشكل مستمر. سيتم تشغيل المشغلات تلقائيًا عند تجاوز الحدود."
+    },
+    "editActuators": {
+      "title": "تعديل أوضاع المشغلات",
+      "description": "تبديل كل مشغل: تشغيل (ON) يعني شبه تلقائي، وإيقاف (OFF) يعني تلقائي.",
+      "on": "تشغيل",
+      "off": "إيقاف",
+      "close": "إغلاق",
+      "toggleAriaLabel": "تبديل وضع المشغل",
+      "closeAriaLabel": "إغلاق النافذة",
+      "modes": {
+        "auto": "تلقائي",
+        "semi-auto": "شبه تلقائي"
+      }
+    },
+    "manualModeCard": {
+      "toggleAriaLabel": "تبديل الوضع اليدوي",
+      "editAriaLabel": "تعديل أوضاع المشغلات",
+      "on": "تشغيل",
+      "off": "إيقاف",
+      "modes": {
+        "auto": "تلقائي",
+        "semi-auto": "شبه تلقائي",
+        "mixed": "مختلط"
+      }
+    },
+    "monitoringAlerts": {
+      "title": "تنبيهات المراقبة",
+      "subtitle": "تتبع الحالات البيئية الحرجة في الوقت الفعلي.",
+      "noAlerts": "لا توجد تنبيهات نشطة"
+    },
+    "sensors": {
+      "temperature": {
+        "label": "درجة الحرارة",
+        "description": "درجة حرارة الهواء المحيط"
+      },
+      "humidity": {
+        "label": "الرطوبة",
+        "description": "رطوبة الهواء المحيط"
+      },
+      "soilMoisture": {
+        "label": "رطوبة التربة",
+        "description": "مستوى الرطوبة في التربة"
+      },
+      "lightIntensity": {
+        "label": "الإضاءة",
+        "description": "شدة ضوء الشمس الحالية"
+      }
+    }
+  },
+  "header": {
+    "farmName": "ساهلة فارم",
+    "notifications": "الإشعارات",
+    "am": "ص",
+    "pm": "م"
+  },
+  "sidebar": {
+    "home": "الرئيسية",
+    "chat": "الدردشة",
+    "camera": "الكاميرا",
+    "history": "السجل",
+    "notifications": "الإشعارات",
+    "profile": "الملف الشخصي",
+    "logout": "تسجيل الخروج",
+    "settings": "الإعدادات"
+  }
+}

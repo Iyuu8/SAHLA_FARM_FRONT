@@ -1,0 +1,276 @@
+{
+  "profile": {
+    "edit": "Edit",
+    "farm_settings_title": "Farm Settings & Preferences",
+    "farm_settings_subtitle": "Farm Settings",
+    "labels": {
+      "mode": "Mode",
+      "manual_control": "Manual Control",
+      "growth": "Growth",
+      "crop": "Crop",
+      "temperature": "Temperature",
+      "humidity": "Humidity",
+      "soil_moisture": "Soil Moisture",
+      "light_intensity": "Light Intensity",
+      "language": "Language"
+    },
+    "global_mode": "Current global actuator control mode from Dashboard:",
+    "display_units": "Display Units",
+    "ha_connection": "Home Assistant Connection",
+    "status": "Status:",
+    "online": "Online",
+    "change": "Change",
+    "editHaModal": {
+        "title": "Change Home Assistant Connection",
+        "urlLabel": "Home Assistant URL",
+        "urlPlaceholder": "http://sahla-homeassistant.local:8123",
+        "tokenLabel": "Long-Lived Access Token",
+        "tokenPlaceholder": "Enter access token",
+        "errorRequired": "URL and token are required.",
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+    "editProfileModal": {
+      "title": "Edit Profile",
+      "userNameLabel": "User Name",
+      "emailLabel": "Email",
+      "addressLabel": "Address",
+      "ageLabel": "Age",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Password change requires backend and is disabled in this build",
+      "newPasswordLabel": "New Password",
+      "newPasswordPlaceholder": "Disabled until backend hashing/auth is implemented",
+      "passwordInfoText": "Password updates are intentionally disabled in frontend simulation because current password/token validation must be handled by backend hashing/auth.",
+      "errorInvalidAge": "Age must be a valid integer.",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "pfpEditorModal": {
+      "title": "Change Profile Picture",
+      "dropImage": "Drop image here",
+      "or": "or",
+      "browse": "Browse file",
+      "zoom": "Zoom",
+      "chooseAnother": "Choose another image",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "errorFileType": "Please choose an image file.",
+      "errorLoad": "Could not load this image. Please try another file.",
+      "errorNoImage": "Please add an image first.",
+      "errorProcess": "Could not process image. Please try again."
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "all": "ALL",
+    "unread": "UNREAD",
+    "mark_all_read": "Mark all read",
+    "no_unread": "No unread notifications",
+    "today": "TODAY",
+    "yesterday": "YESTERDAY",
+    "earlier": "EARLIER"
+  },
+  "history": {
+    "months": {
+      "january": "January", "february": "February", "march": "March", "april": "April", "may": "May", "june": "June", "july": "July", "august": "August", "september": "September", "october": "October", "november": "November", "december": "December"
+    },
+    "days": {
+      "su": "Su", "mo": "Mo", "tu": "Tu", "we": "We", "th": "Th", "fr": "Fr", "sa": "Sa"
+    },
+    "labels": {
+      "date": "Date",
+      "time": "Time",
+      "crop": "Crop",
+      "growth_stage": "Growth Stage",
+      "weather": "Weather"
+    },
+    "placeholders": {
+      "date": "e.g. 13-02-26",
+      "time": "e.g. 13:00",
+      "crop": "e.g. orange",
+      "select_growth_stage": "Select growth stage",
+      "select_weather": "Select weather",
+      "select_option": "Select option"
+    },
+    "timepicker": {
+      "hour": "HOUR",
+      "min": "MIN"
+    },
+    "buttons": {
+      "reset": "RESET",
+      "clear_filters": "Clear filters"
+    },
+    "empty_state": {
+      "no_records": "No records found",
+      "adjust_filters": "Try adjusting your filters"
+    },
+    "loading": "loading more records...",
+    "options": {
+      "all": "All",
+      "sunny": "Sunny",
+      "cloudy": "Cloudy",
+      "night": "Night",
+      "windy": "Windy",
+      "stormy": "Stormy",
+      "rainy": "Rainy"
+    },
+    "growth_stages": {
+      "all": "All",
+      "germination": "Germination",
+      "seedling": "Seedling",
+      "vegetative_growth": "Vegetative Growth",
+      "flowering": "Flowering",
+      "fruiting": "Fruiting",
+      "maturity": "Maturity"
+    }
+  },
+  "camStream": {
+    "status": {
+      "live": "LIVE",
+      "off": "OFF",
+      "streamOffline": "stream offline",
+      "errorConnection": "Failed to connect. Check IP & Network."
+    },
+    "controls": {
+      "stopStream": "stop stream",
+      "startStream": "start stream",
+      "takeSnapshot": "take snapshot"
+    },
+    "gallery": {
+      "title": "Gallery",
+      "clearAll": "Clear all",
+      "savedToGallery": "saved to gallery",
+      "capturedAt": "captured at",
+      "download": "Download",
+      "delete": "Delete",
+      "close": "Close"
+    },
+    "modals": {
+      "saveTitle": "Save this snapshot to the gallery?",
+      "saveDesc": "It will be added to your recent captures for you to view or download later.",
+      "deleteAllTitle": "Delete all snapshots from the gallery?",
+      "deleteSingleTitle": "Delete this snapshot?",
+      "cannotRecoverThem": "You will not be able to recover them.",
+      "cannotRecoverIt": "You will not be able to recover it.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "deleteBtn": "Delete"
+    }
+  },
+  "dashboard": {
+    "alertModal": {
+      "close": "Close",
+      "fallbackSubtitle": "Check system parameters",
+      "liveAlert": "Live Alert",
+      "systemAlert": "System Alert",
+      "severityLabel": "SEVERITY",
+      "severity": {
+        "HIGH": "HIGH",
+        "MODERATE": "MODERATE",
+        "LOW": "LOW"
+      },
+      "description": "Description"
+    },
+    "chart": {
+      "fallbackSensor": "Temperature",
+      "tooltipValue": "Value",
+      "ranges": {
+        "day": "Day",
+        "week": "Week",
+        "month": "Month"
+      }
+    },
+    "cropInfo": {
+      "title": "Crop Information",
+      "crop": "Crop",
+      "enterCrop": "Enter crop",
+      "growthStage": "Growth Stage",
+      "selectStage": "Select stage",
+      "stages": {
+        "germination": "Germination",
+        "seedling": "Seedling",
+        "vegetativeGrowth": "Vegetative Growth",
+        "flowering": "Flowering",
+        "fruiting": "Fruiting",
+        "maturity": "Maturity"
+      },
+      "mode": "Mode",
+      "selectMode": "Select mode",
+      "modes": {
+        "balanced": "balanced",
+        "waterSaving": "water saving",
+        "energySaving": "energy saving",
+        "growthPriority": "growth priority"
+      },
+      "recommendedActions": "Recommended Actions",
+      "explanationOfActions": "Explanation of Actions",
+      "recommendedText": "Your plants are overheating and the soil is very dry. Water them promptly and, if possible, provide some shade or cover to reduce heat stress and prevent further damage.",
+      "explanationText": "All systems are running in automatic mode. The farm is monitoring temperature, soil moisture, and light intensity continuously. Actuators will activate automatically when thresholds are exceeded."
+    },
+    "editActuators": {
+      "title": "Edit Actuator Modes",
+      "description": "Toggle each actuator: ON means semi-auto, OFF means auto.",
+      "on": "ON",
+      "off": "OFF",
+      "close": "Close",
+      "toggleAriaLabel": "Toggle actuator mode",
+      "closeAriaLabel": "Close modal",
+      "modes": {
+        "auto": "auto",
+        "semi-auto": "semi-auto"
+      }
+    },
+    "manualModeCard": {
+      "toggleAriaLabel": "Toggle manual mode",
+      "editAriaLabel": "Edit actuator modes",
+      "on": "ON",
+      "off": "OFF",
+      "modes": {
+        "auto": "auto",
+        "semi-auto": "semi-auto",
+        "mixed": "mixed"
+      }
+    },
+    "monitoringAlerts": {
+      "title": "Monitoring Alerts",
+      "subtitle": "Track critical environmental situations in real time.",
+      "noAlerts": "No active alerts"
+    },
+    "sensors": {
+      "temperature": {
+        "label": "Temperature",
+        "description": "Ambient air temperature"
+      },
+      "humidity": {
+        "label": "Humidity",
+        "description": "Ambient air humidity"
+      },
+      "soilMoisture": {
+        "label": "Soil Moisture",
+        "description": "Moisture level in the soil"
+      },
+      "lightIntensity": {
+        "label": "Light Intensity",
+        "description": "Current sunlight intensity"
+      }
+    }
+    
+  },
+  "header": {
+    "farmName": "SAHLA Farm",
+    "notifications": "Notifications",
+    "am": "AM",
+    "pm": "PM"
+  },
+  "sidebar": {
+    "home": "Home",
+    "chat": "Chat",
+    "camera": "Camera",
+    "history": "History",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "logout": "Log Out",
+    "settings": "Settings"
+  }
+
+}

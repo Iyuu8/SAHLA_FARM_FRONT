@@ -1,30 +1,35 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, ChevronDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * CropInfoDropdown
  *
  * Props:
- *  value        — currently selected string
- *  options      — string[]
- *  onChange     — (value: string) => void
- *  onAddOption  — (value: string) => void   (only needed for crop field)
- *  placeholder  — fallback display text
- *  isCropInput  — boolean: renders a text input instead of a plain button label
+ * value        — currently selected string
+ * options      — string[]
+ * onChange     — (value: string) => void
+ * onAddOption  — (value: string) => void   (only needed for crop field)
+ * placeholder  — fallback display text
+ * isCropInput  — boolean: renders a text input instead of a plain button label
  */
 export default function CropInfoDropdown({
   value,
   options = [],
   onChange,
   onAddOption,
-  placeholder = 'Select',
+  placeholder,
   isCropInput = false,
 }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState(value || '');
   const containerRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Fallback placeholder in case the parent doesn't provide one
+  const safePlaceholder = placeholder || t('dashboard.cropInfo.selectStage', 'Select');
 
   // Keep input text in sync when parent changes value
   useEffect(() => {
@@ -91,13 +96,14 @@ export default function CropInfoDropdown({
           ref={inputRef}
           type="text"
           value={inputVal}
-          placeholder={placeholder}
+          placeholder={safePlaceholder}
           onChange={(e) => {
             setInputVal(e.target.value);
             setIsOpen(true);
           }}
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
+          dir="auto" /* <-- Added: Helps browser detect RTL vs LTR typed text */
           className="bg-transparent border-none outline-none text-sm font-semibold leading-none w-24 placeholder:text-white/40"
           style={{ color: 'rgba(248,255,246,1)' }}
           autoComplete="off"
@@ -110,7 +116,7 @@ export default function CropInfoDropdown({
           className="flex items-center gap-0.5 focus:outline-none"
         >
           <span className="text-sm font-semibold leading-none" style={{ color: 'rgba(248,255,246,1)' }}>
-            {value || placeholder}
+            {value || safePlaceholder}
           </span>
         </button>
       )}
@@ -136,8 +142,8 @@ export default function CropInfoDropdown({
             exit={{ opacity: 0, y: -6, scaleY: 0.92 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
             style={{ transformOrigin: 'top center', ...dropdownStyle }}
-            // NO py — zero container padding so selected bg touches top/bottom edges flush
-            className="absolute left-0 top-full mt-1 z-50 min-w-[160px] overflow-hidden"
+            // Changed left-0 to start-0 so the dropdown anchors correctly in Arabic (RTL)
+            className="absolute start-0 top-full mt-1 z-50 min-w-[160px] overflow-hidden"
           >
             {options.map((option, idx) => {
               const isSelected = option.toLowerCase() === (value || '').toLowerCase();
@@ -148,7 +154,8 @@ export default function CropInfoDropdown({
                   key={option}
                   type="button"
                   onClick={() => handleSelect(option)}
-                  className="w-full flex items-center justify-between px-3 text-left transition-colors"
+                  // Changed text-left to text-start for RTL support
+                  className="w-full flex items-center justify-between px-3 text-start transition-colors"
                   style={{
                     paddingTop: isFirst ? '9px' : '6px',
                     paddingBottom: isLast ? '9px' : '6px',

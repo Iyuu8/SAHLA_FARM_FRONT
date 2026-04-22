@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import ActuatorCard from './ActuatorCard';
+import { useTranslation } from 'react-i18next';
 
 const containerVariants = {
   hidden: {},
@@ -21,6 +22,7 @@ export default function ActuatorCarousel({
   actuators,
   onToggleActuatorStatus,
 }) {
+  const { t } = useTranslation();
   return (
     <motion.div
       className='flex w-full gap-3 overflow-x-auto snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden touch-pan-x'

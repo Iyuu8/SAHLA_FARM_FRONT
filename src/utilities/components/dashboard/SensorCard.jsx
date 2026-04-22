@@ -1,5 +1,6 @@
 import { Thermometer, Droplets, Wind, Sun } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const ICON_MAP = {
   temperature: Thermometer,
@@ -9,6 +10,7 @@ const ICON_MAP = {
 };
 
 export default function SensorCard({ sensor, isSelected, onClick }) {
+  const { t } = useTranslation();
   const Icon = ICON_MAP[sensor.id] || Thermometer;
 
   return (
@@ -20,7 +22,8 @@ export default function SensorCard({ sensor, isSelected, onClick }) {
         backgroundColor: isSelected ? '#55BB33' : '#FFFFFF',
       }}
       transition={{ duration: 0.25, ease: 'easeInOut' }}
-      className="relative overflow-hidden rounded-[25px] p-3 sm:p-4 flex flex-col justify-between gap-3 text-left w-full h-full cursor-pointer focus:outline-none shadow-[4px_4px_10px_0px_rgba(0,0,0,0.06)] font-newblack"
+      // CHANGED: text-left to text-start for proper RTL alignment
+      className="relative overflow-hidden rounded-[25px] p-3 sm:p-4 flex flex-col justify-between gap-3 text-start w-full h-full cursor-pointer focus:outline-none shadow-[4px_4px_10px_0px_rgba(0,0,0,0.06)] font-newblack"
     >
       {/* Top gradient overlay for selected state */}
       <motion.div
@@ -51,7 +54,8 @@ export default function SensorCard({ sensor, isSelected, onClick }) {
           animate={{ color: isSelected ? '#F7FFF6' : '#192514' }}
           className="text-[13px] sm:text-[14px] md:text-[15px] font-semibold leading-tight"
         >
-          {sensor.label}
+          {/* Dynamically translates the label, falling back to the prop string */}
+          {t(`dashboard.sensors.${sensor.id}.label`, sensor.label)}
         </motion.span>
       </div>
 
@@ -70,6 +74,7 @@ export default function SensorCard({ sensor, isSelected, onClick }) {
             animate={{ color: isSelected ? '#F7FFF6' : '#192514' }}
             className="text-sm lg:text-md xl:text-lg font-semibold shrink-0"
           >
+            {/* Kept static as units usually don't change across languages, but you can wrap this in t() if needed */}
             {sensor.unit}
           </motion.span>
         </div>
@@ -79,7 +84,8 @@ export default function SensorCard({ sensor, isSelected, onClick }) {
           animate={{ color: isSelected ? 'rgba(247, 255, 246, 0.85)' : '#879284' }}
           className="text-[11px] sm:text-[12px] mt-1 sm:mt-1.5 leading-snug line-clamp-2"
         >
-          {sensor.description}
+          {/* Dynamically translates the description, falling back to the prop string */}
+          {t(`dashboard.sensors.${sensor.id}.description`, sensor.description)}
         </motion.p>
       </div>
     </motion.button>

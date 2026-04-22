@@ -1,5 +1,8 @@
 import React from 'react';
 import { Fan } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+
+
 
 function ActuatorIcon({ name }) {
   if (name.toLowerCase() === 'pump') {
@@ -22,6 +25,8 @@ export default function ActuatorCard({
   schedule,
   onToggle,
 }) {
+  const { t } = useTranslation();
+
   const isOn = status === 'on';
   const isSemiAuto = mode === 'semi-auto';
 
