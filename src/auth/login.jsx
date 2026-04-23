@@ -14,16 +14,30 @@ export default function Login() {
   const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       const { data, error: signinError } = await supabase.auth.signInWithPassword({
         email,
         password
       })
-      if (signinError) throw signinError;
+      if (signinError) {
+        // Handle specific error cases
+        if (signinError.message.includes('Invalid login credentials')) {
+          console.log("Invalid email or password. Please try again.");
+          throw new Error('Invalid email or password. Please try again.');
+        } else if (signinError.message.includes('Email not confirmed')) {
+          console.log("Please verify your email address before logging in");
+          throw new Error('Please verify your email address before logging in.');
+        } else {
+          throw signinError;
+        };
+      };
       if (data.session) {
         const { data: { session } } = await supabase.auth.getSession();
         /* const socket = io('http://localhost:3000', {
@@ -44,12 +58,22 @@ export default function Login() {
         
         localStorage.setItem('socket_connected', 'true'); */
         navigate("/dashboard");
-      } 
-    } catch (error) {
-      setError(error.message);
+      }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
+    console.log("the error is", error);
   }
 
+  const handleRememberMeChange = () => {
+    if (!rememberMe) {
+      localStorage.removeItem('rememberedEmail');
+    } else {
+      localStorage.setItem('rememberedEmail', email);
+    }
+  }
   const SmartAutomationIcon = () => <Bot size={38} />;
   const UnifiedPlatformIcon = () => <Phone size={28} />;
  
@@ -61,7 +85,11 @@ export default function Login() {
           <h1 className='font-bold text-black text-[28px] xs:text-[30px] md:text-[34px] laptop:text-[36px] single-tall:text-[42px] single-taller:text-[48px] text-center'>WELCOME BACK!</h1>
           <p className='text-[#636364] font-normal text-[16px] xs:text-[18px] md:text-[20px] laptop:text-[23px] single-tall:text-[25px] single-taller:text-[28px] text-center px-4'>Welcome back! Please enter your details.</p>
         </div>
- 
+ {error && (
+          <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mx-auto w-[80%] mb-4'>
+            {error}
+          </div>
+        )}
         <form
           className='flex items-center justify-center flex-[1.35] gap-[clamp(16px,2.4vh,34px)] flex-col mt-[clamp(8px,1.8vh,24px)] min-h-[clamp(320px,44vh,560px)] single-short:min-h-[300px] single-short:gap-[12px] single-short:mt-[8px] single-tall:min-h-[610px] single-tall:gap-[34px] single-tall:mt-[18px] single-taller:min-h-[700px] single-taller:gap-[40px] single-taller:mt-[24px]'
           onSubmit={handleSubmit}
@@ -105,17 +133,25 @@ export default function Login() {
  
           <div className='flex justify-between w-[85%] xs:w-[70%] text-[#192514] text-[15px] single-short:text-[14px] single-tall:text-[20px] single-taller:text-[22px]'>
             <label className='font-medium flex items-center'>
-              <input type="checkbox" className='w-[30px]' />
+              <input type="checkbox"
+                className='w-[30px]'
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
               Remember me
             </label>
-            <Link to="/forgot-password" className='font-bold underline'>forgot password</Link>
+            <Link to="/forgot-password" onClick={handleRememberMeChange} className='font-bold underline'>forgot password</Link>
           </div>
  
-          <div className='w-[85%] xs:w-[70%] flex justify-center mb-[clamp(6px,1.2vh,20px)] mt-[clamp(8px,1.8vh,24px)] flex-col items-center gap-[clamp(6px,1vh,14px)] single-short:mt-[8px] single-short:mb-[6px] single-short:gap-[6px] single-tall:mt-[26px] single-tall:mb-[26px] single-tall:gap-[14px] single-taller:mt-[32px] single-taller:mb-[30px] single-taller:gap-[18px]'>
-            <button className='bg-[#55BB33] w-[90%] xs:w-[80%] py-[8px] single-tall:py-[16px] single-taller:py-[19px] rounded-[6px] font-bold text-white font-family-poppins cursor-pointer transition-all duration-300 hover:bg-[#66cd43] md:text-[22px] text-[20px] single-tall:text-[29px] single-taller:text-[33px] shadow-sm shadow-[#55BB33]'>
-              Sign in
+          <div className='w-[80%] xs:w-[70%] flex flex-col items-center gap-4'>
+            <button 
+              type="submit"
+              disabled={loading}
+              className='bg-[#55BB33] w-full py-3 rounded-[6px] font-bold text-white hover:bg-[#66cd43] transition disabled:opacity-50'
+            >
+              {loading ? 'Signing in...' : 'Sign in'}
             </button>
-            <Link to="/signup" className='font-bold underline text-[#1A3D00] text-center text-[14px] single-tall:text-[20px] single-taller:text-[22px]'>New to SAHLA FARM? Create an account</Link>
+            <Link to="/signup" className='font-bold underline text-[#1A3D00]'>New to SAHLA FARM? Create an account</Link>
           </div>
         </form>
  

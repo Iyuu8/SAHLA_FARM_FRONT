@@ -144,14 +144,14 @@ export default function ProfilePage() {
             </span>
             <div className='flex flex-wrap gap-2 sm:gap-3 mt-1'>
               <FarmDropdown
-                label="Mode"
+                label={t('profile.labels.mode')}
                 value={mode ?? farmSettings.mode}
                 options={modeOptions || []}
                 onChange={setMode}
                 color={{ bg: '#192514', text: '#F8FFF6' }}
               />
               <FarmDropdown
-                label="Manual Control"
+                label={t('profile.labels.manual_control')}
                 value={manualControlFromActuators ?? farmSettings.manualControl}
                 options={manualControlOptions || []}
                 onChange={(next) => {
