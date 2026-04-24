@@ -354,19 +354,19 @@ export default function SignUp() {
         </div>
         <div className='flex flex-col gap-[clamp(10px,1vh,15px)] mt-[clamp(20px,5vh,70px)] px-[clamp(20px,2.5vw,60px)]'>
           <h1 className='text-white font-bold text-[45px] leading-[3rem] font-newblack'>{t('signUp.rightSideTitle')}</h1>
-          <p className='text-white font-semibold text-[16px] font-newblack'>{t('signUp.rightSideDescription')}</p>
+          <p className='text-white font-semibold text-[16px] font-newblack'>{t('signUp.rightSideDesc')}</p>
         </div>
         <div className='flex w-full justify-between px-[clamp(15px,1.5vw,60px)] py-[clamp(10px,2vh,30px)] gap-2'>
           <LoginFeatureContainer
-            title={t('signUp.smartAutomation')}
-            description={t('signUp.smartAutomationDescription')}
+            title={t('signUp.feature1Title')}
+            description={t('signUp.feature1Desc')}
             Icon={SmartAutomationIcon}
             size={10}
             colors={{ bg: 'rgba(215,255,202,0.6)', icon: 'rgba(46,105,0,0.27)' }}
           />
           <LoginFeatureContainer
-            title={t('signUp.unifiedPlatform')}
-            description={t('signUp.unifiedPlatformDescription')}
+            title={t('signUp.feature2Title')}
+            description={t('signUp.feature2Desc')}
             Icon={UnifiedPlatformIcon}
             size={10}
             colors={{ bg: 'rgba(215,255,202,0.6)', icon: 'rgba(46,105,0,0.27)' }}
