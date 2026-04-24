@@ -6,9 +6,12 @@ import { Bot, Phone } from 'lucide-react'
 import LoginFeatureContainer from '../utilities/components/login/loginFeature'
 import { useNavigate } from 'react-router'
 import { supabase } from '../supabaseClient';
+import { useTranslation } from 'react-i18next';
 import { io } from 'socket.io-client'
- 
+import LanguageSwitcher from '../utilities/components/login/LanguageSwitcher' 
+
 export default function Login() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -55,11 +58,12 @@ export default function Login() {
  
   return (
     <div className='flex min-h-screen bg-[#F8FFF6] font-newblack'>
+      <LanguageSwitcher />
       {/* left side */}
       <div className='flex flex-col w-full laptop:w-1/2 justify-between h-screen min-h-screen pt-[clamp(18px,3.6vh,48px)] pb-[clamp(10px,1.8vh,24px)] single-short:pt-[12px] single-short:pb-[8px] single-tall:pt-[54px] single-tall:pb-[30px] single-taller:pt-[66px] single-taller:pb-[36px]'>
         <div className='flex flex-col items-center justify-center flex-[0.9] min-h-[clamp(110px,16vh,220px)] gap-[clamp(6px,1.1vh,14px)] single-short:min-h-[94px] single-short:gap-[6px] single-tall:min-h-[240px] single-tall:gap-[14px] single-taller:min-h-[280px] single-taller:gap-[18px]'>
-          <h1 className='font-bold text-black text-[28px] xs:text-[30px] md:text-[34px] laptop:text-[36px] single-tall:text-[42px] single-taller:text-[48px] text-center'>WELCOME BACK!</h1>
-          <p className='text-[#636364] font-normal text-[16px] xs:text-[18px] md:text-[20px] laptop:text-[23px] single-tall:text-[25px] single-taller:text-[28px] text-center px-4'>Welcome back! Please enter your details.</p>
+          <h1 className='font-bold text-black text-[28px] xs:text-[30px] md:text-[34px] laptop:text-[36px] single-tall:text-[42px] single-taller:text-[48px] text-center'>{t('login.welcomeBackTitle')}</h1>
+          <p className='text-[#636364] font-normal text-[16px] xs:text-[18px] md:text-[20px] laptop:text-[23px] single-tall:text-[25px] single-taller:text-[28px] text-center px-4'>{t('login.welcomeBackSubtitle')}</p>
         </div>
  
         <form
@@ -68,7 +72,7 @@ export default function Login() {
         >
           {/* email */}
           <label className='flex flex-col items-start w-[80%] xs:w-[70%] gap-[clamp(4px,0.8vh,10px)]'>
-            <h2 className='text-[#444] font-medium font-family-poppins w-full text-[16px] single-tall:text-[21px] single-taller:text-[23px]'>Email Address</h2>
+            <h2 className='text-[#444] font-medium font-family-poppins w-full text-[16px] single-tall:text-[21px] single-taller:text-[23px]'>{t('login.emailLabel')}</h2>
             <div className='flex border-2 rounded-[10px] border-[#D9D9D9] px-5 items-center py-[clamp(3px,0.8vh,10px)] w-full min-h-[clamp(48px,6vh,76px)] single-short:min-h-[44px] single-short:py-[2px] single-tall:min-h-[84px] single-tall:py-[13px] single-taller:min-h-[96px] single-taller:py-[16px]'>
               <span className='font-light text-[30px] single-tall:text-[38px] single-taller:text-[42px] text-[#929292]'><FaRegEnvelope /></span>
               <input
@@ -84,13 +88,13 @@ export default function Login() {
  
           {/* password */}
           <label className='flex flex-col items-start w-[80%] xs:w-[70%] gap-[clamp(4px,0.8vh,10px)]'>
-            <h2 className='text-[#444] font-medium font-family-poppins w-full text-[16px] single-tall:text-[21px] single-taller:text-[23px]'>Password</h2>
+            <h2 className='text-[#444] font-medium font-family-poppins w-full text-[16px] single-tall:text-[21px] single-taller:text-[23px]'>{t('login.passwordLabel')}</h2>
             <div className='flex border-2 rounded-[10px] border-[#D9D9D9] px-5 items-center py-[clamp(3px,0.8vh,10px)] w-full min-h-[clamp(48px,6vh,76px)] single-short:min-h-[44px] single-short:py-[2px] single-tall:min-h-[84px] single-tall:py-[13px] single-taller:min-h-[96px] single-taller:py-[16px]'>
               <span className='font-light text-[25px] single-tall:text-[36px] single-taller:text-[40px] text-[#929292]'><FaLock /></span>
               <input
                 type={showPass ? "text" : "password"}
                 className='outline-none text-[clamp(1.5ch,2vw,2.2ch)] single-tall:text-[2.55ch] single-taller:text-[2.8ch] text-[#444444] px-[12px] py-[3px] bg-transparent max-w-[80%]'
-                placeholder='your password'
+                placeholder={t('login.passwordPlaceholder')}
                 required
                 onChange={(e) => setPassword(e.target.value)}
                 value={password}
@@ -106,16 +110,16 @@ export default function Login() {
           <div className='flex justify-between w-[85%] xs:w-[70%] text-[#192514] text-[15px] single-short:text-[14px] single-tall:text-[20px] single-taller:text-[22px]'>
             <label className='font-medium flex items-center'>
               <input type="checkbox" className='w-[30px]' />
-              Remember me
+              {t('login.rememberMe')}
             </label>
-            <Link to="/forgot-password" className='font-bold underline'>forgot password</Link>
+            <Link to="/forgot-password" className='font-bold underline'>{t('login.forgotPassword')}</Link>
           </div>
  
           <div className='w-[85%] xs:w-[70%] flex justify-center mb-[clamp(6px,1.2vh,20px)] mt-[clamp(8px,1.8vh,24px)] flex-col items-center gap-[clamp(6px,1vh,14px)] single-short:mt-[8px] single-short:mb-[6px] single-short:gap-[6px] single-tall:mt-[26px] single-tall:mb-[26px] single-tall:gap-[14px] single-taller:mt-[32px] single-taller:mb-[30px] single-taller:gap-[18px]'>
             <button className='bg-[#55BB33] w-[90%] xs:w-[80%] py-[8px] single-tall:py-[16px] single-taller:py-[19px] rounded-[6px] font-bold text-white font-family-poppins cursor-pointer transition-all duration-300 hover:bg-[#66cd43] md:text-[22px] text-[20px] single-tall:text-[29px] single-taller:text-[33px] shadow-sm shadow-[#55BB33]'>
-              Sign in
+              {t('login.signInButton')}
             </button>
-            <Link to="/signup" className='font-bold underline text-[#1A3D00] text-center text-[14px] single-tall:text-[20px] single-taller:text-[22px]'>New to SAHLA FARM? Create an account</Link>
+            <Link to="/signup" className='font-bold underline text-[#1A3D00] text-center text-[14px] single-tall:text-[20px] single-taller:text-[22px]'>{t('login.createAccount')}</Link>
           </div>
         </form>
  
@@ -124,10 +128,10 @@ export default function Login() {
           <div className="bg-[#dcecd0] rounded-xl border-[#D9D9D9] px-[20px] py-[15px] single-short:px-[14px] single-short:py-[10px] single-tall:px-[30px] single-tall:py-[24px] single-taller:px-[36px] single-taller:py-[30px] text-[#3e9322]">
             <div className="flex items-center gap-2">
               <FaExclamationCircle className="w-10 text-2xl single-tall:text-[30px] single-taller:text-[34px]" />
-              <span className="font-medium single-tall:text-[28px] single-taller:text-[31px]">Demo Mode</span>
+              <span className="font-medium single-tall:text-[28px] single-taller:text-[31px]">{t('login.demoMode')}</span>
             </div>
             <p className="mt-1 text-sm single-short:text-[12px] single-tall:text-[20px] single-taller:text-[22px] text-[#3b8622] text-center">
-              Use any email/password to test the login flow
+              {t('login.demoModeDesc')}
             </p>
           </div>
         </div>
@@ -141,26 +145,26 @@ export default function Login() {
         <div className='w-full flex justify-center'>
           <img
             src="/SAHLA_logo.png"
-            alt="bags picture"
+            alt={t('login.logoAlt')}
             className='w-[280px]'
           />
         </div>
         <div className='flex flex-col gap-[clamp(10px,1vh,15px)] mt-[clamp(20px,5vh,70px)] px-[clamp(20px,2.5vw,60px)]'>
-          <h1 className='text-white font-bold text-[45px] leading-[3rem] font-newblack'>Manage your Farm with confidence</h1>
-          <p className='text-white font-semibold text-[16px] font-newblack'>Monitor your farm, automate decisions, and manage everything from one unified intelligent platform.</p>
+          <h1 className='text-white font-bold text-[45px] leading-[3rem] font-newblack'>{t('login.rightSideTitle')}</h1>
+          <p className='text-white font-semibold text-[16px] font-newblack'>{t('login.rightSideDesc')}</p>
         </div>
         <div className='flex w-full justify-between px-[clamp(15px,1.5vw,60px)] py-[clamp(10px,2vh,30px)] gap-2'>
           <LoginFeatureContainer
-            title='Smart Automation'
-            description='monitor & automate instantly'
+            title={t('login.feature1Title')}
+            description={t('login.feature1Desc')}
             Icon={SmartAutomationIcon}
             size={10}
             colors={{bg:"rgba(215,255,202,0.6)",icon:"rgba(46,105,0,0.27)"}}
 
           />
           <LoginFeatureContainer
-            title='Unified Platform'
-            description='everything in one single place'
+            title={t('login.feature2Title')}
+            description={t('login.feature2Desc')}
             Icon={UnifiedPlatformIcon}
             size={10}
             colors={{bg:"rgba(215,255,202,0.6)",icon:"rgba(46,105,0,0.27)"}}

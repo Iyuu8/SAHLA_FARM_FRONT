@@ -3,9 +3,12 @@ import { FaRegEnvelope, FaArrowLeft } from 'react-icons/fa6'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { Bot, Phone } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import LoginFeatureContainer from '../utilities/components/login/loginFeature'
+import LanguageSwitcher from '../utilities/components/login/LanguageSwitcher'
 
 export default function ForgotPassword() {
+  const { t } = useTranslation()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -26,7 +29,7 @@ export default function ForgotPassword() {
         // Handle rate limiting
         if (resetError.message.includes('rate limit')) {
           setCooldown(60)
-          throw new Error('Too many requests. Please wait 60 seconds before trying again.')
+          throw new Error(t('forgotPassword.rateLimitError'))
         }
         throw resetError
       }
@@ -59,19 +62,19 @@ export default function ForgotPassword() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
-          <h2 className='text-2xl font-bold text-gray-800 mb-2'>Check Your Email</h2>
+          <h2 className='text-2xl font-bold text-gray-800 mb-2'>{t('forgotPassword.checkEmail')}</h2>
           <p className='text-gray-600 mb-4'>
-            We've sent a password reset link to <strong>{email}</strong>
+            {t('forgotPassword.sentLink')} <strong>{email}</strong>
           </p>
           <p className='text-sm text-gray-500 mb-6'>
-            Click the link in the email to reset your password. The link will expire in 1 hour.
+            {t('forgotPassword.expireNotice')}
           </p>
           <Link 
             to='/login' 
             className='inline-flex items-center gap-2 text-[#55BB33] hover:underline'
           >
             <FaArrowLeft size={14} />
-            Back to Login
+            {t('forgotPassword.backToLogin')}
           </Link>
         </div>
       </div>
@@ -80,6 +83,7 @@ export default function ForgotPassword() {
 
   return (
     <div className='flex min-h-screen bg-[#F8FFF6] font-newblack'>
+      <LanguageSwitcher />
       {/* left side */}
       <div className='flex flex-col w-full laptop:w-1/2 justify-between h-screen min-h-screen'>
         <div className='flex flex-col items-center justify-center flex-1'>
@@ -90,9 +94,9 @@ export default function ForgotPassword() {
             </Link> */}
 
             <div className='text-center mb-8'>
-              <h1 className='font-bold text-black text-3xl mb-2'>Forgot Password?</h1>
+              <h1 className='font-bold text-black text-3xl mb-2'>{t('forgotPassword.title')}</h1>
               <p className='text-[#636364]'>
-                Enter your email address and we'll send you a link to reset your password.
+                {t('forgotPassword.description')}
               </p>
             </div>
 
@@ -104,7 +108,7 @@ export default function ForgotPassword() {
 
             <form onSubmit={handleSubmit} className='space-y-6'>
               <label className='flex flex-col items-start gap-2'>
-                <h2 className='text-[#444] font-medium'>Email Address</h2>
+                <h2 className='text-[#444] font-medium'>{t('forgotPassword.emailLabel')}</h2>
                 <div className='flex border-2 rounded-lg border-[#D9D9D9] px-4 items-center w-full'>
                   <span className='text-[#929292]'><FaRegEnvelope /></span>
                   <input
@@ -123,15 +127,15 @@ export default function ForgotPassword() {
                 disabled={loading || cooldown > 0}
                 className='w-full bg-[#55BB33] text-white py-3 rounded-lg font-bold hover:bg-[#66cd43] transition disabled:opacity-50'
               >
-                {loading ? 'Sending...' : 
-                 cooldown > 0 ? `Wait ${cooldown}s` : 'Send Reset Link'}
+                {loading ? t('forgotPassword.sending') : 
+                 cooldown > 0 ? t('forgotPassword.wait', { seconds: cooldown }) : t('forgotPassword.sendResetLink')}
               </button>
             </form>
 
             <p className='text-center text-gray-600 mt-6'>
-              Remember your password?{' '}
+              {t('forgotPassword.rememberPassword')}{' '}
               <Link to='/login' className='text-[#55BB33] font-bold hover:underline'>
-                Sign In
+                {t('forgotPassword.signIn')}
               </Link>
             </p>
           </div>
@@ -144,10 +148,10 @@ export default function ForgotPassword() {
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
-              <span className='font-medium'>Demo Mode</span>
+              <span className='font-medium'>{t('forgotPassword.demoMode')}</span>
             </div>
             <p className='mt-1 text-sm'>
-              Enter any email to test the password reset flow
+              {t('forgotPassword.demoModeDesc')}
             </p>
           </div>
         </div>
@@ -159,23 +163,23 @@ export default function ForgotPassword() {
           <h1 className='text-white text-3xl font-bold'>SAHLA FARM</h1>
         </div>
         <div className='w-full flex justify-center'>
-          <img src='/SAHLA_logo.png' alt='SAHLA logo' className='w-64' />
+          <img src='/SAHLA_logo.png' alt={t('forgotPassword.logoAlt')} className='w-64' />
         </div>
         <div className='px-8 pb-8'>
-          <h1 className='text-white font-bold text-4xl mb-4'>Reset Your Password</h1>
-          <p className='text-white text-lg'>We'll help you get back into your account</p>
+          <h1 className='text-white font-bold text-4xl mb-4'>{t('forgotPassword.rightSideTitle')}</h1>
+          <p className='text-white text-lg'>{t('forgotPassword.rightSideDesc')}</p>
         </div>
         <div className='flex w-full justify-between px-8 py-6 gap-4'>
           <LoginFeatureContainer
-            title='Smart Automation'
-            description='monitor & automate instantly'
+            title={t('forgotPassword.feature1Title')}
+            description={t('forgotPassword.feature1Desc')}
             Icon={SmartAutomationIcon}
             size={10}
             colors={{ bg: 'rgba(215,255,202,0.6)', icon: 'rgba(46,105,0,0.27)' }}
           />
           <LoginFeatureContainer
-            title='Unified Platform'
-            description='everything in one single place'
+            title={t('forgotPassword.feature2Title')}
+            description={t('forgotPassword.feature2Desc')}
             Icon={UnifiedPlatformIcon}
             size={10}
             colors={{ bg: 'rgba(215,255,202,0.6)', icon: 'rgba(46,105,0,0.27)' }}

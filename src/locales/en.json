@@ -122,6 +122,34 @@
       "flowering": "Flowering",
       "fruiting": "Fruiting",
       "maturity": "Maturity"
+    },
+    "historyCard": {
+      "at": "at",
+      "in": "in",
+      "stage": "stage:",
+      "pump": "Pump",
+      "fan": "Fan",
+      "sensors": {
+        "temperature": "Temperature",
+        "humidity": "Humidity",
+        "soilMoisture": "Soil moisture",
+        "lightIntensity": "Light intensity"
+      },
+      "sections": {
+        "actuators": "Actuators",
+        "weatherSummary": "Weather Summary",
+        "aiRecommendations": "SAHLA AI . Recommendations"
+      }
+    },
+    "actuatorCard": {
+      "plannedFrom": "planned to execute from",
+      "plannedAt": "planned to execute at",
+      "plannedUntil": "planned to execute until",
+      "suggestedFrom": "suggested to execute from",
+      "suggestedAt": "suggested to execute at",
+      "suggestedUntil": "suggested to execute until",
+      "noPlannedTime": "No planned time",
+      "noSuggestedTime": "No suggested time"
     }
   },
   "camStream": {
@@ -129,7 +157,8 @@
       "live": "LIVE",
       "off": "OFF",
       "streamOffline": "stream offline",
-      "errorConnection": "Failed to connect. Check IP & Network."
+      "errorConnection": "Failed to connect. Check IP & Network.",
+      "cors_snapshot": "CORS Error: Cannot take a snapshot. Check IP Webcam settings."
     },
     "controls": {
       "stopStream": "stop stream",
@@ -175,9 +204,9 @@
       "fallbackSensor": "Temperature",
       "tooltipValue": "Value",
       "ranges": {
-        "day": "Day",
-        "week": "Week",
-        "month": "Month"
+        "today": "Today",
+        "threeDays": "Three Days",
+        "week": "Week"
       }
     },
     "cropInfo": {
@@ -217,7 +246,8 @@
       "closeAriaLabel": "Close modal",
       "modes": {
         "auto": "auto",
-        "semi-auto": "semi-auto"
+        "semi-auto": "semi-auto",
+        "semi_auto": "semi_auto"
       }
     },
     "manualModeCard": {
@@ -271,6 +301,126 @@
     "profile": "Profile",
     "logout": "Log Out",
     "settings": "Settings"
+  },
+  "aiChat": {
+    "limitReached": "Reached conversation limit. Please open a new conversation to continue.",
+    "newChatConfirm": "Are you sure you want to clear this conversation and start a new one?",
+    "welcomeHint": "Hello! I am SAHLA AI. How can I help you with your farm today?",
+    "imageError": "Sorry, I had trouble processing that image. Please try again.",
+    "genericError": "Sorry, I encountered an error processing your request. Please try again.",
+    "aiName": "SAHLA",
+    "logoAlt": "SAHLA logo",
+    "placeholder": "Ask about your farm ...",
+    "attachFile": "Attach file or image",
+    "startNew": "Start new conversation",
+    "detailed": "Detailed",
+    "concise": "Concise",
+    "imageExpandedAlt": "Expanded view",
+    "thinking": "Thinking",
+    "attachedImageAlt": "Attached image"
+  },
+  "forgotPassword": {
+    "rateLimitError": "Too many requests. Please wait 60 seconds before trying again.",
+    "checkEmail": "Check Your Email",
+    "sentLink": "We've sent a password reset link to",
+    "expireNotice": "Click the link in the email to reset your password. The link will expire in 1 hour.",
+    "backToLogin": "Back to Login",
+    "title": "Forgot Password?",
+    "description": "Enter your email address and we'll send you a link to reset your password.",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "you@example.com",
+    "sending": "Sending...",
+    "wait": "Wait {{seconds}}s",
+    "sendResetLink": "Send Reset Link",
+    "rememberPassword": "Remember your password?",
+    "signIn": "Sign In",
+    "demoMode": "Demo Mode",
+    "demoModeDesc": "Enter any email to test the password reset flow",
+    "rightSideTitle": "Reset Your Password",
+    "rightSideDesc": "We'll help you get back into your account",
+    "feature1Title": "Smart Automation",
+    "feature1Desc": "monitor & automate instantly",
+    "feature2Title": "Unified Platform",
+    "feature2Desc": "everything in one single place",
+    "logoAlt": "SAHLA logo"
+  },
+  "login": {
+    "welcomeBackTitle": "WELCOME BACK!",
+    "welcomeBackSubtitle": "Welcome back! Please enter your details.",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "your password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "forgot password",
+    "signInButton": "Sign in",
+    "createAccount": "New to SAHLA FARM? Create an account",
+    "demoMode": "Demo Mode",
+    "demoModeDesc": "Use any email/password to test the login flow",
+    "logoAlt": "SAHLA logo",
+    "rightSideTitle": "Manage your Farm with confidence",
+    "rightSideDesc": "Monitor your farm, automate decisions, and manage everything from one unified intelligent platform.",
+    "feature1Title": "Smart Automation",
+    "feature1Desc": "monitor & automate instantly",
+    "feature2Title": "Unified Platform",
+    "feature2Desc": "everything in one single place"
+  },
+  "resetPassword": {
+    "passwordLengthError": "Password must be at least 8 characters long",
+    "invalidPasswordError": "Please enter a valid password",
+    "passwordsMatchError": "Passwords do not match",
+    "successTitle": "Password Reset Successfully!",
+    "successMessage": "Your password has been updated. You can now login with your new password.",
+    "redirectingMessage": "Redirecting to login page...",
+    "title": "Create New Password",
+    "subtitle": "Enter your new password below.",
+    "newPasswordLabel": "New Password",
+    "newPasswordPlaceholder": "Enter new password (min 8 characters)",
+    "passwordValid": "✓ Password is valid",
+    "confirmPasswordLabel": "Confirm New Password",
+    "confirmPasswordPlaceholder": "Confirm your new password",
+    "resettingButton": "Resetting Password...",
+    "resetButton": "Reset Password",
+    "logoAlt": "SAHLA logo",
+    "rightSideTitle": "Secure Your Account",
+    "rightSideDesc": "Create a strong password to keep your farm data safe",
+    "feature1Title": "Smart Automation",
+    "feature1Desc": "monitor & automate instantly",
+    "feature2Title": "Unified Platform",
+    "feature2Desc": "everything in one single place"
+  },
+  "signUp": {
+    "passwordLengthError": "Password must be at least 8 characters long",
+    "emailExistsError": "This email is already registered. Please use a different email or login.",
+    "fixErrors": "Please fix the errors before submitting",
+    "successTitle": "Account Created Successfully!",
+    "successMessage": "Please check your email for verification link.",
+    "redirectingMessage": "Redirecting to login page...",
+    "title": "CREATE ACCOUNT",
+    "subtitle": "Fill in the details below to get started.",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "your username",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "your password (min 8 characters)",
+    "passwordValid": "✓ Password is valid",
+    "ageLabel": "Age",
+    "agePlaceholder": "your age",
+    "addressLabel": "Address",
+    "addressPlaceholder": "your address",
+    "creatingButton": "Creating Account...",
+    "createButton": "Create Account",
+    "signInLink": "Already have an account? Sign in",
+    "demoModeTitle": "Demo Mode",
+    "demoModeDesc": "Use any email/password to test the login flow",
+    "logoAlt": "SAHLA logo",
+    "rightSideTitle": "Manage your Farm with confidence",
+    "rightSideDesc": "Monitor your farm, automate decisions, and manage everything from one unified intelligent platform.",
+    "feature1Title": "Smart Automation",
+    "feature1Desc": "monitor & automate instantly",
+    "feature2Title": "Unified Platform",
+    "feature2Desc": "everything in one single place"
   }
 
 }

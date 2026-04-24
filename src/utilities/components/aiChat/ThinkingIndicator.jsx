@@ -1,6 +1,9 @@
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export default function ThinkingIndicator() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-center gap-3">
       <div
@@ -9,13 +12,13 @@ export default function ThinkingIndicator() {
       >
         <img
           src="/logo_sahla.svg"
-          alt="SAHLA"
+          alt={t('aiChat.logoAlt')}
           className="w-7 h-7 object-contain"
           style={{ display: 'block' }}
         />
       </div>
       <span className="text-base font-medium" style={{ color: '#192514' }}>
-        Thinking
+        {t('aiChat.thinking')}
         {[0, 1, 2].map((i) => (
           <motion.span
             key={i}

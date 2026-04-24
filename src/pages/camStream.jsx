@@ -176,7 +176,7 @@ export default function CamStream() {
       setSnapFlash(true);
       setTimeout(() => setSnapFlash(false), 200);
     } catch (err) {
-      setCamError("CORS Error: Cannot take a snapshot. Check IP Webcam settings.");
+      setCamError(t('camStream.status.cors_snapshot'));
       console.error(err);
     }
   };

@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export default function ImageModal({ imageUrl, onClose }) {
+  const { t } = useTranslation();
+
   // Prevent scrolling on the background when the modal is open
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -34,7 +37,7 @@ export default function ImageModal({ imageUrl, onClose }) {
         exit={{ scale: 0.95, opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
         src={imageUrl}
-        alt="Expanded view"
+        alt={t('aiChat.imageExpandedAlt')}
         className="max-w-full max-h-full object-contain rounded-lg shadow-2xl cursor-default"
         onClick={(e) => e.stopPropagation()} // Prevent clicking the image from closing the modal
       />

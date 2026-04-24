@@ -313,8 +313,6 @@ export default function History({
     crop:"",
     growthStage: `${t('history.growth_stages.all')}`,
     weather: `${t('history.options.all')}`,
-    growthStage:"All",
-    weather:"All"
   });
   const [selectedItem, setSelectedItem] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -343,11 +341,15 @@ export default function History({
     const dateMatch = Input.date === "" || p.date.includes(Input.date);
     const timeMatch = Input.time === "" || p.time.includes(Input.time);
     const cropMatch = Input.crop === "" || p.crop.toLowerCase().includes(Input.crop.toLowerCase());
-    const stageMatch = Input.growthStage === `${t('history.growth_stages.all')}` || p.growthStage.toLowerCase() === Input.growthStage.toLowerCase();
-    const weatherMatch = Input.weather === `${t('history.options.all')}` || p.weather.toLowerCase() === Input.weather.toLowerCase();
+    const stageMatch =
+    Input.growthStage === t('history.growth_stages.all') ||
+    t(`history.growth_stages.${p.growthStage.toLowerCase()}`) === t(`history.growth_stages.${Input.growthStage.toLowerCase()}`);
+    const weatherMatch =
+    Input.weather === t('history.options.all') ||
+    t(`history.options.${p.weather.toLowerCase()}`) === t(`history.options.${Input.weather.toLowerCase()}`);
+    
     return dateMatch && timeMatch && cropMatch && stageMatch && weatherMatch;
   })
-  console.log(Input);
   return (
     <div className='flex flex-col h-full max-h-full overflow-hidden md:p-3 p-1 gap-4 w-full'>
       <div className='flex flex-wrap justify-between gap-3 flex-none'>

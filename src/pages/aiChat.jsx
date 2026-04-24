@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useCallback, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 import UserBubble        from '../utilities/components/aiChat/UserBubble';
 import AIBubble          from '../utilities/components/aiChat/AIBubble';
@@ -91,6 +92,8 @@ async function buildUserContent(text, files, farmContext, modeInstruction) {
 export default function AIchat({
   recommendedAction,
 }) {
+  const { t } = useTranslation();
+
   const {
     crop,
     growthStage,
@@ -136,7 +139,7 @@ export default function AIchat({
 
   // Start a new chat from the shared App state.
   const handleClearChat = () => {
-    if (window.confirm(CHAT_COPY.newChatConfirm)) {
+    if (window.confirm(t('aiChat.newChatConfirm'))) {
       // Conversation reset clears all persisted messages for this chat thread.
       localStorage.removeItem(STORAGE_KEYS.chatHistory);
       setMessages([]);
@@ -301,8 +304,8 @@ export default function AIchat({
       console.error("AI Chat Error:", err);
       const attemptedImage = validFiles && validFiles.some((f) => f.isImage);
       const errText = attemptedImage 
-        ? CHAT_COPY.imageError
-        : CHAT_COPY.genericError;
+        ? t('aiChat.imageError')
+        : t('aiChat.genericError');
 
       const nextErrorMessages = [
         ...nextUserMessages,
@@ -314,13 +317,13 @@ export default function AIchat({
     } finally {
       setIsThinking(false);
     }
-  }, [conversationLimitReached, farmProps, messages, persistConversation, responseMode, setMessages]);
+  }, [conversationLimitReached, farmProps, messages, persistConversation, responseMode, setMessages, t]);
 
   return (
     <div className="flex flex-col w-full h-full font-newblack overflow-hidden relative" style={{ background: '#F5F7F6' }}>
       {conversationLimitReached ? (
         <div className="mx-3 sm:mx-6 md:mx-12 lg:mx-20 mt-2 rounded-lg border border-[#C73030]/20 bg-[#FFF4F4] px-3 py-2 text-sm text-[#8B1C1C]">
-          Reached conversation limit. Please open a new conversation to continue.
+          {t('aiChat.limitReached')}
         </div>
       ) : null}
       
@@ -336,7 +339,7 @@ export default function AIchat({
               <img src="/logo_sahla.svg" alt="SAHLA" className="w-11 h-11 object-contain" />
             </div>
             <p className="text-base font-medium max-w-xs" style={{ color: 'rgba(25,37,20,0.45)' }}>
-              {CHAT_COPY.welcomeHint}
+              {t('aiChat.welcomeHint')}
             </p>
           </motion.div>
         )}

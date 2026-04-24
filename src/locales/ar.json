@@ -122,6 +122,34 @@
       "flowering": "تزهير",
       "fruiting": "إثمار",
       "maturity": "نضج"
+    },
+    "historyCard": {
+      "at": "على الساعة",
+      "in": "في",
+      "stage": "مرحلة:",
+      "pump": "مضخة",
+      "fan": "مروحة",
+      "sensors": {
+        "temperature": "درجة الحرارة",
+        "humidity": "الرطوبة",
+        "soilMoisture": "رطوبة التربة",
+        "lightIntensity": "شدة الإضاءة"
+      },
+      "sections": {
+        "actuators": "المشغلات",
+        "weatherSummary": "ملخص الطقس",
+        "aiRecommendations": "توصيات SAHLA AI"
+      }
+    },
+    "actuatorCard": {
+      "plannedFrom": "من المقرر التنفيذ من",
+      "plannedAt": "من المقرر التنفيذ في",
+      "plannedUntil": "من المقرر التنفيذ حتى",
+      "suggestedFrom": "يُقترح التنفيذ من",
+      "suggestedAt": "يُقترح التنفيذ في",
+      "suggestedUntil": "يُقترح التنفيذ حتى",
+      "noPlannedTime": "لا يوجد وقت مقرر",
+      "noSuggestedTime": "لا يوجد وقت مقترح"
     }
   },
   "camStream": {
@@ -129,7 +157,8 @@
       "live": "مباشر",
       "off": "متوقف",
       "streamOffline": "البث متوقف",
-      "errorConnection": "فشل الاتصال. تحقق من عنوان IP والشبكة."
+      "errorConnection": "فشل الاتصال. تحقق من عنوان IP والشبكة.",
+      "cors_snapshot": "خطأ CORS: لا يمكن التقاط صورة. تحقق من إعدادات كاميرا IP."
     },
     "controls": {
       "stopStream": "إيقاف البث",
@@ -175,9 +204,9 @@
       "fallbackSensor": "درجة الحرارة",
       "tooltipValue": "القيمة",
       "ranges": {
-        "day": "يوم",
-        "week": "أسبوع",
-        "month": "شهر"
+        "today": "اليوم",
+        "threeDays": "ثلاثة أيام",
+        "week": "أسبوع"
       }
     },
     "cropInfo": {
@@ -217,7 +246,8 @@
       "closeAriaLabel": "إغلاق النافذة",
       "modes": {
         "auto": "تلقائي",
-        "semi-auto": "شبه تلقائي"
+        "semi-auto": "شبه تلقائي",
+        "semi_auto": "شبه تلقائي"
       }
     },
     "manualModeCard": {
@@ -270,5 +300,126 @@
     "profile": "الملف الشخصي",
     "logout": "تسجيل الخروج",
     "settings": "الإعدادات"
+  },
+  "aiChat": {
+    "limitReached": "تم الوصول إلى الحد الأقصى للمحادثة. يرجى فتح محادثة جديدة للمتابعة.",
+    "newChatConfirm": "هل أنت متأكد أنك تريد مسح هذه المحادثة وبدء محادثة جديدة؟",
+    "welcomeHint": "مرحباً! أنا SAHLA AI. كيف يمكنني مساعدتك في مزرعتك اليوم؟",
+    "imageError": "عذراً، واجهت مشكلة في معالجة هذه الصورة. يرجى المحاولة مرة أخرى.",
+    "genericError": "عذراً، واجهت خطأ. يرجى المحاولة مرة أخرى.",
+    "aiName": "سهلة",
+    "logoAlt": "شعار سهلة",
+    "placeholder": "اسأل عن مزرعتك ...",
+    "attachFile": "إرفاق ملف أو صورة",
+    "startNew": "بدء محادثة جديدة",
+    "detailed": "مفصل",
+    "concise": "موجز",
+    "imageExpandedAlt": "عرض مكبر",
+    "thinking": "جاري التفكير",
+    "attachedImageAlt": "صورة مرفقة"
+    
+  },
+  "forgotPassword": {
+    "rateLimitError": "طلبات كثيرة جدًا. يرجى الانتظار 60 ثانية قبل المحاولة مرة أخرى.",
+    "checkEmail": "تحقق من بريدك الإلكتروني",
+    "sentLink": "لقد أرسلنا رابط إعادة تعيين كلمة المرور إلى",
+    "expireNotice": "انقر على الرابط الموجود في البريد الإلكتروني لإعادة تعيين كلمة المرور الخاصة بك. ستنتهي صلاحية الرابط خلال ساعة واحدة.",
+    "backToLogin": "العودة إلى تسجيل الدخول",
+    "title": "هل نسيت كلمة المرور؟",
+    "description": "أدخل عنوان بريدك الإلكتروني وسنرسل لك رابطًا لإعادة تعيين كلمة المرور.",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "you@example.com",
+    "sending": "جاري الإرسال...",
+    "wait": "انتظر {{seconds}} ثانية",
+    "sendResetLink": "إرسال رابط إعادة التعيين",
+    "rememberPassword": "هل تتذكر كلمة المرور؟",
+    "signIn": "تسجيل الدخول",
+    "demoMode": "وضع العرض التوضيحي",
+    "demoModeDesc": "أدخل أي بريد إلكتروني لاختبار عملية إعادة تعيين كلمة المرور",
+    "rightSideTitle": "إعادة تعيين كلمة المرور",
+    "rightSideDesc": "سنساعدك على استعادة حسابك",
+    "feature1Title": "أتمتة ذكية",
+    "feature1Desc": "مراقبة وأتمتة على الفور",
+    "feature2Title": "منصة موحدة",
+    "feature2Desc": "كل شيء في مكان واحد",
+    "logoAlt": "شعار سهلة"
+  },
+  "login": {
+    "welcomeBackTitle": "مرحباً بعودتك!",
+    "welcomeBackSubtitle": "مرحباً بعودتك! يرجى إدخال بياناتك.",
+    "emailLabel": "البريد الإلكتروني",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "كلمة المرور الخاصة بك",
+    "rememberMe": "تذكرني",
+    "forgotPassword": "هل نسيت كلمة المرور؟",
+    "signInButton": "تسجيل الدخول",
+    "createAccount": "مستخدم جديد في سهلة فارم؟ أنشئ حساباً",
+    "demoMode": "وضع العرض التوضيحي",
+    "demoModeDesc": "استخدم أي بريد إلكتروني/كلمة مرور لاختبار عملية تسجيل الدخول",
+    "logoAlt": "شعار سهلة",
+    "rightSideTitle": "أدر مزرعتك بثقة",
+    "rightSideDesc": "راقب مزرعتك، وأتمت القرارات، وأدر كل شيء من منصة ذكية موحدة.",
+    "feature1Title": "أتمتة ذكية",
+    "feature1Desc": "مراقبة وأتمتة على الفور",
+    "feature2Title": "منصة موحدة",
+    "feature2Desc": "كل شيء في مكان واحد"
+  },
+  "resetPassword": {
+    "passwordLengthError": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
+    "invalidPasswordError": "يرجى إدخال كلمة مرور صالحة",
+    "passwordsMatchError": "كلمات المرور غير متطابقة",
+    "successTitle": "تمت إعادة تعيين كلمة المرور بنجاح!",
+    "successMessage": "تم تحديث كلمة المرور الخاصة بك. يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.",
+    "redirectingMessage": "جاري التوجيه إلى صفحة تسجيل الدخول...",
+    "title": "إنشاء كلمة مرور جديدة",
+    "subtitle": "أدخل كلمة المرور الجديدة أدناه.",
+    "newPasswordLabel": "كلمة المرور الجديدة",
+    "newPasswordPlaceholder": "أدخل كلمة مرور جديدة (8 أحرف كحد أدنى)",
+    "passwordValid": "✓ كلمة المرور صالحة",
+    "confirmPasswordLabel": "تأكيد كلمة المرور الجديدة",
+    "confirmPasswordPlaceholder": "قم بتأكيد كلمة المرور الجديدة",
+    "resettingButton": "جاري إعادة التعيين...",
+    "resetButton": "إعادة تعيين كلمة المرور",
+    "logoAlt": "شعار سهلة",
+    "rightSideTitle": "قم بتأمين حسابك",
+    "rightSideDesc": "قم بإنشاء كلمة مرور قوية للحفاظ على أمان بيانات مزرعتك",
+    "feature1Title": "أتمتة ذكية",
+    "feature1Desc": "مراقبة وأتمتة على الفور",
+    "feature2Title": "منصة موحدة",
+    "feature2Desc": "كل شيء في مكان واحد"
+  },
+  "signUp": {
+    "passwordLengthError": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
+    "emailExistsError": "هذا البريد الإلكتروني مسجل بالفعل. يرجى استخدام بريد إلكتروني مختلف أو تسجيل الدخول.",
+    "fixErrors": "يرجى تصحيح الأخطاء قبل الإرسال",
+    "successTitle": "تم إنشاء الحساب بنجاح!",
+    "successMessage": "يرجى التحقق من بريدك الإلكتروني للحصول على رابط التحقق.",
+    "redirectingMessage": "جاري التوجيه إلى صفحة تسجيل الدخول...",
+    "title": "إنشاء حساب",
+    "subtitle": "املأ التفاصيل أدناه للبدء.",
+    "usernameLabel": "اسم المستخدم",
+    "usernamePlaceholder": "اسم المستخدم الخاص بك",
+    "emailLabel": "عنوان البريد الإلكتروني",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "كلمة المرور",
+    "passwordPlaceholder": "كلمة المرور (8 أحرف كحد أدنى)",
+    "passwordValid": "✓ كلمة المرور صالحة",
+    "ageLabel": "العمر",
+    "agePlaceholder": "عمرك",
+    "addressLabel": "العنوان",
+    "addressPlaceholder": "عنوانك",
+    "creatingButton": "جاري إنشاء الحساب...",
+    "createButton": "إنشاء حساب",
+    "signInLink": "لديك حساب بالفعل؟ تسجيل الدخول",
+    "demoModeTitle": "الوضع التجريبي",
+    "demoModeDesc": "استخدم أي بريد إلكتروني/كلمة مرور لاختبار عملية تسجيل الدخول",
+    "logoAlt": "شعار سهلة",
+    "rightSideTitle": "أدر مزرعتك بثقة",
+    "rightSideDesc": "راقب مزرعتك، وأتمت القرارات، وأدر كل شيء من منصة ذكية موحدة.",
+    "feature1Title": "أتمتة ذكية",
+    "feature1Desc": "مراقبة وأتمتة على الفور",
+    "feature2Title": "منصة موحدة",
+    "feature2Desc": "كل شيء في مكان واحد"
   }
 }

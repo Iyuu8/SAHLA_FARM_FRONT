@@ -4,12 +4,15 @@ import { useLocation } from 'react-router';
 import Tooltip from './Tooltip';
 import { useTranslation } from 'react-i18next';
 
+import useProfileInfo from '../../../hooks/useProfileInfo.js';
+import { NORMALIZED_USER } from '../../data/profileSettings';
 
 import { supabase } from "../../../supabaseClient";
 import { useNavigate } from 'react-router'
 
 
 export default function DesktopSidebar({ userName = "user", LogOutIcon , NotificationIcon , HistoryIcon , HomeIcon , CameraIcon , ChatIcon , LogoIcon ,ProfileIcon}) {
+  const { profileInfo, updateProfileInfo, updateProfilePhoto } = useProfileInfo(NORMALIZED_USER);
   const location = useLocation();
   const { t } = useTranslation();
   const navItems = [
@@ -19,7 +22,7 @@ export default function DesktopSidebar({ userName = "user", LogOutIcon , Notific
   { name: t('sidebar.history'),       path: "/history",       icon: HistoryIcon      },
   { name: t('sidebar.notifications'), path: "/notifications", icon: NotificationIcon },
 ];
-
+  console.log(profileInfo);
   const navigate = useNavigate();
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -33,10 +36,10 @@ export default function DesktopSidebar({ userName = "user", LogOutIcon , Notific
         <div className='mb-6'>
           <LogoIcon />
         </div>
-        <div className='relative group flex flex-col items-center '>
+        <div className='relative flex flex-col items-center '>
           <Link
             to="/settings"
-            className="flex flex-col items-center mb-8 hover:opacity-80 transition-opacity text-gray-400"
+            className="flex group flex-col items-center mb-8 hover:opacity-80 transition-opacity text-gray-400"
           >
             <div className="w-14 h-14 rounded-full border-2 border-gray-500 flex items-center justify-center bg-[#D9D9D9]"
             style={location.pathname === "/settings" ? {
@@ -45,12 +48,13 @@ export default function DesktopSidebar({ userName = "user", LogOutIcon , Notific
               <ProfileIcon />
             </div>
             <span className="text-[15px] text-gray-400 font-medium tracking-wide">
-              {userName}
+              {profileInfo.userName}
             </span>
+            <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none absolute left-14 ml-2 top-6 -translate-y-1/2 z-50'>
+              <Tooltip title={t('sidebar.settings')}/>
+            </div>
           </Link>
-          <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none absolute left-14 ml-2 top-6 -translate-y-1/2 z-50'>
-            <Tooltip title={t('sidebar.settings')}/>
-          </div>
+          
         </div>
         
       </div>
