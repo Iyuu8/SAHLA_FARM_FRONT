@@ -153,7 +153,7 @@ export default function Login() {
               disabled={loading}
               className='bg-[#55BB33] w-full py-3 rounded-[6px] font-bold text-white hover:bg-[#66cd43] transition disabled:opacity-50'
             >
-              {loading ? 'Signing in...' : {t('login.signInButton')}}
+              {loading ? 'Signing in...' : `${t('login.signInButton')}`}
             </button>
             <Link to="/signup" className='font-bold underline text-[#1A3D00]'>{t('login.createAccount')}</Link>
           </div>
