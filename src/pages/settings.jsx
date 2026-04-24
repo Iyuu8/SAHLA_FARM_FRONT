@@ -98,7 +98,7 @@ export default function ProfilePage() {
           <div className='flex flex-col gap-4 sm:gap-5 md:gap-6 p-2 sm:p-3 md:p-4 pb-8 sm:pb-10 md:pb-12'>
 
         {/* ── PROFILE HEADER ── */}
-        <div className='relative flex items-center gap-3 sm:gap-4 pr-20'>
+        <div className='relative flex items-center gap-3 sm:gap-4 pr-20' >
           <div className='relative group w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 flex-shrink-0'>
             {profileInfo.pfp ? (
               <img src={profileInfo.pfp} alt="Profile avatar" className="w-full h-full rounded-full object-cover" />
@@ -164,14 +164,14 @@ export default function ProfilePage() {
                 color={{ bg: '#192514', text: '#F8FFF6' }}
               />
               <FarmDropdown
-                label="Growth"
+                label={t('profile.labels.growth')}
                 value={growthStage ?? farmSettings.growth}
                 options={growthStageOptions || []}
                 onChange={setGrowthStage}
                 color={{ bg: '#D6F7CB', text: '#000000' }}
               />
               <FarmDropdown
-                label="Crop"
+                label={t('profile.labels.crop')}
                 value={crop ?? farmSettings.crop}
                 options={cropOptions || []}
                 onChange={(nextCrop) => {
@@ -194,31 +194,31 @@ export default function ProfilePage() {
             </span>
             <div className='flex flex-wrap gap-2 sm:gap-3 mt-1'>
               <PrefDropdown
-                label="Temperature"
+                label={t('profile.labels.temperature')}
                 value={temperatureUnit ?? displayUnits.temp}
                 options={temperatureOptions || []}
                 onChange={setTemperatureUnit}
               />
               <PrefDropdown
-                label="Humidity"
+                label={t('profile.labels.humidity')}
                 value={humidityUnit ?? displayUnits.hum}
                 options={humidityOptions || []}
                 onChange={setHumidityUnit}
               />
               <PrefDropdown
-                label="Soil Moisture"
+                label={t('profile.labels.soil_moisture')}
                 value={soilMoistureUnit ?? displayUnits.soil}
                 options={soilMoistureOptions || []}
                 onChange={setSoilMoistureUnit}
               />
               <PrefDropdown
-                label="Light Intensity"
+                label={t('profile.labels.light_intensity')}
                 value={lightIntensityUnit ?? displayUnits.light}
                 options={lightIntensityOptions || []}
                 onChange={setLightIntensityUnit}
               />
               <PrefDropdown
-                label="Language"
+                label={t('profile.labels.language')}
                 value={language ?? displayUnits.language}
                 options={languageOptions || []}
                 onChange={setLanguage}

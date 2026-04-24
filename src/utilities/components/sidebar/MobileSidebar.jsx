@@ -3,12 +3,16 @@ import { useLocation } from 'react-router';
 import { X } from "lucide-react"
 import { useTranslation } from 'react-i18next';
 
+import useProfileInfo from '../../../hooks/useProfileInfo.js';
+import { NORMALIZED_USER } from '../../data/profileSettings';
 
 import { supabase } from "../../../supabaseClient";
 import { useNavigate } from 'react-router'
 
 
 export default function MobileSidebar({isOpen, setIsOpen , userName = "user" , LogOutIcon , NotificationIcon , HistoryIcon , HomeIcon , CameraIcon , ChatIcon , LogoIcon ,ProfileIcon}) {
+  const { profileInfo, updateProfileInfo, updateProfilePhoto } = useProfileInfo(NORMALIZED_USER);
+  
   const location = useLocation();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -65,7 +69,7 @@ export default function MobileSidebar({isOpen, setIsOpen , userName = "user" , L
               <ProfileIcon />
             </div>
             <span className="text-[15px] text-gray-400 font-medium tracking-wide text-center">
-              {userName}
+              {profileInfo.userName}
             </span>
           </Link>
         <div className="flex flex-col justify-between items-start flex-1 w-full py-2 ">

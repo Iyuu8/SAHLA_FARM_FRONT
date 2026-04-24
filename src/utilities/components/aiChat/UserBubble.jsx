@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText } from 'lucide-react';
 import ImageModal from './imageModal';
+import { useTranslation } from 'react-i18next';
 
 export default function UserBubble({ message }) {
   const [selectedImage, setSelectedImage] = useState(null);
+  const { t } = useTranslation();
 
   // 1. Look for 'files' to match aiChat.jsx's localStorage saving logic
   const files = message.files || [];
@@ -26,7 +28,7 @@ export default function UserBubble({ message }) {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               src={img.dataUrl}
-              alt="Attached"
+              alt={t('aiChat.attachedImageAlt')}
               onClick={() => setSelectedImage(img.dataUrl)}
               className="w-48 h-auto sm:w-64 rounded-xl object-cover border border-black/5 shadow-sm cursor-pointer hover:opacity-95 transition-opacity"
             />

@@ -1,6 +1,8 @@
 import React from 'react'
 import DesktopSidebar from './DesktopSidebar'; 
 import MobileSidebar from './MobileSidebar';
+import useProfileInfo from '../../../hooks/useProfileInfo.js';
+import { NORMALIZED_USER } from '../../data/profileSettings';
 
 const LogoIcon = () => (
   <svg width="63" height="64" viewBox="0 0 63 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -72,10 +74,11 @@ const LogOutIcon = () => (
   </svg>
 );
 export default function Sidebar({isOpen, setIsOpen}) {
+  const { profileInfo, updateProfileInfo, updateProfilePhoto } = useProfileInfo(NORMALIZED_USER);
   return (
     <div className="">
         <div className='hidden md:block'>
-            <DesktopSidebar LogOutIcon={LogOutIcon} HomeIcon={HomeIcon} NotificationIcon={NotificationIcon} CameraIcon={CameraIcon} ChatIcon={ChatIcon} ProfileIcon={ProfileIcon} LogoIcon={LogoIcon} HistoryIcon={HistoryIcon}/>
+            <DesktopSidebar LogOutIcon={LogOutIcon} HomeIcon={HomeIcon} NotificationIcon={NotificationIcon} CameraIcon={CameraIcon} ChatIcon={ChatIcon} ProfileIcon={ProfileIcon} LogoIcon={LogoIcon} HistoryIcon={HistoryIcon} />
         </div>
         <div className='md:hidden'>
             <MobileSidebar isOpen={isOpen} setIsOpen={setIsOpen} LogOutIcon={LogOutIcon} HomeIcon={HomeIcon} NotificationIcon={NotificationIcon} CameraIcon={CameraIcon} ChatIcon={ChatIcon} ProfileIcon={ProfileIcon} LogoIcon={LogoIcon} HistoryIcon={HistoryIcon} />

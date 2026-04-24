@@ -139,6 +139,34 @@
       "flowering": "Floraison",
       "fruiting": "Fructification",
       "maturity": "Maturité"
+    },
+    "historyCard": {
+      "at": "à",
+      "in": "en",
+      "stage": "stade :",
+      "pump": "Pompe",
+      "fan": "Ventilateur",
+      "sensors": {
+        "temperature": "Température",
+        "humidity": "Humidité",
+        "soilMoisture": "Humidité du sol",
+        "lightIntensity": "Intensité lumineuse"
+      },
+      "sections": {
+        "actuators": "Actionneurs",
+        "weatherSummary": "Résumé météo",
+        "aiRecommendations": "Recommandations SAHLA AI"
+      }
+    },
+    "actuatorCard": {
+      "plannedFrom": "exécution prévue de",
+      "plannedAt": "exécution prévue à",
+      "plannedUntil": "exécution prévue jusqu'à",
+      "suggestedFrom": "exécution suggérée de",
+      "suggestedAt": "exécution suggérée à",
+      "suggestedUntil": "exécution suggérée jusqu'à",
+      "noPlannedTime": "Aucune heure prévue",
+      "noSuggestedTime": "Aucune heure suggérée"
     }
   },
   "camStream": {
@@ -146,7 +174,8 @@
       "live": "EN DIRECT",
       "off": "DÉSACTIVÉ",
       "streamOffline": "flux hors ligne",
-      "errorConnection": "Échec de connexion. Vérifiez l'IP et le réseau."
+      "errorConnection": "Échec de connexion. Vérifiez l'IP et le réseau.",
+      "cors_snapshot": "Erreur CORS : Impossible de prendre une capture. Vérifiez les paramètres de l'IP Webcam."
     },
     "controls": {
       "stopStream": "arrêter le flux",
@@ -192,9 +221,9 @@
       "fallbackSensor": "Température",
       "tooltipValue": "Valeur",
       "ranges": {
-        "day": "Jour",
-        "week": "Semaine",
-        "month": "Mois"
+        "today": "Aujourd'hui",
+        "threeDays": "Trois Jours",
+        "week": "Semaine"
       }
     },
     "cropInfo": {
@@ -234,7 +263,8 @@
       "closeAriaLabel": "Fermer la fenêtre",
       "modes": {
         "auto": "auto",
-        "semi-auto": "semi-auto"
+        "semi-auto": "semi-auto",
+        "semi_auto": "semi_auto"
       }
     },
     "manualModeCard": {
@@ -287,5 +317,125 @@
     "profile": "Profil",
     "logout": "Déconnexion",
     "settings": "Paramètres"
+  },
+  "aiChat": {
+    "limitReached": "Limite de conversation atteinte. Veuillez ouvrir une nouvelle conversation pour continuer.",
+    "newChatConfirm": "Êtes-vous sûr de vouloir effacer cette conversation et en commencer une nouvelle ?",
+    "welcomeHint": "Bonjour ! Je suis SAHLA AI. Comment puis-je vous aider avec votre ferme aujourd'hui ?",
+    "imageError": "Désolé, j'ai eu du mal à traiter cette image. Veuillez réessayer.",
+    "genericError": "Désolé, j'ai rencontré une erreur. Veuillez réessayer.",
+    "aiName": "SAHLA",
+    "logoAlt": "Logo SAHLA",
+    "placeholder": "Posez une question sur votre ferme ...",
+    "attachFile": "Joindre un fichier ou une image",
+    "startNew": "Nouvelle conversation",
+    "detailed": "Détaillé",
+    "concise": "Concis",
+    "imageExpandedAlt": "Vue agrandie",
+    "thinking": "Réflexion",
+    "attachedImageAlt": "Image jointe"
+  },
+  "forgotPassword": {
+    "rateLimitError": "Trop de requêtes. Veuillez patienter 60 secondes avant de réessayer.",
+    "checkEmail": "Vérifiez votre e-mail",
+    "sentLink": "Nous avons envoyé un lien de réinitialisation à",
+    "expireNotice": "Cliquez sur le lien dans l'e-mail pour réinitialiser votre mot de passe. Le lien expirera dans 1 heure.",
+    "backToLogin": "Retour à la connexion",
+    "title": "Mot de passe oublié ?",
+    "description": "Entrez votre adresse e-mail et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "vous@exemple.com",
+    "sending": "Envoi...",
+    "wait": "Attendez {{seconds}}s",
+    "sendResetLink": "Envoyer le lien",
+    "rememberPassword": "Vous vous souvenez de votre mot de passe ?",
+    "signIn": "Se connecter",
+    "demoMode": "Mode Démo",
+    "demoModeDesc": "Entrez n'importe quel e-mail pour tester le flux de réinitialisation",
+    "rightSideTitle": "Réinitialisez votre mot de passe",
+    "rightSideDesc": "Nous allons vous aider à récupérer votre compte",
+    "feature1Title": "Automatisation Intelligente",
+    "feature1Desc": "surveillez et automatisez instantanément",
+    "feature2Title": "Plateforme Unifiée",
+    "feature2Desc": "tout en un seul endroit",
+    "logoAlt": "Logo SAHLA"
+  },
+  "login": {
+    "welcomeBackTitle": "BON RETOUR !",
+    "welcomeBackSubtitle": "Bon retour ! Veuillez saisir vos coordonnées.",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "vous@exemple.com",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "votre mot de passe",
+    "rememberMe": "Se souvenir de moi",
+    "forgotPassword": "mot de passe oublié",
+    "signInButton": "Se connecter",
+    "createAccount": "Nouveau sur SAHLA FARM ? Créer un compte",
+    "demoMode": "Mode Démo",
+    "demoModeDesc": "Utilisez n'importe quel e-mail/mot de passe pour tester la connexion",
+    "logoAlt": "Logo SAHLA",
+    "rightSideTitle": "Gérez votre ferme en toute confiance",
+    "rightSideDesc": "Surveillez votre ferme, automatisez les décisions et gérez tout depuis une plateforme intelligente unifiée.",
+    "feature1Title": "Automatisation Intelligente",
+    "feature1Desc": "surveillez et automatisez instantanément",
+    "feature2Title": "Plateforme Unifiée",
+    "feature2Desc": "tout en un seul endroit"
+  },
+  "resetPassword": {
+    "passwordLengthError": "Le mot de passe doit comporter au moins 8 caractères",
+    "invalidPasswordError": "Veuillez entrer un mot de passe valide",
+    "passwordsMatchError": "Les mots de passe ne correspondent pas",
+    "successTitle": "Mot de passe réinitialisé avec succès !",
+    "successMessage": "Votre mot de passe a été mis à jour. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+    "redirectingMessage": "Redirection vers la page de connexion...",
+    "title": "Créer un nouveau mot de passe",
+    "subtitle": "Entrez votre nouveau mot de passe ci-dessous.",
+    "newPasswordLabel": "Nouveau mot de passe",
+    "newPasswordPlaceholder": "Entrez un nouveau mot de passe (min 8 caractères)",
+    "passwordValid": "✓ Le mot de passe est valide",
+    "confirmPasswordLabel": "Confirmer le nouveau mot de passe",
+    "confirmPasswordPlaceholder": "Confirmez votre nouveau mot de passe",
+    "resettingButton": "Réinitialisation...",
+    "resetButton": "Réinitialiser le mot de passe",
+    "logoAlt": "Logo SAHLA",
+    "rightSideTitle": "Sécurisez votre compte",
+    "rightSideDesc": "Créez un mot de passe fort pour protéger les données de votre ferme",
+    "feature1Title": "Automatisation Intelligente",
+    "feature1Desc": "surveillez et automatisez instantanément",
+    "feature2Title": "Plateforme Unifiée",
+    "feature2Desc": "tout en un seul endroit"
+  },
+  "signUp": {
+    "passwordLengthError": "Le mot de passe doit comporter au moins 8 caractères",
+    "emailExistsError": "Cet e-mail est déjà enregistré. Veuillez utiliser un autre e-mail ou vous connecter.",
+    "fixErrors": "Veuillez corriger les erreurs avant de soumettre",
+    "successTitle": "Compte créé avec succès !",
+    "successMessage": "Veuillez vérifier votre boîte de réception pour le lien de vérification.",
+    "redirectingMessage": "Redirection vers la page de connexion...",
+    "title": "CRÉER UN COMPTE",
+    "subtitle": "Remplissez les détails ci-dessous pour commencer.",
+    "usernameLabel": "Nom d'utilisateur",
+    "usernamePlaceholder": "votre nom d'utilisateur",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "vous@exemple.com",
+    "passwordLabel": "Mot de passe",
+    "passwordPlaceholder": "votre mot de passe (min 8 caractères)",
+    "passwordValid": "✓ Le mot de passe est valide",
+    "ageLabel": "Âge",
+    "agePlaceholder": "votre âge",
+    "addressLabel": "Adresse",
+    "addressPlaceholder": "votre adresse",
+    "creatingButton": "Création du compte...",
+    "createButton": "Créer un compte",
+    "signInLink": "Vous avez déjà un compte ? Connectez-vous",
+    "demoModeTitle": "Mode Démo",
+    "demoModeDesc": "Utilisez n'importe quel e-mail/mot de passe pour tester la connexion",
+    "logoAlt": "Logo SAHLA",
+    "rightSideTitle": "Gérez votre ferme en toute confiance",
+    "rightSideDesc": "Surveillez votre ferme, automatisez les décisions et gérez tout depuis une plateforme intelligente unifiée.",
+    "feature1Title": "Automatisation Intelligente",
+    "feature1Desc": "surveillez et automatisez instantanément",
+    "feature2Title": "Plateforme Unifiée",
+    "feature2Desc": "tout en un seul endroit"
   }
 }

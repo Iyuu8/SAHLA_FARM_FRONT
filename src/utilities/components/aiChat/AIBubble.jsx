@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import MessageContent from './MessageContent';
-
+import { useTranslation } from 'react-i18next';
 /**
  * AIBubble — AI assistant message.
  *
@@ -10,6 +10,7 @@ import MessageContent from './MessageContent';
  * Logo changed to /logo_sahla.svg as requested.
  */
 export default function AIBubble({ segments }) {
+  const { t } = useTranslation();
   const logo = (
     <div
       className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
@@ -17,7 +18,7 @@ export default function AIBubble({ segments }) {
     >
       <img
         src="/logo_sahla.svg"
-        alt="SAHLA"
+        alt={t('aiChat.logoAlt')}
         className="w-7 h-7 object-contain"
         style={{ display: 'block' }}
       />
@@ -36,7 +37,7 @@ export default function AIBubble({ segments }) {
         {logo}
         {/* Label only on mobile */}
         <span className="text-sm font-semibold sm:hidden" style={{ color: '#192514' }}>
-          SAHLA
+          {t('aiChat.aiName')}
         </span>
       </div>
 

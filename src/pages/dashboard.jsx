@@ -11,6 +11,7 @@ import {
   DASHBOARD_SENSOR_SERIES,
   DEFAULT_SELECTED_SENSOR_ID,
 } from '../utilities/data/dashboardData';
+import { useTranslation } from 'react-i18next';
 import { NORMALIZED_USER, profileSettingOptions } from '../utilities/data/profileSettings';
 import { STORAGE_KEYS } from '../utilities/data/storageKeys';
 import MonitoringAlerts from '../utilities/components/dashboard/MonitoringAlerts';
@@ -32,6 +33,7 @@ import usePersistentState from '../hooks/usePersistentState';
  * - Dashboard-only view state (selected sensor/range) is persisted to simulate user session continuity.
  */
 export default function Dashboard() {
+  
   const [isEditActuatorsOpen, setIsEditActuatorsOpen] = useState(false);
   const [selectedSensorId, setSelectedSensorId] = usePersistentState(
     `${STORAGE_KEYS.dashboardView}:selectedSensorId`,

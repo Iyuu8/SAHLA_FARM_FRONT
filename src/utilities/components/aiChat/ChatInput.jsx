@@ -3,7 +3,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Plus, ChevronDown, FileText, Image as ImageIcon, X, SquarePen } from 'lucide-react';
-
+import { useTranslation } from 'react-i18next';
 /**
  * ChatInput — the fixed bottom input bar.
  *
@@ -16,6 +16,7 @@ import { Send, Plus, ChevronDown, FileText, Image as ImageIcon, X, SquarePen } f
  *   hasMessages      boolean     — shows new chat button only when there are messages
  */
 export default function ChatInput({ onSend, onNewChat, isThinking, responseMode, setResponseMode, hasMessages }) {
+  const { t } = useTranslation();
   const [input, setInput] = useState('');
   const [attachedFiles, setAttachedFiles] = useState([]);
   const [showModeMenu, setShowModeMenu] = useState(false);
@@ -100,7 +101,7 @@ export default function ChatInput({ onSend, onNewChat, isThinking, responseMode,
             value={input}
             onChange={handleTextareaChange}
             onKeyDown={handleKeyDown}
-            placeholder="Ask about your farm ..."
+            placeholder={t('aiChat.placeholder')}
             className="w-full resize-none bg-transparent outline-none text-[15px] sm:text-base text-[#192514] placeholder:text-[#192514]/35 leading-relaxed py-1.5 max-h-[170px] overflow-y-auto font-newblack"
           />
         </div>
@@ -110,7 +111,7 @@ export default function ChatInput({ onSend, onNewChat, isThinking, responseMode,
             onClick={() => fileInputRef.current?.click()}
             className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors hover:brightness-90"
             style={{ background: '#55BB33' }}
-            title="Attach file or image"
+            title={t('aiChat.attachFile')}
           >
             <Plus size={17} color="#F8FFF6" strokeWidth={2.5} />
           </button>
@@ -128,7 +129,7 @@ export default function ChatInput({ onSend, onNewChat, isThinking, responseMode,
                   disabled={isThinking}
                   className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-all disabled:opacity-35 hover:brightness-90"
                   style={{ background: '#192514' }}
-                  title="Start new conversation"
+                  title={t('aiChat.startNew')}
                 >
                   <SquarePen size={15} color="#F8FFF6" strokeWidth={2} />
                 </motion.button>
@@ -141,7 +142,7 @@ export default function ChatInput({ onSend, onNewChat, isThinking, responseMode,
                 className="flex items-center gap-1 text-sm font-semibold px-3 py-1.5 rounded-lg transition-colors hover:brightness-90"
                 style={{ background: '#55BB33', color: '#F8FFF6' }}
               >
-                {responseMode}
+                {t(`aiChat.${responseMode.toLowerCase()}`)}
                 <ChevronDown size={13} strokeWidth={2.5} />
               </button>
 
@@ -162,7 +163,7 @@ export default function ChatInput({ onSend, onNewChat, isThinking, responseMode,
                         className="w-full text-left px-4 py-2.5 text-sm font-semibold transition-colors"
                         style={{ color: responseMode === opt ? '#55BB33' : '#192514', background: responseMode === opt ? 'rgba(85,187,51,0.08)' : 'transparent' }}
                       >
-                        {opt}
+                        {t(`aiChat.${opt.toLowerCase()}`)}
                       </button>
                     ))}
                   </motion.div>

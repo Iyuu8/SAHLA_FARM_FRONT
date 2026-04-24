@@ -161,7 +161,9 @@ export default function ChartCard({
         <h3 className='inline-flex min-w-0 max-w-[68%] sm:max-w-none items-center gap-1 sm:gap-2 text-[1.05rem] sm:text-xl md:text-[2.1rem] text-[#192514] leading-tight'>
           <Thermometer size={isCompact ? 24 : 30} strokeWidth={1.8} />
           <span className='capitalize block'>
-            {selectedSensor?.label || t('dashboard.chart.fallbackSensor')} {selectedSensor?.unit || '°C'}
+            {selectedSensor 
+    ? t(`dashboard.sensors.${selectedSensor.id}.label`) 
+    : t('dashboard.chart.fallbackSensor')} {selectedSensor?.unit || ''}
           </span>
         </h3>
 
@@ -216,7 +218,7 @@ export default function ChartCard({
             />
             <Tooltip
               cursor={false}
-              formatter={(value) => [`${value}${selectedSensor?.unit || ''}`, 'Value']}
+              formatter={(value) => [`${value}${selectedSensor?.unit || ''}`, t('dashboard.chart.value')]}
               labelFormatter={(label) => `${label}`}
               contentStyle={{
                 border: '1px solid rgba(25,37,20,0.15)',
