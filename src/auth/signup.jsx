@@ -160,7 +160,7 @@ export default function SignUp() {
       // Redirect to login after 3 seconds
       setTimeout(() => {
         navigate('/login');
-      }, 3000);
+      }, 4000);
       
     } catch (error) {
       setError(error.message);
@@ -174,6 +174,7 @@ export default function SignUp() {
   const UnifiedPlatformIcon = () => <Phone size={28} />
 
   // Show success message
+
   if (success) {
     return (
       <div className='flex min-h-screen bg-[#F8FFF6] items-center justify-center'>

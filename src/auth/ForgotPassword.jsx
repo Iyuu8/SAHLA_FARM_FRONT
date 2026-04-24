@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import { FaRegEnvelope, FaArrowLeft } from 'react-icons/fa6'
 import { Link } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
@@ -14,6 +14,13 @@ export default function ForgotPassword() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [cooldown, setCooldown] = useState(0)
+
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem('rememberedEmail')
+    if (rememberedEmail) {
+      setEmail(rememberedEmail)
+    }
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
