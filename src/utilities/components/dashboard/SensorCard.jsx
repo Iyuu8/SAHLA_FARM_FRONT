@@ -9,7 +9,7 @@ const ICON_MAP = {
   lightIntensity: Sun,
 };
 
-export default function SensorCard({ sensor, isSelected, onClick }) {
+export default function SensorCard({ sensor, isSelected, onClick }) { //sensor : the sensor object
   const { t } = useTranslation();
   const Icon = ICON_MAP[sensor.id] || Thermometer;
 

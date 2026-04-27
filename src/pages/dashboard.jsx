@@ -1,11 +1,11 @@
-import { useMemo, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import ChartCard from '../utilities/components/dashboard/ChartCard';
-import ActuatorCarousel from '../utilities/components/dashboard/ActuatorCarousel';
-import ManualModeCard from '../utilities/components/dashboard/ManualModeCard';
-import EditActuatorsModal from '../utilities/components/dashboard/EditActuatorsModal';
-import SensorCard from '../utilities/components/dashboard/SensorCard';
-import CropInfoCard from '../utilities/components/dashboard/CropInfoCard';
+import { useMemo, useState, useEffect } from 'react'; //tools from react
+import { motion } from 'framer-motion'; //for animations
+import ChartCard from '../utilities/components/dashboard/ChartCard'; //the chart card (for the sensor history)
+import ActuatorCarousel from '../utilities/components/dashboard/ActuatorCarousel'; //actuator card
+import ManualModeCard from '../utilities/components/dashboard/ManualModeCard'; //manual mode card
+import EditActuatorsModal from '../utilities/components/dashboard/EditActuatorsModal'; //manual mode pop up
+import SensorCard from '../utilities/components/dashboard/SensorCard'; //sensor card
+import CropInfoCard from '../utilities/components/dashboard/CropInfoCard'; //crop info card
 import {
   DASHBOARD_SENSOR_OPTIONS,
   DASHBOARD_SENSOR_SERIES,
