@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 
 function ActuatorIcon({ name }) {
+  if (!name) return null
   if (name.toLowerCase() === 'pump') {
     return (
       <img
@@ -32,7 +33,7 @@ export default function ActuatorCard({
 
   const handleClick = () => {
     if (!isSemiAuto) return;
-    onToggle?.();
+    onToggle();
   };
 
   return (

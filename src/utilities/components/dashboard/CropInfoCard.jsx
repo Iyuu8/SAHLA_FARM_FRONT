@@ -26,6 +26,7 @@ export default function CropInfoCard({
   mode,
   setMode,
   actuators = [],
+  recommendation,
 }) {
   const { t } = useTranslation();
   const hasSemiAuto = actuators.some((a) => a.mode === 'semi-auto');
@@ -123,7 +124,7 @@ export default function CropInfoCard({
             />
           </div>
           <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.80)' }}>
-            {hasSemiAuto ? t('dashboard.cropInfo.recommendedText') : t('dashboard.cropInfo.explanationText')}
+            {recommendation}
           </p>
         </div>
 
