@@ -21,7 +21,8 @@ import { useTranslation } from 'react-i18next';
  * - Actuators are loaded from shared storage to expose current global control mode context.
  */
 export default function ProfilePage() {
-  const { t } = useTranslation();
+  const { t , i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const {
     mode,
     setMode,
@@ -98,7 +99,7 @@ export default function ProfilePage() {
           <div className='flex flex-col gap-4 sm:gap-5 md:gap-6 p-2 sm:p-3 md:p-4 pb-8 sm:pb-10 md:pb-12'>
 
         {/* ── PROFILE HEADER ── */}
-        <div className='relative flex items-center gap-3 sm:gap-4 pr-20' >
+        {isRTL ? (<div className={`relative flex items-center gap-3 sm:gap-4 ${isRTL ? 'pl-20 flex-row' : 'pr-20 flex-row-reverse'}`}>
           <div className='relative group w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 flex-shrink-0'>
             {profileInfo.pfp ? (
               <img src={profileInfo.pfp} alt="Profile avatar" className="w-full h-full rounded-full object-cover" />
@@ -119,19 +120,59 @@ export default function ProfilePage() {
               </span>
             </button>
           </div>
-          <div className='flex flex-col gap-1 min-w-0'>
-            <span className='text-lg sm:text-xl font-bold text-[#192514] capitalize truncate'>{profileInfo.userName}</span>
-            <span className='text-xs sm:text-sm text-[rgba(25,37,20,0.6)] break-all'>{profileInfo.email}</span>
+
+          <div className={`flex flex-col gap-1 min-w-0 w-full ${isRTL ? 'items-end text-right' : 'items-start text-left'}`}>
+            <span className='text-lg sm:text-xl font-bold text-[#192514] capitalize truncate block w-full'>
+              {profileInfo.userName}
+            </span>
+            <span className='text-xs sm:text-sm text-[rgba(25,37,20,0.6)] break-all block w-full'>
+              {profileInfo.email}
+            </span>
           </div>
 
           <button
             onClick={() => setIsProfileModalOpen(true)}
-            className='absolute top-[20%] right-0 bg-[#55BB33] hover:bg-[#4ea531] text-white text-[1.5ch] font-normal px-5 py-1 rounded-lg transition-colors flex items-center'
+            className={`absolute top-[20%] ${isRTL ? 'left-0' : 'right-0'} bg-[#55BB33] hover:bg-[#4ea531] text-white text-[1.5ch] font-normal px-5 py-1 rounded-lg transition-colors flex items-center`}
           >
             {t('profile.edit')}
           </button>
-        </div>
-
+        </div>): 
+        (
+          <div className='relative flex items-center gap-3 sm:gap-4 pr-20'>
+                    <div className='relative group w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 flex-shrink-0'>
+                      {profileInfo.pfp ? (
+                        <img src={profileInfo.pfp} alt="Profile avatar" className="w-full h-full rounded-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full rounded-full bg-gray-300 flex items-center justify-center text-lg md:text-xl font-bold text-gray-600">
+                          {profileInfo.userName.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+          
+                      <button
+                        type='button'
+                        onClick={() => setIsPfpModalOpen(true)}
+                        className='absolute inset-0 rounded-full bg-[rgba(25,37,20,0.45)] text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center'
+                        aria-label='Change profile picture'
+                      >
+                        <span className='w-8 h-8 rounded-full bg-[#57BD36] flex items-center justify-center shadow-[0_3px_8px_rgba(0,0,0,0.18)]'>
+                          <FiEdit2 size={14} />
+                        </span>
+                      </button>
+                    </div>
+                    <div className='flex flex-col gap-1 min-w-0'>
+                      <span className='text-lg sm:text-xl font-bold text-[#192514] capitalize truncate'>{profileInfo.userName}</span>
+                      <span className='text-xs sm:text-sm text-[rgba(25,37,20,0.6)] break-all'>{profileInfo.email}</span>
+                    </div>
+          
+                    <button
+                      onClick={() => setIsProfileModalOpen(true)}
+                      className='absolute top-[20%] right-0 bg-[#55BB33] hover:bg-[#4ea531] text-white text-[1.5ch] font-normal px-5 py-1 rounded-lg transition-colors flex items-center'
+                    >
+                      {t('profile.edit')}
+                    </button>
+                  </div>
+        )}
+        
         <hr className='border-gray-100' />
 
         {/* ── FARM SETTINGS ── */}
@@ -184,7 +225,7 @@ export default function ProfilePage() {
           </div>
 
           <div className='text-xs sm:text-sm text-[rgba(25,37,20,0.65)]'>
-            {t('profile.global_mode')} <span className='font-semibold capitalize'>{globalControlMode}</span>
+            {t('profile.global_mode')} <span className='font-semibold capitalize'>{t(`dashboard.manualModeCard.modes.${globalControlMode}`)}</span>
           </div>
 
           {/* ── DISPLAY UNITS ── */}

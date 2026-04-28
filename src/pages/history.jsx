@@ -2,9 +2,11 @@ import React, { useState ,useEffect ,useRef} from 'react'
 import { profileSettingOptions } from '../utilities/data/profileSettings';
 import HistoryData from '../utilities/data/HistoryData';
 import { useTranslation } from 'react-i18next';
-
+import { translateText } from '../utilities/functions/translateText';
+import { normalizeArabic } from '../utilities/functions/normalizeArabic';
 
 import HistoryDetailCard from '../utilities/components/history/HistoryDetailCard';
+import DynamicTranslator from '../utilities/components/Translation/DynamicTranslator';
 const CalendarIcon = ({ size = 15, color = "#55BB33" }) => (
   <svg width={size} height={size} viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
@@ -306,50 +308,97 @@ export default function History({
   soilMoistureUnit,
   lightIntensityUnit,
 }) {
-  const { t } = useTranslation();
-  const [Input,setInput]=useState({
-    date:"",
-    time:"",
-    crop:"",
-    growthStage: `${t('history.growth_stages.all')}`,
-    weather: `${t('history.options.all')}`,
+  const { t, i18n } = useTranslation();
+  const growthStageOptions = [
+    t('history.growth_stages.all'),
+    t('history.growth_stages.seedling'),
+    t('history.growth_stages.vegetative_growth'),
+    t('history.growth_stages.flowering'),
+    t('history.growth_stages.fruiting'),
+    t('history.growth_stages.maturity'),
+  ];
+
+  const [Input, setInput] = useState({
+    date: "",
+    time: "",
+    crop: "",
+    growthStage: t('history.growth_stages.all'),
+    weather: t('history.options.all'),
   });
+
+  const [FilteredHistoryData, setFilteredHistoryData] = useState(HistoryData);
   const [selectedItem, setSelectedItem] = useState(null);
   const [showModal, setShowModal] = useState(false);
+
   const handleItemClick = (item) => {
     setSelectedItem(item);
     setShowModal(true);
   };
+
   const closeModal = () => {
     setShowModal(false);
     setSelectedItem(null);
   };
-  const {growthStageOptions} = profileSettingOptions;
+
   function useIsMobile(breakpoint = 768) {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint);
+    useEffect(() => {
+      const handler = () => setIsMobile(window.innerWidth < breakpoint);
+      window.addEventListener("resize", handler);
+      return () => window.removeEventListener("resize", handler);
+    }, [breakpoint]);
+    return isMobile;
+  }
 
-  useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < breakpoint);
-    window.addEventListener("resize", handler);
-    return () => window.removeEventListener("resize", handler);
-  }, [breakpoint]);
-
-  return isMobile;
-}
   const isMobile = useIsMobile();
-  const FilteredHistoryData = HistoryData.filter((p)=>{
-    const dateMatch = Input.date === "" || p.date.includes(Input.date);
-    const timeMatch = Input.time === "" || p.time.includes(Input.time);
-    const cropMatch = Input.crop === "" || p.crop.toLowerCase().includes(Input.crop.toLowerCase());
-    const stageMatch =
-    Input.growthStage === t('history.growth_stages.all') ||
-    t(`history.growth_stages.${p.growthStage.toLowerCase()}`) === t(`history.growth_stages.${Input.growthStage.toLowerCase()}`);
-    const weatherMatch =
-    Input.weather === t('history.options.all') ||
-    t(`history.options.${p.weather.toLowerCase()}`) === t(`history.options.${Input.weather.toLowerCase()}`);
-    
-    return dateMatch && timeMatch && cropMatch && stageMatch && weatherMatch;
-  })
+
+  const formatWithUnderscores = (text) => {
+    if (!text) return "";
+    return text.trim().toLowerCase().split(/\s+/).join('_');
+  };
+
+  const formatToCamelCase = (text) => {
+    if (!text) return "";
+    const words = text.trim().split(/\s+/);
+    return words.map((word, index) => {
+      if (index === 0) return word.toLowerCase();
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    }).join('');
+  };
+
+  // ── Async filtering ──────────────────────────────────────────────────────
+  useEffect(() => {
+    let cancelled = false;
+
+    const runFilter = async () => {
+      const results = await Promise.all(
+        HistoryData.map(async (p) => {
+          const dateMatch = Input.date === "" || p.date.includes(Input.date);
+          const timeMatch = Input.time === "" || p.time.includes(Input.time);
+          const translatedCrop = await translateText(p.crop, i18n.language);
+          const cropInputMatch =
+            Input.crop.toLowerCase() === "" ||
+            normalizeArabic(translatedCrop).includes(normalizeArabic(Input.crop));
+          const stageMatch =
+            Input.growthStage === t('history.growth_stages.all') ||
+            t(`history.growth_stages.${formatWithUnderscores(p.growthStage.toLowerCase())}`) === Input.growthStage.toLowerCase();
+          const weatherMatch =
+            Input.weather === t('history.options.all') ||
+            t(`history.options.${p.weather.toLowerCase()}`) === Input.weather.toLowerCase();
+
+          return { p, matches: dateMatch && timeMatch && cropInputMatch && stageMatch && weatherMatch };
+        })
+      );
+
+      if (!cancelled) {
+        setFilteredHistoryData(results.filter((r) => r.matches).map((r) => r.p));
+      }
+    };
+
+    runFilter();
+
+    return () => { cancelled = true; };
+  }, [Input, i18n.language]);
   return (
     <div className='flex flex-col h-full max-h-full overflow-hidden md:p-3 p-1 gap-4 w-full'>
       <div className='flex flex-wrap justify-between gap-3 flex-none'>
@@ -398,7 +447,7 @@ export default function History({
                   value={Input.weather}
                   onChange={(val) => setInput({...Input, weather: val})}
                   options={[`${t('history.options.all')}`, `${t('history.options.sunny')}`, `${t('history.options.cloudy')}`, `${t('history.options.night')}`, `${t('history.options.windy')}`, `${t('history.options.stormy')}`, `${t('history.options.rainy')}`] || []}
-                  placeholder="Select growth stage"
+                  placeholder="Select weather"
                 />
              
         </div>
@@ -483,12 +532,16 @@ export default function History({
 
             {/* Crop */}
             <div className="py-4 text-center font-bold text-[#192514] relative text-[10px] md:text-[16px]">
-              {item.crop} 
+              <DynamicTranslator
+                text={item.crop}
+                language={i18n.language}
+              />
             </div>
 
             {/* Growth Stage */}
             <div className="py-4 text-center text-[#2E6900] font-semibold capitalize text-[10px] md:text-[16px]">
-              {item.growthStage}
+              {/* {item.growthStage} */}
+              {t(`history.growth_stages.${formatWithUnderscores(item.growthStage.toLowerCase())}`)}
             </div>
 
             {/* Weather */}

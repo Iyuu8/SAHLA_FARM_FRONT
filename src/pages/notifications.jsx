@@ -2,10 +2,11 @@ import React from 'react'
 import { useState,useContext , useMemo} from 'react';
 import { NotificationsContext } from '../layout';
 import { useTranslation } from 'react-i18next';
-
+import DynamicTranslator from '../utilities/components/Translation/DynamicTranslator';
 
 export default function Notifications() {
-  const { t } = useTranslation();
+  const { t , i18n } = useTranslation();
+  const currentLanguage = i18n.language;
   const {notifications=[],setNotifications} = useContext(NotificationsContext);
   const { unreadCount, totalCount } = useMemo(() => {
   return {
@@ -71,9 +72,23 @@ export default function Notifications() {
                onClick={() =>markAsRead(item.id)}
                >
                 <div className='flex flex-col flex-shrink'>
-                  <h1 className={`${item.isRead ? "text-[rgba(0,0,0,0.65)]":"text-[#192514]"} font-bold text-[16px] md:text-[24px]`}>{item.title}</h1>
-                  <p className={`${item.isRead ? "text-[#9F9D9D]" : ""} font-normal text-[12px] md:text-[20px]`}>{item.description} </p>
-                  <h2 className={`${item.isRead ? "text-[#919190]":"text-[#55BB33]"} font-bold text-[12px] md:text-[20px]`}>{item.time} </h2>
+                  <h1 className={`${item.isRead ? "text-[rgba(0,0,0,0.65)]" : "text-[#192514]"} font-bold text-[16px] md:text-[24px]`}>
+                    <DynamicTranslator 
+                      text={item.title} 
+                      language={i18n.language} 
+                      className="inherit" // This ensures the translator takes the H1's styles
+                    />
+                  </h1>
+                  <DynamicTranslator
+                    text={item.description}
+                    className={`${item.isRead ? "text-[#9F9D9D]" : "text-[#1A3D00]"} font-normal text-[12px] md:text-[20px]`}
+                    language={currentLanguage}
+                  />
+                  <DynamicTranslator 
+                    text={item.time} 
+                    language={i18n.language} 
+                    className={`${item.isRead ? "text-[#919190]" : "text-[#55BB33]"} font-bold text-[12px] md:text-[20px] block`}
+                  />
                 </div>
                 {!item.isRead && <div className='md:w-[19px] md:h-[19px] w-[11px] h-[11px] bg-[#55BB33] rounded-[50%] flex-shrink-0' style={{boxShadow:"0 0 10px 0.5px rgba(85, 187, 51, 1)"}}></div>}
               </div>)
@@ -91,9 +106,23 @@ export default function Notifications() {
                onClick={() =>markAsRead(item.id)}
                >
                 <div className='flex flex-col flex-shrink'>
-                  <h1 className={`${item.isRead ? "text-[rgba(0,0,0,0.65)]":"text-[#192514]"} font-bold text-[16px] md:text-[24px]`}>{item.title}</h1>
-                  <p className={`${item.isRead ? "text-[#9F9D9D]" : ""} font-normal text-[12px] md:text-[20px]`}>{item.description} </p>
-                  <h2 className={`${item.isRead ? "text-[#919190]":"text-[#55BB33]"} text-[12px] md:text-[20px]`}>{item.time} </h2>
+                  <h1 className={`${item.isRead ? "text-[rgba(0,0,0,0.65)]" : "text-[#192514]"} font-bold text-[16px] md:text-[24px]`}>
+                    <DynamicTranslator 
+                      text={item.title} 
+                      language={i18n.language} 
+                      className="inherit" // This ensures the translator takes the H1's styles
+                    />
+                  </h1>
+                  <DynamicTranslator
+                    text={item.description}
+                    className={`${item.isRead ? "text-[#9F9D9D]" : "text-[#1A3D00]"} font-normal text-[12px] md:text-[20px]`}
+                    language={currentLanguage}
+                  />
+                  <DynamicTranslator 
+                    text={item.time} 
+                    language={i18n.language} 
+                    className={`${item.isRead ? "text-[#919190]" : "text-[#55BB33]"} font-bold text-[12px] md:text-[20px] block`}
+                  />
                 </div>
                 {!item.isRead && <div className='w-[11px] h-[11px] md:w-[19px] md:h-[19px] bg-[#55BB33] rounded-[50%] flex-shrink-0' style={{boxShadow:"0 0 10px 0.5px rgba(85, 187, 51, 1)"}}></div>}
               </div>)
@@ -111,9 +140,23 @@ export default function Notifications() {
                onClick={() =>markAsRead(item.id)}
                >
                 <div className='flex flex-col flex-shrink'>
-                  <h1 className={`${item.isRead ? "text-[rgba(0,0,0,0.65)]":"text-[#192514]"} font-bold text-[16px] md:text-[24px]`}>{item.title}</h1>
-                  <p className={`${item.isRead ? "text-[#9F9D9D]" : ""} font-normal text-[12px] md:text-[20px]`}>{item.description} </p>
-                  <h2 className={`${item.isRead ? "text-[#919190]":"text-[#55BB33]"} font-bold text-[12px] md:text-[20px]`}>{item.time} </h2>
+                  <h1 className={`${item.isRead ? "text-[rgba(0,0,0,0.65)]" : "text-[#192514]"} font-bold text-[16px] md:text-[24px]`}>
+                    <DynamicTranslator 
+                      text={item.title} 
+                      language={i18n.language} 
+                      className="inherit" // This ensures the translator takes the H1's styles
+                    />
+                  </h1>
+                  <DynamicTranslator
+                    text={item.description}
+                    className={`${item.isRead ? "text-[#9F9D9D]" : "text-[#1A3D00]"} font-normal text-[12px] md:text-[20px]`}
+                    language={currentLanguage}
+                  />
+                  <DynamicTranslator 
+                    text={item.time} 
+                    language={i18n.language} 
+                    className={`${item.isRead ? "text-[#919190]" : "text-[#55BB33]"} font-bold text-[12px] md:text-[20px] block`}
+                  />
                 </div>
                 {!item.isRead && <div className='w-[11px] h-[11px] md:w-[19px] md:h-[19px] bg-[#55BB33] rounded-[50%] flex-shrink-0' style={{boxShadow:"0 0 10px 0.5px rgba(85, 187, 51, 1)"}}></div>}
               </div>)
