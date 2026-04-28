@@ -6,12 +6,12 @@ import AlertModal from './AlertModal';
 import { DASHBOARD_WARNINGS } from '../../data/dashboardData';
 import { formatWarningsToUI } from './../../functions/transformWarningsDashboard';
 
-export default function MonitoringAlerts() {
+export default function MonitoringAlerts({warnings}) {
   const { t } = useTranslation();
   const [selectedAlert, setSelectedAlert] = useState(null);
 
   // Filters out the false values based on your instruction requirement
-  const activeWarnings = formatWarningsToUI(DASHBOARD_WARNINGS);
+  const activeWarnings = formatWarningsToUI(warnings);
 
   return (
     <>
