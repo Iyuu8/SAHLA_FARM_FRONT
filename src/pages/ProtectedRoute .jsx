@@ -9,10 +9,18 @@ export default function ProtectedRoute() {
     // Check if user is logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+
+      fetch("http://localhost:5000/api/auth/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+      })
     });
   }, []);
 
-  if (session === undefined) return <div>Loading...</div>; // still checking
+  if (session === undefined) return <div h-full w-full flex items-center justify-center><h4>Loading...</h4></div>; // still checking
   if (!session) return <Navigate to="/login" replace />;   // not logged in → go to login
   return <Outlet />;                                        // logged in → show the page
 }

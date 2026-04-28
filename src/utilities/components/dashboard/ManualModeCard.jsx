@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { SquarePen } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toFormatedControlMode } from '../../functions/stringTools.js';
 
 function ToggleSwitch({ checked, onChange, ariaLabel, onText, offText }) {
   return (
@@ -45,7 +46,7 @@ export default function ManualModeCard({
         <div className='flex items-center justify-between gap-2'>
           <span className='text-[0.98rem] sm:text-[1.05rem] leading-none capitalize'>
             {/* Translates globalMode dynamically, falling back to the raw string if not found */}
-            {t(`dashboard.manualModeCard.modes.${globalMode}`, globalMode)}
+            {t(`dashboard.manualModeCard.modes.${toFormatedControlMode(globalMode)}`, toFormatedControlMode(globalMode))}
           </span>
           <motion.button
             type='button'
