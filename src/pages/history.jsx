@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { profileSettingOptions } from '../utilities/data/profileSettings'
-import { useTranslation } from 'react-i18next';
-import { translateText } from '../utilities/functions/translateText';
-import { normalizeArabic } from '../utilities/functions/normalizeArabic';
+import { useTranslation } from 'react-i18next'
 import { SunnyIcon, ClearNightIcon, CloudyIcon, HeavyRainIcon, HeavyRainAltIcon, WindyIcon } from '../utilities/data/Icons'
-import HistoryDetailCard from '../utilities/components/history/HistoryDetailCard';
-import DynamicTranslator from '../utilities/components/Translation/DynamicTranslator';
+import HistoryDetailCard from '../utilities/components/history/HistoryDetailCard'
 import useHistory from '../hooks/useHistory'
 import useHistoryDetail from '../hooks/useHistoryDetail'
 import HACredentialsRequired from './haCredentialsRequired'
@@ -156,31 +153,17 @@ const CustomDropdown = ({ value, onChange, options, placeholder }) => {
   )
 }
 
-  
-
-  
-
-  
 export default function History({ temperatureUnit, humidityUnit, soilMoistureUnit, lightIntensityUnit }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation()
   const { history, loading, error, hasMore, loadMore, refresh } = useHistory()
   const { detail, loading: detailLoading, error: detailError, fetchDetail } = useHistoryDetail()
   const [Input, setInput] = useState({
-    date: "",
-    time: "",
-    crop: "",
+    date: '', time: '', crop: '',
     growthStage: t('history.growth_stages.all'),
     weather: t('history.options.all'),
-  });
+  })
   const [showModal, setShowModal] = useState(false)
-  const growthStageOptions = [
-    t('history.growth_stages.all'),
-    t('history.growth_stages.seedling'),
-    t('history.growth_stages.vegetative_growth'),
-    t('history.growth_stages.flowering'),
-    t('history.growth_stages.fruiting'),
-    t('history.growth_stages.maturity'),
-  ];
+  const { growthStageOptions } = profileSettingOptions
 
   function useIsMobile(breakpoint = 768) {
     const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint)
@@ -192,8 +175,7 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
     return isMobile
   }
   const isMobile = useIsMobile()
-  const [FilteredHistoryData, setFilteredHistoryData] = useState(history);
-  const [selectedItem, setSelectedItem] = useState(null);
+
   useEffect(() => { refresh() }, [])
 
   const handleItemClick = async (item) => {
@@ -201,55 +183,20 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
     await fetchDetail(item.id)
   }
 
+  const closeModal = () => setShowModal(false)
+
   if (error && (error.includes('credentials') || error.includes('farm') || error.includes('Farm') || error.includes('token'))) {
     return <HACredentialsRequired />
   }
-  const formatWithUnderscores = (text) => {
-    if (!text) return "";
-    return text.trim().toLowerCase().split(/\s+/).join('_');
-  };
 
-  const formatToCamelCase = (text) => {
-    if (!text) return "";
-    const words = text.trim().split(/\s+/);
-    return words.map((word, index) => {
-      if (index === 0) return word.toLowerCase();
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    }).join('');
-  };
-  // ── Async filtering ──────────────────────────────────────────────────────
-  useEffect(() => {
-    let cancelled = false;
-
-    const runFilter = async () => {
-      const results = await Promise.all(
-        history.map(async (p) => {
-          const dateMatch = Input.date === "" || p.date.includes(Input.date);
-          const timeMatch = Input.time === "" || p.time.includes(Input.time);
-          const translatedCrop = await translateText(p.crop, i18n.language);
-          const cropInputMatch =
-            Input.crop.toLowerCase() === "" ||
-            normalizeArabic(translatedCrop).includes(normalizeArabic(Input.crop));
-          const stageMatch =
-            Input.growthStage === t('history.growth_stages.all') ||
-            t(`history.growth_stages.${formatWithUnderscores(p.growthStage.toLowerCase())}`) === Input.growthStage.toLowerCase();
-          const weatherMatch =
-            Input.weather === t('history.options.all') ||
-            t(`history.options.${p.weather.toLowerCase()}`) === Input.weather.toLowerCase();
-
-          return { p, matches: dateMatch && timeMatch && cropInputMatch && stageMatch && weatherMatch };
-        })
-      );
-
-      if (!cancelled) {
-        setFilteredHistoryData(results.filter((r) => r.matches).map((r) => r.p));
-      }
-    };
-
-    runFilter();
-
-    return () => { cancelled = true; };
-  }, [Input, i18n.language]);
+  const FilteredHistory = history.filter(p => {
+    const dateMatch = Input.date === '' || p.date.includes(Input.date)
+    const timeMatch = Input.time === '' || p.time.includes(Input.time)
+    const cropMatch = Input.crop === '' || p.crop.toLowerCase().includes(Input.crop.toLowerCase())
+    const stageMatch = Input.growthStage === t('history.growth_stages.all') || p.growthStage.toLowerCase() === Input.growthStage.toLowerCase()
+    const weatherMatch = Input.weather === t('history.options.all') || p.weather.toLowerCase() === Input.weather.toLowerCase()
+    return dateMatch && timeMatch && cropMatch && stageMatch && weatherMatch
+  })
 
   return (
     <div className='flex flex-col h-full max-h-full overflow-hidden md:p-3 p-1 gap-4 w-full'>
@@ -272,14 +219,6 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
           <CustomDropdown value={Input.growthStage} onChange={(val) => setInput({ ...Input, growthStage: val })} options={[t('history.growth_stages.all'), ...growthStageOptions]} placeholder="Select growth stage" />
         </div>
         <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
-                <span className="font-newblack font-bold text-black/70 text-[10px] md:text-[16px]">{t('history.labels.weather')}</span>
-                <CustomDropdown
-                  value={Input.weather}
-                  onChange={(val) => setInput({...Input, weather: val})}
-                  options={[`${t('history.options.all')}`, `${t('history.options.sunny')}`, `${t('history.options.cloudy')}`, `${t('history.options.night')}`, `${t('history.options.windy')}`, `${t('history.options.stormy')}`, `${t('history.options.rainy')}`] || []}
-                  placeholder="Select weather"
-                />
-             
           <span className="font-newblack font-bold text-black/70 text-[10px] md:text-[16px]">{t('history.labels.weather')}</span>
           <CustomDropdown value={Input.weather} onChange={(val) => setInput({ ...Input, weather: val })} options={[t('history.options.all'), t('history.options.sunny'), t('history.options.cloudy'), t('history.options.night'), t('history.options.windy'), t('history.options.stormy'), t('history.options.rainy')]} placeholder="Select weather" />
         </div>
@@ -314,45 +253,6 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
               <button onClick={() => setInput({ date: '', time: '', crop: '', growthStage: t('history.growth_stages.all'), weather: t('history.options.all') })} className="mt-2 px-4 py-2 bg-[#192514] text-[#E8FFE0] text-[10px] md:text-[16px] rounded-lg cursor-pointer hover:bg-[#55BB33] transition-colors duration-200">
                 {t('history.buttons.clear_filters')}
               </button>
-            </div>
-        }
-        {FilteredHistoryData.map((item) => (
-          <div 
-            key={item.id} 
-            className={`grid grid-cols-5 items-center border-b border-[#bdbdbd7c]
-               transition-colors duration-200 hover:bg-[#B0FF92] hover:bg-opacity-40 
-               cursor-pointer
-            `}
-            onClick={() => handleItemClick(item)}
-          >
-            {/* Date */}
-            <div className="py-4 font-bold text-center text-[#00000094] flex items-center justify-center md:gap-2 gap-1 text-[10px] md:text-[16px] ">
-              <div className='md:mb-1 mb-[2px]'>
-                <CalendarIcon size={isMobile ? 10 : undefined}/>
-              </div> 
-              {item.date}
-            </div>
-
-            {/* Time */}
-            <div className="py-4 font-bold text-center text-[#1A3D00BA] flex items-center justify-center md:gap-2 gap-1 text-[10px] md:text-[16px]">
-              <div className='md:mb-1 mb-[2px]'>
-                <ClockIcon size={isMobile ? 10 : undefined}/>
-              </div> 
-              {item.time}
-            </div>
-
-            {/* Crop */}
-            <div className="py-4 text-center font-bold text-[#192514] relative text-[10px] md:text-[16px]">
-              <DynamicTranslator
-                text={item.crop}
-                language={i18n.language}
-              />
-            </div>
-
-            {/* Growth Stage */}
-            <div className="py-4 text-center text-[#2E6900] font-semibold capitalize text-[10px] md:text-[16px]">
-              {/* {item.growthStage} */}
-              {t(`history.growth_stages.${formatWithUnderscores(item.growthStage.toLowerCase())}`)}
             </div>
           )}
 

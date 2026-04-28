@@ -2,13 +2,10 @@ import React from 'react'
 import { useState, useContext, useMemo } from 'react';
 import { NotificationsContext } from '../layout';
 import { useTranslation } from 'react-i18next';
-import DynamicTranslator from '../utilities/components/Translation/DynamicTranslator';
-
 import HACredentialsRequired from './haCredentialsRequired'
 
 export default function Notifications() {
-  const { t , i18n } = useTranslation();
-  const currentLanguage = i18n.language;
+  const { t } = useTranslation();
   const { notifications = [], loading, error, markAsRead, markAllAsRead } = useContext(NotificationsContext);
 
   const { unreadCount, totalCount } = useMemo(() => ({
@@ -89,109 +86,34 @@ export default function Notifications() {
       </div>
 
       <div className='flex-1 overflow-y-auto scroll-smooth max-h-full custom-scroll'>
-        {unreadCount === 0 && filter === "unread" && <div className="text-center text-gray-400 py-10">
-          {t('notifications.no_unread')}
-        </div>}
-        {groups.today.length > 0 && <div className='flex flex-col'>
-          <h1 className='text-[16px] md:text-[24px] font-bold'>{t('notifications.today')}</h1>
-          <div className='flex flex-col w-full gap-1'>
-            {(groups?.today || []).map((item)=>{
-              return(
-              <div key={item.id} className='md:px-5 px-2 md:py-[10px] py-[5px] flex w-full justify-between items-center gap-1
-               hover:bg-[#DDEADB75] cursor-pointer 
-               transition-colors duration-200 rounded-[20px]'
-               onClick={() =>markAsRead(item.id)}
-               >
-                <div className='flex flex-col flex-shrink'>
-                  <h1 className={`${item.isRead ? "text-[rgba(0,0,0,0.65)]" : "text-[#192514]"} font-bold text-[16px] md:text-[24px]`}>
-                    <DynamicTranslator 
-                      text={item.title} 
-                      language={i18n.language} 
-                      className="inherit" // This ensures the translator takes the H1's styles
-                    />
-                  </h1>
-                  <DynamicTranslator
-                    text={item.description}
-                    className={`${item.isRead ? "text-[#9F9D9D]" : "text-[#1A3D00]"} font-normal text-[12px] md:text-[20px]`}
-                    language={currentLanguage}
-                  />
-                  <DynamicTranslator 
-                    text={item.time} 
-                    language={i18n.language} 
-                    className={`${item.isRead ? "text-[#919190]" : "text-[#55BB33]"} font-bold text-[12px] md:text-[20px] block`}
-                  />
-                </div>
-                {!item.isRead && <div className='md:w-[19px] md:h-[19px] w-[11px] h-[11px] bg-[#55BB33] rounded-[50%] flex-shrink-0' style={{boxShadow:"0 0 10px 0.5px rgba(85, 187, 51, 1)"}}></div>}
-              </div>)
-            })}
+        {unreadCount === 0 && filter === "unread" && (
+          <div className="text-center text-gray-400 py-10">{t('notifications.no_unread')}</div>
+        )}
+
+        {groups.today.length > 0 && (
+          <div className='flex flex-col'>
+            <h1 className='text-[16px] md:text-[24px] font-bold'>{t('notifications.today')}</h1>
+            <div className='flex flex-col w-full gap-1'>
+              {groups.today.map(item => <NotificationItem key={item.id} item={item} />)}
+            </div>
           </div>
-          </div>}
-          {groups.yesterday.length > 0 && <div className='flex flex-col'>
-          <h1 className='text-[16px] md:text-[24px] font-bold'>{t('notifications.yesterday')}</h1>
-          <div className='flex flex-col w-full gap-1'>
-            {groups.yesterday.map((item)=>{
-              return(
-              <div key={item.id} className='md:px-5 px-2 md:py-[10px] py-[5px] flex w-full justify-between items-center gap-1
-               hover:bg-[#DDEADB75] cursor-pointer 
-               transition-colors duration-200 rounded-[20px]'
-               onClick={() =>markAsRead(item.id)}
-               >
-                <div className='flex flex-col flex-shrink'>
-                  <h1 className={`${item.isRead ? "text-[rgba(0,0,0,0.65)]" : "text-[#192514]"} font-bold text-[16px] md:text-[24px]`}>
-                    <DynamicTranslator 
-                      text={item.title} 
-                      language={i18n.language} 
-                      className="inherit" // This ensures the translator takes the H1's styles
-                    />
-                  </h1>
-                  <DynamicTranslator
-                    text={item.description}
-                    className={`${item.isRead ? "text-[#9F9D9D]" : "text-[#1A3D00]"} font-normal text-[12px] md:text-[20px]`}
-                    language={currentLanguage}
-                  />
-                  <DynamicTranslator 
-                    text={item.time} 
-                    language={i18n.language} 
-                    className={`${item.isRead ? "text-[#919190]" : "text-[#55BB33]"} font-bold text-[12px] md:text-[20px] block`}
-                  />
-                </div>
-                {!item.isRead && <div className='w-[11px] h-[11px] md:w-[19px] md:h-[19px] bg-[#55BB33] rounded-[50%] flex-shrink-0' style={{boxShadow:"0 0 10px 0.5px rgba(85, 187, 51, 1)"}}></div>}
-              </div>)
-            })}
+        )}
+
+        {groups.yesterday.length > 0 && (
+          <div className='flex flex-col'>
+            <h1 className='text-[16px] md:text-[24px] font-bold'>{t('notifications.yesterday')}</h1>
+            <div className='flex flex-col w-full gap-1'>
+              {groups.yesterday.map(item => <NotificationItem key={item.id} item={item} />)}
+            </div>
           </div>
-          </div>}
-          {groups.earlier.length > 0 && <div className='flex flex-col'>
-          <h1 className='md:text-[24px] text-[16px] font-bold'>{t('notifications.earlier')}</h1>
-          <div className='flex flex-col w-full gap-1'>
-            {groups.earlier.map((item)=>{
-              return(
-              <div key={item.id} className='md:px-5 px-2 md:py-[10px] py-[5px] flex w-full justify-between items-center gap-1
-               hover:bg-[#DDEADB75] cursor-pointer 
-               transition-colors duration-200 rounded-[20px]'
-               onClick={() =>markAsRead(item.id)}
-               >
-                <div className='flex flex-col flex-shrink'>
-                  <h1 className={`${item.isRead ? "text-[rgba(0,0,0,0.65)]" : "text-[#192514]"} font-bold text-[16px] md:text-[24px]`}>
-                    <DynamicTranslator 
-                      text={item.title} 
-                      language={i18n.language} 
-                      className="inherit" // This ensures the translator takes the H1's styles
-                    />
-                  </h1>
-                  <DynamicTranslator
-                    text={item.description}
-                    className={`${item.isRead ? "text-[#9F9D9D]" : "text-[#1A3D00]"} font-normal text-[12px] md:text-[20px]`}
-                    language={currentLanguage}
-                  />
-                  <DynamicTranslator 
-                    text={item.time} 
-                    language={i18n.language} 
-                    className={`${item.isRead ? "text-[#919190]" : "text-[#55BB33]"} font-bold text-[12px] md:text-[20px] block`}
-                  />
-                </div>
-                {!item.isRead && <div className='w-[11px] h-[11px] md:w-[19px] md:h-[19px] bg-[#55BB33] rounded-[50%] flex-shrink-0' style={{boxShadow:"0 0 10px 0.5px rgba(85, 187, 51, 1)"}}></div>}
-              </div>)
-            })}
+        )}
+
+        {groups.earlier.length > 0 && (
+          <div className='flex flex-col'>
+            <h1 className='md:text-[24px] text-[16px] font-bold'>{t('notifications.earlier')}</h1>
+            <div className='flex flex-col w-full gap-1'>
+              {groups.earlier.map(item => <NotificationItem key={item.id} item={item} />)}
+            </div>
           </div>
         )}
       </div>

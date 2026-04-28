@@ -9,8 +9,6 @@ import {
   formatConvertedValue,
 } from '../../functions/conversionFunctions';
 import { useTranslation } from 'react-i18next';
-import DynamicTranslator from '../Translation/DynamicTranslator';
-import i18n from '../../../i18n';
 
 const weatherIconMap = {
   sunny: SunnyIcon,
@@ -23,7 +21,7 @@ const weatherIconMap = {
 
 const ActuatorCard = ({ actuator }) => {
   const { type, status, control_mode, run_at, run_until } = actuator;
-  const { t , i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const formatTime = (isoString) => {
     if (!isoString) return null;
@@ -115,13 +113,8 @@ export default function HistoryDetailCard({
   soilMoistureUnit = '%',
   lightIntensityUnit = 'lux',
 }) {
-  const { t , i8n} = useTranslation();
-  const formatWithUnderscores = (text) => {
-      if (!text) return "";
+  const { t } = useTranslation();
 
-      // Removes extra spaces, converts to lowercase (optional), and joins with '_'
-      return text.trim().toLowerCase().split(/\s+/).join('_');
-    };
   // Parse timestamp from API
   const timestamp = new Date(data.timestamp)
   const day = String(timestamp.getDate()).padStart(2, '0')
@@ -177,10 +170,10 @@ export default function HistoryDetailCard({
                 <span>{t('history.historyCard.at')}</span>
                 <span>{time}</span>
               </p>
-              <p className='text-[#295D00] font-newblack flex md:gap-3 gap-3 md:text-[22px] text-[15px] '>
-                  <span><DynamicTranslator text={crop} language={i18n.language}/> {t('history.historyCard.in')}</span>
-                  <span>{t('history.historyCard.stage')}</span>
-                  <span className=''>{t(`history.growth_stages.${formatWithUnderscores(growthStage)}`)}</span>
+              <p className='text-[#295D00] font-newblack flex md:gap-3 gap-3 md:text-[22px] text-[15px]'>
+                <span>{crop} {t('history.historyCard.in')}</span>
+                <span>{t('history.historyCard.stage')}</span>
+                <span>{t(`history.growth_stages.${growthStage}`)}</span>
               </p>
             </div>
           </div>
@@ -241,8 +234,7 @@ export default function HistoryDetailCard({
           <div className='w-[8px] h-[8px] md:w-[12px] md:h-[12px] bg-[#1A3D00] rounded-full md:mb-2 mb-1'></div>
           <p className='font-newblack text-[#1A3D00] font-semibold md:text-[30px] text-[18px]'>{t('history.historyCard.sections.weatherSummary')}</p>
         </div>
-        {/* Body */}
-        <DynamicTranslator text={weatherSummary} language={i18n.language} className="font-newblack text-[#1A3D00E6] md:text-[17px] text-[13px]" />
+        <p className="font-newblack text-[#1A3D00E6] md:text-[17px] text-[13px]" dangerouslySetInnerHTML={{ __html: weatherSummary }} />
       </div>
 
       {/* AI Recommendations */}
@@ -251,8 +243,7 @@ export default function HistoryDetailCard({
           <div className='w-[8px] h-[8px] md:w-[12px] md:h-[12px] bg-[#1A3D00] rounded-full md:mb-2 mb-1'></div>
           <p className='font-newblack text-[#1A3D00] font-semibold md:text-[30px] text-[18px]'>{t('history.historyCard.sections.aiRecommendations')}</p>
         </div>
-        {/* Body */}
-        <DynamicTranslator text={aiRecommendation} language={i18n.language} className="font-newblack text-[#1A3D00E6] md:text-[17px] text-[13px]" />
+        <p className='font-newblack text-[#1A3D00E6] md:text-[17px] text-[13px]' dangerouslySetInnerHTML={{ __html: aiRecommendation }} />
       </div>
     </div>
   )

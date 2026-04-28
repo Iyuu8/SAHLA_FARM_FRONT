@@ -204,7 +204,6 @@ export default function ChartCard({
               axisLine={false}
               interval={0}
               padding={{ left: isCompact ? 8 : 16, right: isCompact ? 10 : 20 }}
-              tickFormatter={(tick) => t(`history.day.${tick.toLowerCase()}`, tick)}
               tick={{ fill: 'rgba(25,37,20,0.7)', fontSize: isCompact ? 12 : 14 }}
               dy={isCompact ? 10 : 12}
             />
@@ -219,8 +218,8 @@ export default function ChartCard({
             />
             <Tooltip
               cursor={false}
-              formatter={(value) => [`${value}${selectedSensor?.unit || ''}`, '']}
-              labelFormatter={(tick) => t(`history.day.${tick.toLowerCase()}`)}
+              formatter={(value) => [`${value}${selectedSensor?.unit || ''}`, t('dashboard.chart.value')]}
+              labelFormatter={(label) => `${label}`}
               contentStyle={{
                 border: '1px solid rgba(25,37,20,0.15)',
                 borderRadius: '8px',

@@ -69,7 +69,7 @@ export default function Header() {
       <div className='flex items-center  w-full gap-2'>
          
         <div className='md:hidden'><LogoIcon/></div>
-        <span className='text-[#192514] text-[15px] lg:text-[32px] md:text-[26px] font-normal font-newblack'>SAHLA Farm</span>
+        <span className='text-[#192514] text-[15px] lg:text-[32px] md:text-[26px] font-normal font-newblack'>{t("header.farmName")}</span>
       </div>
       
       <div className='flex justify-end  gap-1 w-full'>
