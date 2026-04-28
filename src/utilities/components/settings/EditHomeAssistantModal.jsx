@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../../../supabaseClient';
 
 export default function EditHomeAssistantModal({
   isOpen,
@@ -13,12 +14,15 @@ export default function EditHomeAssistantModal({
   const [url, setUrl] = useState('');
   const [token, setToken] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState(null); // 'online' | 'offline'
 
   useEffect(() => {
     if (!isOpen) return;
     setUrl(initialUrl || '');
     setToken(initialToken || '');
     setError('');
+    setStatus(null);
   }, [isOpen, initialUrl, initialToken]);
 
   useEffect(() => {
@@ -32,7 +36,7 @@ export default function EditHomeAssistantModal({
 
   if (!isOpen) return null;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const trimmedUrl = url.trim();
     const trimmedToken = token.trim();
 
@@ -42,7 +46,60 @@ export default function EditHomeAssistantModal({
     }
 
     setError('');
-    onSave({ url: trimmedUrl, token: trimmedToken });
+    setStatus(null);
+    setLoading(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
+      const res = await fetch('http://localhost:5000/api/settings/editHaCredentials', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ haUrl: trimmedUrl, haToken: trimmedToken }),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 503) {
+        setError('Home Assistant server is unreachable. Check the URL.');
+        setStatus('offline');
+        return;
+      }
+
+      if (res.status === 401) {
+        setError(data.error || 'Invalid credentials or token.');
+        return;
+      }
+
+      if (res.status === 400) {
+        setError(data.error || 'Invalid request.');
+        return;
+      }
+
+      if (!res.ok) {
+        setError(data.error || 'Failed to update HA credentials.');
+        return;
+      }
+
+      // Success
+      setStatus(data.status); // 'online' or 'offline'
+
+      if (data.status === 'online') {
+        onSave({ url: trimmedUrl, token: trimmedToken });
+        onClose();
+      } else {
+        setError(data.message || 'HA connected but reported offline.');
+      }
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return createPortal(
@@ -72,22 +129,32 @@ export default function EditHomeAssistantModal({
           </label>
         </div>
 
-        {error ? <p className='mt-3 text-sm text-[#C73030]'>{error}</p> : null}
+        {/* Status indicator */}
+        {status && (
+          <div className={`mt-3 flex items-center gap-2 text-sm font-semibold ${status === 'online' ? 'text-[#2E6900]' : 'text-red-500'}`}>
+            <span className={`w-2 h-2 rounded-full ${status === 'online' ? 'bg-[#2E6900]' : 'bg-red-500'}`} />
+            {status === 'online' ? 'Connected' : 'Offline'}
+          </div>
+        )}
+
+        {error && <p className='mt-3 text-sm text-[#C73030]'>{error}</p>}
 
         <div className='mt-5 flex justify-end gap-2'>
           <button
             type='button'
             className='rounded-lg px-4 py-2 text-sm font-semibold text-[#192514] bg-[#E8ECE7] hover:bg-[#DDE3DC] transition-colors'
             onClick={onClose}
+            disabled={loading}
           >
             {t('profile.editHaModal.cancel')}
           </button>
           <button
             type='button'
-            className='rounded-lg px-4 py-2 text-sm font-semibold text-white bg-[#57BD36] hover:bg-[#4ea531] transition-colors'
+            className='rounded-lg px-4 py-2 text-sm font-semibold text-white bg-[#57BD36] hover:bg-[#4ea531] transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
             onClick={handleSave}
+            disabled={loading}
           >
-            {t('profile.editHaModal.save')}
+            {loading ? 'Connecting...' : t('profile.editHaModal.save')}
           </button>
         </div>
       </div>

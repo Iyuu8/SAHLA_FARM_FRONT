@@ -1,57 +1,52 @@
-import { useEffect, useMemo, useState } from 'react';
-import { STORAGE_KEYS } from '../utilities/data/storageKeys';
+import { useEffect, useMemo, useState, useRef } from "react";
+import { STORAGE_KEYS } from "../utilities/data/storageKeys";
 
-// LOCAL STORAGE (backend migration): key for cached profile settings in browser.
 const PROFILE_STORAGE_KEY = STORAGE_KEYS.profile;
 
 export default function useProfileInfo(initialUser = {}) {
-  // Accepts either raw backend-shaped user data (username/avatarUrl)
-  // or already-normalized app user data (userName/pfp).
-  const normalizedInitialUser = useMemo(() => ({
-    pfp: initialUser.pfp || initialUser.avatarUrl || '',
-    userName: initialUser.userName || initialUser.username || '',
-    email: initialUser.email || '',
-    address: initialUser.address ?? '',
-    age: initialUser.age ?? '',
-  }), [initialUser]);
+  const safeUser = initialUser || {}; // ← guard against null/undefined
 
-  const fallbackProfile = useMemo(() => ({
-    pfp: normalizedInitialUser.pfp,
-    userName: normalizedInitialUser.userName,
-    email: normalizedInitialUser.email,
-    address: normalizedInitialUser.address,
-    age: normalizedInitialUser.age,
-  }), [normalizedInitialUser]);
+  const normalizedInitialUser = useMemo(
+    () => ({
+      pfp: safeUser.pfp || safeUser.avatarUrl || "",
+      userName: safeUser.userName || safeUser.username || "",
+      email: safeUser.email || "",
+      address: safeUser.address ?? "",
+      age: safeUser.age ?? "",
+    }),
+    [
+      safeUser.pfp,
+      safeUser.avatarUrl,
+      safeUser.userName,
+      safeUser.username,
+      safeUser.email,
+      safeUser.address,
+      safeUser.age,
+    ],
+  );
 
-  const [profileInfo, setProfileInfo] = useState(() => {
-    if (typeof window === 'undefined') {
-      return fallbackProfile;
+  const [profileInfo, setProfileInfo] = useState(normalizedInitialUser);
+
+  // Use a ref to track if this is the first mount
+  const isFirstMount = useRef(true);
+
+  useEffect(() => {
+    // Skip on first mount — state already initialized correctly
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
     }
-
-    try {
-      // LOCAL STORAGE (backend migration): profile bootstrap read.
-      const persisted = window.localStorage.getItem(PROFILE_STORAGE_KEY);
-      if (!persisted) {
-        return fallbackProfile;
-      }
-
-      const parsed = JSON.parse(persisted);
-      const { password, ...parsedWithoutPassword } = parsed || {};
-      return {
-        ...fallbackProfile,
-        ...parsedWithoutPassword,
-      };
-    } catch {
-      return fallbackProfile;
-    }
-  });
+    setProfileInfo(normalizedInitialUser);
+  }, [normalizedInitialUser]);
 
   useEffect(() => {
     try {
-      // LOCAL STORAGE (backend migration): profile write-through persistence.
-      window.localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(profileInfo));
+      window.localStorage.setItem(
+        PROFILE_STORAGE_KEY,
+        JSON.stringify(profileInfo),
+      );
     } catch {
-      // Ignore storage errors to keep UI responsive.
+      // Ignore storage errors
     }
   }, [profileInfo]);
 
@@ -69,9 +64,5 @@ export default function useProfileInfo(initialUser = {}) {
     setProfileInfo((prev) => ({ ...prev, pfp: nextPfp }));
   };
 
-  return {
-    profileInfo,
-    updateProfileInfo,
-    updateProfilePhoto,
-  };
+  return { profileInfo, updateProfileInfo, updateProfilePhoto };
 }

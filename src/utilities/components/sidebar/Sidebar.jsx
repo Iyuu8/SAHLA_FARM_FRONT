@@ -1,8 +1,8 @@
 import React from 'react'
 import DesktopSidebar from './DesktopSidebar'; 
 import MobileSidebar from './MobileSidebar';
-import useProfileInfo from '../../../hooks/useProfileInfo.js';
 import { NORMALIZED_USER } from '../../data/profileSettings';
+import useProfileData from '../../../hooks/useProfileData.js';
 
 const LogoIcon = () => (
   <svg width="63" height="64" viewBox="0 0 63 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -30,6 +30,7 @@ const ProfileIcon = () => (
       stroke="black" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
+
 const HomeIcon = () => (
   <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M9.375 22.9166V12.4999H15.625V22.9166M3.125 9.37492L12.5 2.08325L21.875 9.37492V20.8333C21.875 21.3858 21.6555 21.9157 21.2648 22.3064C20.8741 22.6971 20.3442 22.9166 19.7917 22.9166H5.20833C4.6558 22.9166 4.12589 22.6971 3.73519 22.3064C3.34449 21.9157 3.125 21.3858 3.125 20.8333V9.37492Z" 
@@ -73,16 +74,50 @@ const LogOutIcon = () => (
       stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
-export default function Sidebar({isOpen, setIsOpen}) {
-  const { profileInfo, updateProfileInfo, updateProfilePhoto } = useProfileInfo(NORMALIZED_USER);
+
+export default function Sidebar({ isOpen, setIsOpen }) {
+  const { data: backendUser, loading } = useProfileData()
+
+  const profileInfo = backendUser ? {
+    userName: backendUser.username || '',
+    pfp: backendUser.avatarUrl || '',
+    email: backendUser.email || '',
+  } : {
+    userName: loading ? '' : NORMALIZED_USER.userName || '',
+    pfp: loading ? '' : NORMALIZED_USER.pfp || '',
+    email: loading ? '' : NORMALIZED_USER.email || '',
+  }
+
   return (
     <div className="">
-        <div className='hidden md:block'>
-            <DesktopSidebar LogOutIcon={LogOutIcon} HomeIcon={HomeIcon} NotificationIcon={NotificationIcon} CameraIcon={CameraIcon} ChatIcon={ChatIcon} ProfileIcon={ProfileIcon} LogoIcon={LogoIcon} HistoryIcon={HistoryIcon} />
-        </div>
-        <div className='md:hidden'>
-            <MobileSidebar isOpen={isOpen} setIsOpen={setIsOpen} LogOutIcon={LogOutIcon} HomeIcon={HomeIcon} NotificationIcon={NotificationIcon} CameraIcon={CameraIcon} ChatIcon={ChatIcon} ProfileIcon={ProfileIcon} LogoIcon={LogoIcon} HistoryIcon={HistoryIcon} />
-        </div>
+      <div className='hidden md:block'>
+        <DesktopSidebar
+          profileInfo={profileInfo}
+          LogOutIcon={LogOutIcon}
+          HomeIcon={HomeIcon}
+          NotificationIcon={NotificationIcon}
+          CameraIcon={CameraIcon}
+          ChatIcon={ChatIcon}
+          ProfileIcon={ProfileIcon}
+          LogoIcon={LogoIcon}
+          HistoryIcon={HistoryIcon}
+        />
+      </div>
+      <div className='md:hidden'>
+        <MobileSidebar
+          profileInfo={profileInfo}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          LogOutIcon={LogOutIcon}
+          HomeIcon={HomeIcon}
+          NotificationIcon={NotificationIcon}
+          CameraIcon={CameraIcon}
+          ChatIcon={ChatIcon}
+          ProfileIcon={ProfileIcon}
+          LogoIcon={LogoIcon}
+          HistoryIcon={HistoryIcon}
+        />
+      </div>
     </div>
   )
 }

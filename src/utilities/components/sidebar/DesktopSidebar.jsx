@@ -4,15 +4,16 @@ import { useLocation } from 'react-router';
 import Tooltip from './Tooltip';
 import { useTranslation } from 'react-i18next';
 
-import useProfileInfo from '../../../hooks/useProfileInfo.js';
-import { NORMALIZED_USER } from '../../data/profileSettings';
+import { clearProfileCache } from '../../../hooks/useProfileData.js'
+//import useProfileInfo from '../../../hooks/useProfileInfo.js';
+//import { NORMALIZED_USER } from '../../data/profileSettings';
 
 import { supabase } from "../../../supabaseClient";
 import { useNavigate } from 'react-router'
 
 
-export default function DesktopSidebar({ userName = "user", LogOutIcon , NotificationIcon , HistoryIcon , HomeIcon , CameraIcon , ChatIcon , LogoIcon ,ProfileIcon}) {
-  const { profileInfo, updateProfileInfo, updateProfilePhoto } = useProfileInfo(NORMALIZED_USER);
+export default function DesktopSidebar({ profileInfo, LogOutIcon , NotificationIcon , HistoryIcon , HomeIcon , CameraIcon , ChatIcon , LogoIcon ,ProfileIcon}) {
+  //const { profileInfo, updateProfileInfo, updateProfilePhoto } = useProfileInfo(NORMALIZED_USER);
   const location = useLocation();
   const { t } = useTranslation();
   const navItems = [
@@ -22,13 +23,15 @@ export default function DesktopSidebar({ userName = "user", LogOutIcon , Notific
   { name: t('sidebar.history'),       path: "/history",       icon: HistoryIcon      },
   { name: t('sidebar.notifications'), path: "/notifications", icon: NotificationIcon },
 ];
-  console.log(profileInfo);
+  //console.log(profileInfo);
   const navigate = useNavigate();
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) console.error('Logout error:', error.message);
-    navigate('/login');
-  };
+  // Clear profile cache on logout
+  clearProfileCache();
+  const { error } = await supabase.auth.signOut()
+  if (error) console.error('Logout error:', error.message)
+  navigate('/login')
+}
   return (
     <aside className="px-2 w-[84px] h-screen fixed left-0 top-0 z-30 flex flex-col items-center py-5 overflow-visible" 
     style={{background: "linear-gradient(180deg, rgba(43, 32, 51, 1) 0%, rgba(28, 35, 42, 1) 100%)"}}>
@@ -48,7 +51,7 @@ export default function DesktopSidebar({ userName = "user", LogOutIcon , Notific
               <ProfileIcon />
             </div>
             <span className="text-[15px] text-gray-400 font-medium tracking-wide">
-              {profileInfo.userName}
+              {profileInfo?.userName || ''}
             </span>
             <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none absolute left-14 ml-2 top-6 -translate-y-1/2 z-50'>
               <Tooltip title={t('sidebar.settings')}/>
