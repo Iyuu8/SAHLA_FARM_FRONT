@@ -19,6 +19,7 @@
     "ha_connection": "Home Assistant Connection",
     "status": "Status:",
     "online": "Online",
+    "offline": "Offline",
     "change": "Change",
     "editHaModal": {
         "title": "Change Home Assistant Connection",

@@ -12,7 +12,7 @@ export default function MonitoringAlerts() {
   const [selectedAlert, setSelectedAlert] = useState(null);
 
   // Filters out the false values based on your instruction requirement
-  const activeWarnings = formatWarningsToUI(DASHBOARD_WARNINGS);
+  const activeWarnings = formatWarningsToUI(warnings);
 
   return (
     <>

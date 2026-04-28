@@ -382,7 +382,7 @@ const toTitleCase = (value) =>
 const normalizeModeValue = (value) => String(value || '').replace(/_/g, ' ').trim();
 
 // Normalizes backend unit variations (Lux/lx) and applies fallback unit per sensor type.
-const formatSensorUnit = (unit, sensorType) => {
+export const formatSensorUnit = (unit, sensorType) => {
   if (unit && typeof unit === 'string') {
     const normalized = unit.trim().toLowerCase();
     if (normalized === 'lux') return 'lux';
@@ -423,7 +423,7 @@ const groupByDate = (data) => {
 // Builds chart data for each range:
 // - today: raw intraday points (no averaging)
 // - threeDays/week: per-day average to keep wider ranges readable
-const buildRangeSeries = (points) => {
+export const buildRangeSeries = (points) => {
   const sorted = sortByTimestamp(points || []);
   if (!sorted.length) {
     return {

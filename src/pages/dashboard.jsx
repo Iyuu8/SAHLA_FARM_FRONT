@@ -1,14 +1,12 @@
-import { useMemo, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import ChartCard from '../utilities/components/dashboard/ChartCard';
-import ActuatorCarousel from '../utilities/components/dashboard/ActuatorCarousel';
-import ManualModeCard from '../utilities/components/dashboard/ManualModeCard';
-import EditActuatorsModal from '../utilities/components/dashboard/EditActuatorsModal';
-import SensorCard from '../utilities/components/dashboard/SensorCard';
-import CropInfoCard from '../utilities/components/dashboard/CropInfoCard';
+import { useMemo, useState, useEffect } from 'react'; //tools from react
+import { motion } from 'framer-motion'; //for animations
+import ChartCard from '../utilities/components/dashboard/ChartCard'; //the chart card (for the sensor history)
+import ActuatorCarousel from '../utilities/components/dashboard/ActuatorCarousel'; //actuator card
+import ManualModeCard from '../utilities/components/dashboard/ManualModeCard'; //manual mode card
+import EditActuatorsModal from '../utilities/components/dashboard/EditActuatorsModal'; //manual mode pop up
+import SensorCard from '../utilities/components/dashboard/SensorCard'; //sensor card
+import CropInfoCard from '../utilities/components/dashboard/CropInfoCard'; //crop info card
 import {
-  DASHBOARD_SENSOR_OPTIONS,
-  DASHBOARD_SENSOR_SERIES,
   DEFAULT_SELECTED_SENSOR_ID,
 } from '../utilities/data/dashboardData';
 import { useTranslation } from 'react-i18next';
@@ -22,6 +20,16 @@ import {
 import useFarmPreferences from '../hooks/useFarmPreferences';
 import useActuatorsState from '../hooks/useActuatorsState';
 import usePersistentState from '../hooks/usePersistentState';
+
+import { useWarnings } from '../hooks/useWarnings';
+import { useRecommendation } from '../hooks/useRecommendation';
+import { useCropInfo } from '../hooks/useCropInfo';
+import { useSensors } from '../hooks/useSensors';
+import { useGraphData } from '../hooks/useGraphData';
+import { useActuators } from '../hooks/useActuators';
+
+import { buildRangeSeries } from '../utilities/data/dashboardData.js';
+import { formatSensorUnit } from '../utilities/data/dashboardData.js';
 
 /**
  * Dashboard page composition.
@@ -45,22 +53,29 @@ export default function Dashboard() {
   );
   const [isDesktop, setIsDesktop] = useState(true);
 
+  
   const {
-    crop,
-    setCrop,
-    cropOptions,
-    addCropOption,
-    growthStage,
-    setGrowthStage,
-    mode,
-    setMode,
+   // crop,
+   // setCrop,
+  //  cropOptions,
+   // addCropOption,
+   // growthStage,
+  //  setGrowthStage,
+   // mode,
+  //  setMode,
     temperatureUnit,
     humidityUnit,
     soilMoistureUnit,
     lightIntensityUnit,
   } = useFarmPreferences();
+  
 
-  const [actuators, setActuators] = useActuatorsState();
+  const { crop, setCrop, cropOptions, addCropOption, growthStage, setGrowthStage, mode, setMode } = useCropInfo();
+  const { recommendation } = useRecommendation();
+  const { warnings } = useWarnings();
+  const { sensors } = useSensors();
+  const { graphData } = useGraphData();
+  const { actuators, setActuators } = useActuators();
 
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
@@ -68,6 +83,58 @@ export default function Dashboard() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Normalization maps backend sensor "type" values to UI-safe IDs used across components.
+const SENSOR_TYPE_TO_ID = {
+  temperature: 'temperature',
+  air_humidity: 'humidity',
+  soil_moisture: 'soilMoisture',
+  light_intensity: 'lightIntensity',
+};
+
+// Human-friendly labels rendered in cards, chart headers, and AI context lines.
+const SENSOR_TYPE_TO_LABEL = {
+  temperature: 'Temperature',
+  air_humidity: 'Humidity',
+  soil_moisture: 'Soil Moisture',
+  light_intensity: 'Light Intensity',
+};
+
+// Fallback units keep UI stable when backend unit is missing.
+const SENSOR_DEFAULT_UNIT = {
+  temperature: '°C',
+  air_humidity: '%',
+  soil_moisture: '%',
+  light_intensity: 'lux',
+};
+
+  const DASHBOARD_SENSOR_OPTIONS = (sensors || []).map((sensor, index) => {
+    const sensorType = sensor.type;
+    const sensorId = SENSOR_TYPE_TO_ID[sensorType] || `sensor-${index}`;
+  
+    return {
+      id: sensorId,
+      label: SENSOR_TYPE_TO_LABEL[sensorType] || sensorType,
+      unit: formatSensorUnit(sensor.unit, sensorType),
+      currentValue: sensor.value,
+      description: sensor.description || 'No sensor description available.',
+      raw: sensor,
+    };
+  });
+
+  const normalizedSensorSeriesByType = !graphData ? null : Object.fromEntries(
+  graphData.map((entry) => [entry.sensor.type, buildRangeSeries(entry.data || [])])
+);
+
+// Converts series keyed by backend type into series keyed by normalized UI sensor id.
+const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
+  DASHBOARD_SENSOR_OPTIONS.map((sensorOption) => {
+    const sourceType = Object.keys(SENSOR_TYPE_TO_ID).find((key) => SENSOR_TYPE_TO_ID[key] === sensorOption.id);
+    return [sensorOption.id, normalizedSensorSeriesByType[sourceType] || { today: [], threeDays: [], week: [] }];
+  })
+);
+
+
 
   useEffect(() => {
     const exists = DASHBOARD_SENSOR_OPTIONS.some((sensor) => sensor.id === selectedSensorId);
@@ -77,7 +144,7 @@ export default function Dashboard() {
   // Display units are composed here so both cards and chart use the same conversion source.
   // NORMALIZED_USER provides compatibility keys (temp/hum/soil/light) from new profile schema.
   const displayUnits = useMemo(
-    () => ({
+    () => ( !sensors.length ? [] : {
       temperatureUnit: temperatureUnit ?? NORMALIZED_USER.displayUnits.temp,
       humidityUnit: humidityUnit ?? NORMALIZED_USER.displayUnits.hum,
       soilMoistureUnit: soilMoistureUnit ?? NORMALIZED_USER.displayUnits.soil,
@@ -90,7 +157,7 @@ export default function Dashboard() {
 
   // Uses normalized sensor options from dashboardData and applies current display-unit conversion.
   const convertedSensors = useMemo(
-    () => DASHBOARD_SENSOR_OPTIONS.map((sensor) => {
+    () => !sensors ? null : DASHBOARD_SENSOR_OPTIONS.map((sensor) => {
       const converted = convertSensorValueById(sensor.id, sensor.currentValue, displayUnits, baseTemperature);
 
       return {
@@ -107,7 +174,7 @@ export default function Dashboard() {
   // Converts normalized chart series per selected display units.
   // Note: today uses raw intraday points from data layer; wider ranges are pre-averaged there.
   const convertedSeriesBySensor = useMemo(
-    () => Object.fromEntries(
+    () => !graphData ? [] : Object.fromEntries(
       Object.entries(DASHBOARD_SENSOR_SERIES).map(([sensorId, seriesByRange]) => {
         const convertedSeries = Object.fromEntries(
           Object.entries(seriesByRange).map(([rangeKey, points]) => [
@@ -129,20 +196,20 @@ export default function Dashboard() {
   );
 
   const selectedSensor = useMemo(
-    () => convertedSensors.find((s) => s.id === selectedSensorId) || convertedSensors[0],
+    () => !sensors ? null : convertedSensors.find((s) => s.id === selectedSensorId) || convertedSensors[0],
     [selectedSensorId, convertedSensors]
   );
 
   const globalMode = useMemo(() => {
-    const allAuto = actuators.every((a) => a.mode === 'auto');
-    return allAuto ? 'auto' : 'semi-auto';
+    const allAuto = actuators.every((a) => a.control_mode === 'auto');
+    return allAuto ? 'auto' : 'semi_auto';
   }, [actuators]);
 
   const handleToggleActuatorStatus = (actuatorId) => {
     setActuators((prev) =>
       prev.map((actuator) => {
         if (actuator.id !== actuatorId) return actuator;
-        if (actuator.mode !== 'semi-auto') return actuator;
+        if (actuator.control_mode !== 'semi_auto') return actuator;
         return { ...actuator, status: actuator.status === 'on' ? 'off' : 'on' };
       })
     );
@@ -152,7 +219,7 @@ export default function Dashboard() {
     setActuators((prev) =>
       prev.map((actuator) => ({
         ...actuator,
-        mode: nextSemiAutoState ? 'semi-auto' : 'auto',
+        control_mode: nextSemiAutoState ? 'semi_auto' : 'auto',
       }))
     );
   };
@@ -161,7 +228,7 @@ export default function Dashboard() {
     setActuators((prev) =>
       prev.map((actuator) =>
         actuator.id === actuatorId
-          ? { ...actuator, mode: actuator.mode === 'semi-auto' ? 'auto' : 'semi-auto' }
+          ? { ...actuator, control_mode: actuator.control_mode === 'semi_auto' ? 'auto' : 'semi_auto' }
           : actuator
       )
     );
@@ -175,13 +242,13 @@ export default function Dashboard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.05, duration: 0.32, ease: 'easeOut' }}
     >
-      <ChartCard
+      {selectedSensor ? <ChartCard
         selectedSensor={selectedSensor}
         seriesByRange={convertedSeriesBySensor[selectedSensor.id]}
         activeRange={activeRange}
         onChangeRange={setActiveRange}
         className="h-full"
-      />
+      /> : <div className="w-full h-full flex items-center justify-center text-gray-500"><h2>Loading...</h2></div>}
     </motion.div>
   );
 
@@ -193,7 +260,7 @@ export default function Dashboard() {
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.18, duration: 0.3, ease: 'easeOut' }}
     >
-      <MonitoringAlerts />
+      <MonitoringAlerts warnings={warnings} />
     </motion.div>
   );
 
@@ -221,7 +288,7 @@ export default function Dashboard() {
     </motion.div>
   );
 
-  const sensorsSection = (
+  const sensorsSection = sensors.length > 0 &&(
     <motion.div
       key="sensors"
       className="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0"
@@ -258,6 +325,7 @@ export default function Dashboard() {
         mode={mode ?? NORMALIZED_USER.farmSettings.mode}
         setMode={setMode}
         actuators={actuators}
+        recommendation={recommendation}
       />
     </motion.div>
   );

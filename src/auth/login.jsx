@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { FaEye, FaLock, FaRegEnvelope } from 'react-icons/fa6'
 import { Link } from 'react-router'
 import { FaExclamationCircle } from 'react-icons/fa'
@@ -19,7 +19,41 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
- 
+  
+useEffect(() => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user?.email_confirmed_at) {
+        const pending = localStorage.getItem('pendingSetup')
+        if (!pending) return
+
+        // Remove immediately as the lock — prevents any other instance from running
+        localStorage.removeItem('pendingSetup')
+
+        const { username, age, address, email, language } = JSON.parse(pending)
+
+        try {
+          const res = await fetch('http://localhost:5000/api/auth/signupSetup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ username, age, address, email, language }),
+          })
+
+          const data = await res.json()
+          console.log('signupSetup response:', data)
+        } catch (err) {
+          console.error('signupSetup failed:', err)
+        }
+      }
+    }
+  )
+
+  return () => subscription.unsubscribe()
+}, [])
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -32,17 +66,27 @@ export default function Login() {
       if (signinError) {
         // Handle specific error cases
         if (signinError.message.includes('Invalid login credentials')) {
-          console.log("Invalid email or password. Please try again.");
           throw new Error('Invalid email or password. Please try again.');
         } else if (signinError.message.includes('Email not confirmed')) {
-          console.log("Please verify your email address before logging in");
           throw new Error('Please verify your email address before logging in.');
         } else {
           throw signinError;
         };
       };
       if (data.session) {
-        const { data: { session } } = await supabase.auth.getSession();
+        // Call loginSetup
+        try {
+          await fetch('http://localhost:5000/api/auth/loginSetup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${data.session.access_token}`,
+            },
+          })
+        } catch (err) {
+          console.error('loginSetup failed:', err)
+        }
+        navigate('/dashboard');
         /* const socket = io('http://localhost:3000', {
           auth: {
             token: session.access_token
@@ -60,7 +104,6 @@ export default function Login() {
         })
         
         localStorage.setItem('socket_connected', 'true'); */
-        navigate("/dashboard");
       }
     } catch (err) {
       setError(err.message);

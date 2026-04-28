@@ -44,6 +44,7 @@ export default function ForgotPassword() {
       setSuccess(true)
     } catch (err) {
       setError(err.message)
+      console.log('Error sending password reset email:', err);
     } finally {
       setLoading(false)
     }
