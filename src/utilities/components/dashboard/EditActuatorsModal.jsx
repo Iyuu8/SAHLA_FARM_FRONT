@@ -79,7 +79,7 @@ export default function EditActuatorsModal({
 
         <div className='mt-4 flex flex-col gap-3'>
           {actuators.map((actuator) => {
-            const isSemiAuto = actuator.mode === 'semi-auto';
+            const isSemiAuto = actuator.control_mode === 'semi_auto';
             return (
               <motion.div
                 key={actuator.id}
@@ -92,7 +92,7 @@ export default function EditActuatorsModal({
                   <p className='text-base text-[#192514]'>{actuator.name}</p>
                   <p className='text-sm text-[rgba(25,37,20,0.62)] capitalize'>
                     {/* Translates "auto" or "semi-auto" */}
-                    {t(`dashboard.editActuators.modes.${actuator.mode}`, actuator.mode)}
+                    {t(`dashboard.editActuators.modes.${actuator.control_mode}`, actuator.control_mode)}
                   </p>
                 </div>
 

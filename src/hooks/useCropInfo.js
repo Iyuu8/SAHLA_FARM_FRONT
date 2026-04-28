@@ -12,9 +12,9 @@ const useCropInfo = () => {
     useEffect(() => {
         if (farmData) {
             setCropInfo({
-                crop: farmData?.crop?.type || "Loading...",
-                growthStage: farmData?.crop?.growth_stage || "Loading...",
-                mode: farmData?.crop?.mode || "Loading..."
+                crop: farmData?.crop?.type,
+                growthStage: farmData?.crop?.growth_stage,
+                mode: farmData?.crop?.mode
             });
         }
     }, [farmData]);

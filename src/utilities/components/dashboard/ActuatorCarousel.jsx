@@ -31,7 +31,14 @@ export default function ActuatorCarousel({
       initial='hidden'
       animate='show'
     >
-      {actuators.map((actuator) => (
+      {actuators.length > 0 && actuators.map((actuator) => {
+        const schedule = actuator.run_at && actuator.run_until
+        ? `${actuator.run_at.slice(11, 16)} - ${actuator.run_until.slice(11, 16)}`
+        : actuator.run_at
+        ? `Exec at ${actuator.run_at.slice(11, 16)}`
+        : 'No schedule'; 
+        const normalizedMode = actuator.control_mode === 'semi_auto' ? 'semi-auto' : 'auto';
+        return (
         <motion.div
           key={actuator.id}
           className='snap-start shrink-0 basis-full md:basis-auto min-w-0'
@@ -39,14 +46,14 @@ export default function ActuatorCarousel({
           transition={{ duration: 0.24, ease: 'easeOut' }}
         >
           <ActuatorCard
-            name={actuator.name}
+            name={actuator.type}
             status={actuator.status}
-            mode={actuator.mode}
-            schedule={actuator.schedule}
+            mode={normalizedMode}
+            schedule={schedule}
             onToggle={() => onToggleActuatorStatus(actuator.id)}
           />
         </motion.div>
-      ))}
+      )})}
     </motion.div>
   );
 }

@@ -26,6 +26,7 @@ import { useRecommendation } from '../hooks/useRecommendation';
 import { useCropInfo } from '../hooks/useCropInfo';
 import { useSensors } from '../hooks/useSensors';
 import { useGraphData } from '../hooks/useGraphData';
+import { useActuators } from '../hooks/useActuators';
 
 import { buildRangeSeries } from '../utilities/data/dashboardData.js';
 import { formatSensorUnit } from '../utilities/data/dashboardData.js';
@@ -74,7 +75,7 @@ export default function Dashboard() {
   const { warnings } = useWarnings();
   const { sensors } = useSensors();
   const { graphData } = useGraphData();
-  const [actuators, setActuators] = useActuatorsState();
+  const { actuators, setActuators } = useActuators();
 
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
@@ -132,10 +133,6 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     return [sensorOption.id, normalizedSensorSeriesByType[sourceType] || { today: [], threeDays: [], week: [] }];
   })
 );
-
-
-
-
 
 
 
@@ -204,15 +201,15 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
   );
 
   const globalMode = useMemo(() => {
-    const allAuto = actuators.every((a) => a.mode === 'auto');
-    return allAuto ? 'auto' : 'semi-auto';
+    const allAuto = actuators.every((a) => a.control_mode === 'auto');
+    return allAuto ? 'auto' : 'semi_auto';
   }, [actuators]);
 
   const handleToggleActuatorStatus = (actuatorId) => {
     setActuators((prev) =>
       prev.map((actuator) => {
         if (actuator.id !== actuatorId) return actuator;
-        if (actuator.mode !== 'semi-auto') return actuator;
+        if (actuator.control_mode !== 'semi_auto') return actuator;
         return { ...actuator, status: actuator.status === 'on' ? 'off' : 'on' };
       })
     );
@@ -222,7 +219,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     setActuators((prev) =>
       prev.map((actuator) => ({
         ...actuator,
-        mode: nextSemiAutoState ? 'semi-auto' : 'auto',
+        control_mode: nextSemiAutoState ? 'semi_auto' : 'auto',
       }))
     );
   };
@@ -231,7 +228,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     setActuators((prev) =>
       prev.map((actuator) =>
         actuator.id === actuatorId
-          ? { ...actuator, mode: actuator.mode === 'semi-auto' ? 'auto' : 'semi-auto' }
+          ? { ...actuator, control_mode: actuator.control_mode === 'semi_auto' ? 'auto' : 'semi_auto' }
           : actuator
       )
     );
@@ -291,7 +288,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     </motion.div>
   );
 
-  const sensorsSection = (
+  const sensorsSection = sensors.length > 0 &&(
     <motion.div
       key="sensors"
       className="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0"
@@ -299,7 +296,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.18, duration: 0.32, ease: 'easeOut' }}
     >
-      {sensors && convertedSensors.map((sensor) => (
+      {convertedSensors.map((sensor) => (
         <SensorCard
           key={sensor.id}
           sensor={sensor}

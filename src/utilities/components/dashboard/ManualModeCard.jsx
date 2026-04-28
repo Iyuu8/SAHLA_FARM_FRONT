@@ -31,7 +31,7 @@ export default function ManualModeCard({
   onOpenEdit,
 }) {
   const { t } = useTranslation();
-  const isSemiAuto = globalMode === 'semi-auto';
+  const isSemiAuto = globalMode === 'semi_auto';
 
   return (
     <motion.div

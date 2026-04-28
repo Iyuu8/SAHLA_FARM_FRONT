@@ -6,7 +6,7 @@ export function useRecommendation() {
     const { farmData } = useFarmData();
     const [recommendation, setRecommendation] = useState("Loading recommendation...");
     useEffect(() => {
-        setRecommendation(farmData?.recommendation || "Loading recommendation...");
+        setRecommendation(farmData?.recommendation);
     }, [farmData]);
     
     return { recommendation, setRecommendation }
