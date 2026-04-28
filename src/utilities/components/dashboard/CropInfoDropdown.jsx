@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import DynamicTranslator from '../Translation/DynamicTranslator';
 
 /**
  * CropInfoDropdown
@@ -22,12 +23,14 @@ export default function CropInfoDropdown({
   placeholder,
   isCropInput = false,
 }) {
-  const { t } = useTranslation();
+  const { t , i18n} = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState(value || '');
   const containerRef = useRef(null);
   const inputRef = useRef(null);
-
+  const selectedVal = ()=>{
+    return <DynamicTranslator text={value} language={i18n.language} />
+  }
   // Fallback placeholder in case the parent doesn't provide one
   const safePlaceholder = placeholder || t('dashboard.cropInfo.selectStage', 'Select');
 
@@ -109,6 +112,7 @@ export default function CropInfoDropdown({
           autoComplete="off"
           spellCheck={false}
         />
+        
       ) : (
         <button
           type="button"
@@ -116,7 +120,9 @@ export default function CropInfoDropdown({
           className="flex items-center gap-0.5 focus:outline-none"
         >
           <span className="text-sm font-semibold leading-none" style={{ color: 'rgba(248,255,246,1)' }}>
-            {value || safePlaceholder}
+            {value
+      ? selectedVal()
+      : safePlaceholder}
           </span>
         </button>
       )}
@@ -171,7 +177,7 @@ export default function CropInfoDropdown({
                     if (!isSelected) e.currentTarget.style.background = 'transparent';
                   }}
                 >
-                  <span className="capitalize">{option}</span>
+                  <span className="capitalize"><DynamicTranslator text={option} language={i18n.language} /></span>
                   {isSelected && (
                     <Check size={13} color="rgba(248,255,246,0.80)" strokeWidth={2.5} />
                   )}

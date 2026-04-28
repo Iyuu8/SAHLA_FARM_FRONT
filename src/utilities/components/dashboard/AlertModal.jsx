@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import DynamicTranslator from '../Translation/DynamicTranslator';
 
 const getSeverityInfo = (severity) => {
   const num = Number(severity);
@@ -18,7 +19,7 @@ const getSeverityInfo = (severity) => {
 };
 
 export default function AlertModal({ alert, config, onClose }) {
-  const { t } = useTranslation();
+  const { t , i18n} = useTranslation();
   if (!alert || !config) return null;
 
   // Change: Destructure 'icon' instead of 'Icon' (since it's now a string path)
@@ -98,9 +99,7 @@ export default function AlertModal({ alert, config, onClose }) {
             <h2 className="text-[32px] font-extrabold text-[#192514] leading-tight mb-2">
               {t('dashboard.alertModal.systemAlert')}
             </h2>
-            <p className="text-[16px] font-medium leading-snug" style={{ color: '#192514' }}>
-              {alertSubtitle}
-            </p>
+            <DynamicTranslator text={alertSubtitle} language={i18n.language} className="text-[16px] font-medium leading-snug text-[#192514]" />
           </div>
         </div>
 
@@ -141,9 +140,8 @@ export default function AlertModal({ alert, config, onClose }) {
         {/* Description Section */}
         <div className="description-container">
           <h3 className="text-[20px] font-bold text-[#192514] mb-2.5">{t('dashboard.alertModal.description')}</h3>
-          <p className="text-[15px] leading-[1.65]" style={{ color: 'rgba(17, 40, 0, 0.90)' }}>
-            {alert.description}
-          </p>
+          <DynamicTranslator text={alert.description} language={i18n.language} className="text-[15px] leading-[1.65] text-[rgba(17,40,0,0.90)]"/>
+      
         </div>
       </motion.div>
     </motion.div>,

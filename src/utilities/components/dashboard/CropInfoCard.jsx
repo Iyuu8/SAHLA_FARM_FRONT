@@ -1,6 +1,7 @@
 import { ClipboardCheck } from 'lucide-react';
 import CropInfoDropdown from './CropInfoDropdown';
 import { useTranslation } from 'react-i18next';
+import DynamicTranslator from '../Translation/DynamicTranslator';
 
 /**
  * CropInfoCard
@@ -28,15 +29,17 @@ export default function CropInfoCard({
   actuators = [],
   recommendation,
 }) {
-  const { t } = useTranslation();
+  const { t , i18n} = useTranslation();
   const hasSemiAuto = actuators.some((a) => a.mode === 'semi-auto');
 
-  const recommendedText =
-    'Your plants are overheating and the soil is very dry. Water them promptly and, if possible, provide some shade or cover to reduce heat stress and prevent further damage.';
+  const recommendedText = ()=>{
+    return <DynamicTranslator text="Your plants are overheating and the soil is very dry. Water them promptly and, if possible, provide some shade or cover to reduce heat stress and prevent further damage." language={i18n.language} />
 
-  const explanationText =
-    'All systems are running in automatic mode. The farm is monitoring temperature, soil moisture, and light intensity continuously. Actuators will activate automatically when thresholds are exceeded.';
+  }
+  const explanationText = ()=>{
+    return <DynamicTranslator text="All systems are running in automatic mode. The farm is monitoring temperature, soil moisture, and light intensity continuously. Actuators will activate automatically when thresholds are exceeded." language={i18n.language} />
 
+  }
   return (
     <div
       className="w-full h-full rounded-2xl p-4 sm:p-5 font-newblack flex flex-col gap-3"
@@ -57,7 +60,7 @@ export default function CropInfoCard({
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-white whitespace-nowrap">{t('dashboard.cropInfo.crop')}</span>
             <CropInfoDropdown
-              value={crop}
+              value= {crop}
               options={cropOptions}
               onChange={setCrop}
               onAddOption={onAddCropOption}
@@ -124,6 +127,7 @@ export default function CropInfoCard({
             />
           </div>
           <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.80)' }}>
+            {hasSemiAuto ? recommendedText() : explanationText()}
             {recommendation}
           </p>
         </div>
