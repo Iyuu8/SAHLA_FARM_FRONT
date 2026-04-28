@@ -19,6 +19,7 @@
     "ha_connection": "اتصال المساعد المنزلي",
     "status": "الحالة:",
     "online": "متصل",
+    "offline": "غير متصل",
     "change": "تغيير",
     "editHaModal": {
         "title": "تغيير إعدادات اتصال Home Assistant",
