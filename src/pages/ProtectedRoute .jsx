@@ -16,7 +16,11 @@ export default function ProtectedRoute() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session?.access_token}`,
         },
-      })
+      }).then((res) => {
+        if (!res.ok) {
+          setSession(null); // invalidate session if token is not valid
+        }
+      });
     });
   }, []);
 

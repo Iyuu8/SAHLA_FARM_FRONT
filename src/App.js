@@ -20,7 +20,7 @@ import ResetPassword from './auth/ResetPassword'
 
 function App() {
   // Temporary frontend flag until backend controls HA credentials onboarding state.
-  const [isHAConfigured] = useState(true);
+  const [isHAConfigured, setIsHAConfigured] = useState(false);
 
   // App is intentionally thin: pages read/write shared state through storage-backed hooks.
   // History remains prop-driven, so we expose current unit preferences here.
