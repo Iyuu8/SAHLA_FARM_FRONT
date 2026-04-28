@@ -1,0 +1,427 @@
+{
+  "profile": {
+    "edit": "Edit",
+    "farm_settings_title": "Farm Settings & Preferences",
+    "farm_settings_subtitle": "Farm Settings",
+    "labels": {
+      "mode": "Mode",
+      "manual_control": "Manual Control",
+      "growth": "Growth",
+      "crop": "Crop",
+      "temperature": "Temperature",
+      "humidity": "Humidity",
+      "soil_moisture": "Soil Moisture",
+      "light_intensity": "Light Intensity",
+      "language": "Language"
+    },
+    "global_mode": "Current global actuator control mode from Dashboard:",
+    "display_units": "Display Units",
+    "ha_connection": "Home Assistant Connection",
+    "status": "Status:",
+    "online": "Online",
+    "offline": "Offline",
+    "change": "Change",
+    "editHaModal": {
+        "title": "Change Home Assistant Connection",
+        "urlLabel": "Home Assistant URL",
+        "urlPlaceholder": "http://sahla-homeassistant.local:8123",
+        "tokenLabel": "Long-Lived Access Token",
+        "tokenPlaceholder": "Enter access token",
+        "errorRequired": "URL and token are required.",
+        "cancel": "Cancel",
+        "save": "Save"
+      },
+    "editProfileModal": {
+      "title": "Edit Profile",
+      "userNameLabel": "User Name",
+      "emailLabel": "Email",
+      "addressLabel": "Address",
+      "ageLabel": "Age",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Password change requires backend and is disabled in this build",
+      "newPasswordLabel": "New Password",
+      "newPasswordPlaceholder": "Disabled until backend hashing/auth is implemented",
+      "passwordInfoText": "Password updates are intentionally disabled in frontend simulation because current password/token validation must be handled by backend hashing/auth.",
+      "errorInvalidAge": "Age must be a valid integer.",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "pfpEditorModal": {
+      "title": "Change Profile Picture",
+      "dropImage": "Drop image here",
+      "or": "or",
+      "browse": "Browse file",
+      "zoom": "Zoom",
+      "chooseAnother": "Choose another image",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "errorFileType": "Please choose an image file.",
+      "errorLoad": "Could not load this image. Please try another file.",
+      "errorNoImage": "Please add an image first.",
+      "errorProcess": "Could not process image. Please try again."
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "all": "ALL",
+    "unread": "UNREAD",
+    "mark_all_read": "Mark all read",
+    "no_unread": "No unread notifications",
+    "today": "TODAY",
+    "yesterday": "YESTERDAY",
+    "earlier": "EARLIER"
+  },
+  "history": {
+    "months": {
+      "january": "January", "february": "February", "march": "March", "april": "April", "may": "May", "june": "June", "july": "July", "august": "August", "september": "September", "october": "October", "november": "November", "december": "December"
+    },
+    "days": {
+      "su": "Su", "mo": "Mo", "tu": "Tu", "we": "We", "th": "Th", "fr": "Fr", "sa": "Sa"
+    },
+    "labels": {
+      "date": "Date",
+      "time": "Time",
+      "crop": "Crop",
+      "growth_stage": "Growth Stage",
+      "weather": "Weather"
+    },
+    "placeholders": {
+      "date": "e.g. 13-02-26",
+      "time": "e.g. 13:00",
+      "crop": "e.g. orange",
+      "select_growth_stage": "Select growth stage",
+      "select_weather": "Select weather",
+      "select_option": "Select option"
+    },
+    "timepicker": {
+      "hour": "HOUR",
+      "min": "MIN"
+    },
+    "buttons": {
+      "reset": "RESET",
+      "clear_filters": "Clear filters"
+    },
+    "empty_state": {
+      "no_records": "No records found",
+      "adjust_filters": "Try adjusting your filters"
+    },
+    "loading": "loading more records...",
+    "options": {
+      "all": "All",
+      "sunny": "Sunny",
+      "cloudy": "Cloudy",
+      "night": "Night",
+      "windy": "Windy",
+      "stormy": "Stormy",
+      "rainy": "Rainy"
+    },
+    "growth_stages": {
+      "all": "All",
+      "germination": "Germination",
+      "seedling": "Seedling",
+      "vegetative_growth": "Vegetative Growth",
+      "flowering": "Flowering",
+      "fruiting": "Fruiting",
+      "maturity": "Maturity"
+    },
+    "historyCard": {
+      "at": "at",
+      "in": "in",
+      "stage": "stage:",
+      "pump": "Pump",
+      "fan": "Fan",
+      "sensors": {
+        "temperature": "Temperature",
+        "humidity": "Humidity",
+        "soilMoisture": "Soil moisture",
+        "lightIntensity": "Light intensity"
+      },
+      "sections": {
+        "actuators": "Actuators",
+        "weatherSummary": "Weather Summary",
+        "aiRecommendations": "SAHLA AI . Recommendations"
+      }
+    },
+    "actuatorCard": {
+      "plannedFrom": "planned to execute from",
+      "plannedAt": "planned to execute at",
+      "plannedUntil": "planned to execute until",
+      "suggestedFrom": "suggested to execute from",
+      "suggestedAt": "suggested to execute at",
+      "suggestedUntil": "suggested to execute until",
+      "noPlannedTime": "No planned time",
+      "noSuggestedTime": "No suggested time"
+    }
+  },
+  "camStream": {
+    "status": {
+      "live": "LIVE",
+      "off": "OFF",
+      "streamOffline": "stream offline",
+      "errorConnection": "Failed to connect. Check IP & Network.",
+      "cors_snapshot": "CORS Error: Cannot take a snapshot. Check IP Webcam settings."
+    },
+    "controls": {
+      "stopStream": "stop stream",
+      "startStream": "start stream",
+      "takeSnapshot": "take snapshot"
+    },
+    "gallery": {
+      "title": "Gallery",
+      "clearAll": "Clear all",
+      "savedToGallery": "saved to gallery",
+      "capturedAt": "captured at",
+      "download": "Download",
+      "delete": "Delete",
+      "close": "Close"
+    },
+    "modals": {
+      "saveTitle": "Save this snapshot to the gallery?",
+      "saveDesc": "It will be added to your recent captures for you to view or download later.",
+      "deleteAllTitle": "Delete all snapshots from the gallery?",
+      "deleteSingleTitle": "Delete this snapshot?",
+      "cannotRecoverThem": "You will not be able to recover them.",
+      "cannotRecoverIt": "You will not be able to recover it.",
+      "cancel": "Cancel",
+      "save": "Save",
+      "deleteBtn": "Delete"
+    }
+  },
+  "dashboard": {
+    "alertModal": {
+      "close": "Close",
+      "fallbackSubtitle": "Check system parameters",
+      "liveAlert": "Live Alert",
+      "systemAlert": "System Alert",
+      "severityLabel": "SEVERITY",
+      "severity": {
+        "HIGH": "HIGH",
+        "MODERATE": "MODERATE",
+        "LOW": "LOW"
+      },
+      "description": "Description"
+    },
+    "chart": {
+      "fallbackSensor": "Temperature",
+      "tooltipValue": "Value",
+      "ranges": {
+        "today": "Today",
+        "threeDays": "Three Days",
+        "week": "Week"
+      }
+    },
+    "cropInfo": {
+      "title": "Crop Information",
+      "crop": "Crop",
+      "enterCrop": "Enter crop",
+      "growthStage": "Growth Stage",
+      "selectStage": "Select stage",
+      "stages": {
+        "germination": "Germination",
+        "seedling": "Seedling",
+        "vegetativeGrowth": "Vegetative Growth",
+        "flowering": "Flowering",
+        "fruiting": "Fruiting",
+        "maturity": "Maturity"
+      },
+      "mode": "Mode",
+      "selectMode": "Select mode",
+      "modes": {
+        "balanced": "balanced",
+        "waterSaving": "water saving",
+        "energySaving": "energy saving",
+        "growthPriority": "growth priority"
+      },
+      "recommendedActions": "Recommended Actions",
+      "explanationOfActions": "Explanation of Actions",
+      "recommendedText": "Your plants are overheating and the soil is very dry. Water them promptly and, if possible, provide some shade or cover to reduce heat stress and prevent further damage.",
+      "explanationText": "All systems are running in automatic mode. The farm is monitoring temperature, soil moisture, and light intensity continuously. Actuators will activate automatically when thresholds are exceeded."
+    },
+    "editActuators": {
+      "title": "Edit Actuator Modes",
+      "description": "Toggle each actuator: ON means semi-auto, OFF means auto.",
+      "on": "ON",
+      "off": "OFF",
+      "close": "Close",
+      "toggleAriaLabel": "Toggle actuator mode",
+      "closeAriaLabel": "Close modal",
+      "modes": {
+        "auto": "auto",
+        "semi-auto": "semi-auto",
+        "semi_auto": "semi_auto"
+      }
+    },
+    "manualModeCard": {
+      "toggleAriaLabel": "Toggle manual mode",
+      "editAriaLabel": "Edit actuator modes",
+      "on": "ON",
+      "off": "OFF",
+      "modes": {
+        "auto": "auto",
+        "semi-auto": "semi-auto",
+        "mixed": "mixed"
+      }
+    },
+    "monitoringAlerts": {
+      "title": "Monitoring Alerts",
+      "subtitle": "Track critical environmental situations in real time.",
+      "noAlerts": "No active alerts"
+    },
+    "sensors": {
+      "temperature": {
+        "label": "Temperature",
+        "description": "Ambient air temperature"
+      },
+      "humidity": {
+        "label": "Humidity",
+        "description": "Ambient air humidity"
+      },
+      "soilMoisture": {
+        "label": "Soil Moisture",
+        "description": "Moisture level in the soil"
+      },
+      "lightIntensity": {
+        "label": "Light Intensity",
+        "description": "Current sunlight intensity"
+      }
+    }
+    
+  },
+  "header": {
+    "farmName": "SAHLA Farm",
+    "notifications": "Notifications",
+    "am": "AM",
+    "pm": "PM"
+  },
+  "sidebar": {
+    "home": "Home",
+    "chat": "Chat",
+    "camera": "Camera",
+    "history": "History",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "logout": "Log Out",
+    "settings": "Settings"
+  },
+  "aiChat": {
+    "limitReached": "Reached conversation limit. Please open a new conversation to continue.",
+    "newChatConfirm": "Are you sure you want to clear this conversation and start a new one?",
+    "welcomeHint": "Hello! I am SAHLA AI. How can I help you with your farm today?",
+    "imageError": "Sorry, I had trouble processing that image. Please try again.",
+    "genericError": "Sorry, I encountered an error processing your request. Please try again.",
+    "aiName": "SAHLA",
+    "logoAlt": "SAHLA logo",
+    "placeholder": "Ask about your farm ...",
+    "attachFile": "Attach file or image",
+    "startNew": "Start new conversation",
+    "detailed": "Detailed",
+    "concise": "Concise",
+    "imageExpandedAlt": "Expanded view",
+    "thinking": "Thinking",
+    "attachedImageAlt": "Attached image"
+  },
+  "forgotPassword": {
+    "rateLimitError": "Too many requests. Please wait 60 seconds before trying again.",
+    "checkEmail": "Check Your Email",
+    "sentLink": "We've sent a password reset link to",
+    "expireNotice": "Click the link in the email to reset your password. The link will expire in 1 hour.",
+    "backToLogin": "Back to Login",
+    "title": "Forgot Password?",
+    "description": "Enter your email address and we'll send you a link to reset your password.",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "you@example.com",
+    "sending": "Sending...",
+    "wait": "Wait {{seconds}}s",
+    "sendResetLink": "Send Reset Link",
+    "rememberPassword": "Remember your password?",
+    "signIn": "Sign In",
+    "demoMode": "Demo Mode",
+    "demoModeDesc": "Enter any email to test the password reset flow",
+    "rightSideTitle": "Reset Your Password",
+    "rightSideDesc": "We'll help you get back into your account",
+    "feature1Title": "Smart Automation",
+    "feature1Desc": "monitor & automate instantly",
+    "feature2Title": "Unified Platform",
+    "feature2Desc": "everything in one single place",
+    "logoAlt": "SAHLA logo"
+  },
+  "login": {
+    "welcomeBackTitle": "WELCOME BACK!",
+    "welcomeBackSubtitle": "Welcome back! Please enter your details.",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "your password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "forgot password",
+    "signInButton": "Sign in",
+    "createAccount": "New to SAHLA FARM? Create an account",
+    "demoMode": "Demo Mode",
+    "demoModeDesc": "Use any email/password to test the login flow",
+    "logoAlt": "SAHLA logo",
+    "rightSideTitle": "Manage your Farm with confidence",
+    "rightSideDesc": "Monitor your farm, automate decisions, and manage everything from one unified intelligent platform.",
+    "feature1Title": "Smart Automation",
+    "feature1Desc": "monitor & automate instantly",
+    "feature2Title": "Unified Platform",
+    "feature2Desc": "everything in one single place"
+  },
+  "resetPassword": {
+    "passwordLengthError": "Password must be at least 8 characters long",
+    "invalidPasswordError": "Please enter a valid password",
+    "passwordsMatchError": "Passwords do not match",
+    "successTitle": "Password Reset Successfully!",
+    "successMessage": "Your password has been updated. You can now login with your new password.",
+    "redirectingMessage": "Redirecting to login page...",
+    "title": "Create New Password",
+    "subtitle": "Enter your new password below.",
+    "newPasswordLabel": "New Password",
+    "newPasswordPlaceholder": "Enter new password (min 8 characters)",
+    "passwordValid": "✓ Password is valid",
+    "confirmPasswordLabel": "Confirm New Password",
+    "confirmPasswordPlaceholder": "Confirm your new password",
+    "resettingButton": "Resetting Password...",
+    "resetButton": "Reset Password",
+    "logoAlt": "SAHLA logo",
+    "rightSideTitle": "Secure Your Account",
+    "rightSideDesc": "Create a strong password to keep your farm data safe",
+    "feature1Title": "Smart Automation",
+    "feature1Desc": "monitor & automate instantly",
+    "feature2Title": "Unified Platform",
+    "feature2Desc": "everything in one single place"
+  },
+  "signUp": {
+    "passwordLengthError": "Password must be at least 8 characters long",
+    "emailExistsError": "This email is already registered. Please use a different email or login.",
+    "fixErrors": "Please fix the errors before submitting",
+    "successTitle": "Account Created Successfully!",
+    "successMessage": "Please check your email for verification link.",
+    "redirectingMessage": "Redirecting to login page...",
+    "title": "CREATE ACCOUNT",
+    "subtitle": "Fill in the details below to get started.",
+    "usernameLabel": "Username",
+    "usernamePlaceholder": "your username",
+    "emailLabel": "Email Address",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "your password (min 8 characters)",
+    "passwordValid": "✓ Password is valid",
+    "ageLabel": "Age",
+    "agePlaceholder": "your age",
+    "addressLabel": "Address",
+    "addressPlaceholder": "your address",
+    "creatingButton": "Creating Account...",
+    "createButton": "Create Account",
+    "signInLink": "Already have an account? Sign in",
+    "demoModeTitle": "Demo Mode",
+    "demoModeDesc": "Use any email/password to test the login flow",
+    "logoAlt": "SAHLA logo",
+    "rightSideTitle": "Manage your Farm with confidence",
+    "rightSideDesc": "Monitor your farm, automate decisions, and manage everything from one unified intelligent platform.",
+    "feature1Title": "Smart Automation",
+    "feature1Desc": "monitor & automate instantly",
+    "feature2Title": "Unified Platform",
+    "feature2Desc": "everything in one single place"
+  }
+
+}
