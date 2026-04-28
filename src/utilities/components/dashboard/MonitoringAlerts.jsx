@@ -5,10 +5,9 @@ import { useTranslation } from 'react-i18next';
 import AlertModal from './AlertModal';
 import { DASHBOARD_WARNINGS } from '../../data/dashboardData';
 import { formatWarningsToUI } from './../../functions/transformWarningsDashboard';
-import DynamicTranslator from '../Translation/DynamicTranslator';
 
-export default function MonitoringAlerts() {
-  const { t , i18n} = useTranslation();
+export default function MonitoringAlerts({warnings}) {
+  const { t } = useTranslation();
   const [selectedAlert, setSelectedAlert] = useState(null);
 
   // Filters out the false values based on your instruction requirement
@@ -76,7 +75,7 @@ export default function MonitoringAlerts() {
                   {/* CHANGED: pr-3 to pe-3 (padding-inline-end) for RTL support */}
                   <span className="text-[#FFE7DF] text-[0.9rem] font-normal leading-snug pe-3">
                     {/* Wraps dynamic title in a translation hook, defaulting to the raw title string */}
-                    <DynamicTranslator text={warning.title} language={i18n.language} />
+                    {t(`warnings.${warning.id}.title`, warning.title)}
                   </span>
                   <div
                     className="shrink-0 w-5 h-5" 
