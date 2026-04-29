@@ -4,9 +4,10 @@ const HAContext = createContext();
 
 export function HAProvider({ children }) {
   const [isHAConfigured, setIsHAConfigured] = useState(null);
+  const [configurationError, setConfigurationError] = useState(null);
 
   return (
-    <HAContext.Provider value={{ isHAConfigured, setIsHAConfigured }}>
+    <HAContext.Provider value={{ isHAConfigured, setIsHAConfigured, configurationError, setConfigurationError }}>
       {children}
     </HAContext.Provider>
   );

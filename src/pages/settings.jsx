@@ -14,6 +14,7 @@ import useProfileData from '../hooks/useProfileData';
 import { supabase } from '../supabaseClient';
 import Spinner from '../utilities/components/loading/Spinner.jsx';
 
+
 export default function ProfilePage() {
   const { t } = useTranslation();
   const [authEmail, setAuthEmail] = useState('');
@@ -31,7 +32,6 @@ export default function ProfilePage() {
 
   // Fetch real profile from backend
   const { data: backendUser, loading, error, invalidateCache } = useProfileData();
-
   const normalizedUser = backendUser ? {
     id: backendUser.id,
     userName: backendUser.username,
@@ -39,7 +39,7 @@ export default function ProfilePage() {
     age: backendUser.age,
     address: backendUser.address,
     pfp: backendUser.avatarUrl || '',
-    homeAssistantId: backendUser.haUrl || '',
+    homeAssistantId: backendUser.haUrl || 'No Home Assistant configured yet',
     displayUnits: {
       temp: backendUser.preferences?.displayUnits?.temperature || '°C',
       hum: backendUser.preferences?.displayUnits?.humidity || '%',
@@ -80,18 +80,16 @@ export default function ProfilePage() {
     return { url, token };
   };
 
-  const [homeAssistantConnection, setHomeAssistantConnection] = useState({ url: '', token: '' });
+  const [homeAssistantConnection, setHomeAssistantConnection] = useState({ url: '', token: '', status: 'offline' });
 
   useEffect(() => {
     if (backendUser?.haUrl) {
       const parts = getConnectionParts(backendUser.haUrl);
-      setHomeAssistantConnection({ url: parts.url, token: parts.token });
+      setHomeAssistantConnection({ url: parts.url, token: parts.token, status: backendUser.haStatus || 'offline' });
     }
   }, [backendUser?.haUrl]);
 
-  const homeAssistantIdDisplay = homeAssistantConnection.token 
-    ? `${homeAssistantConnection.url}Bearer${homeAssistantConnection.token}`
-    : homeAssistantConnection.url;
+  const homeAssistantIdDisplay = homeAssistantConnection.url || 'No Home Assistant configured yet';
 
   const allAuto = actuators.every((actuator) => actuator.mode === 'auto');
   const globalControlMode = allAuto ? 'auto' : 'semi-auto';
@@ -195,10 +193,12 @@ export default function ProfilePage() {
                   <img src="/homeassistant-svgrepo-com 1.svg" alt="HA" className="w-10 h-10" />
                 </div>
                 <div className='flex flex-1 items-center gap-2 w-full'>
-                  <span className={`text-sm font-bold ${backendUser?.haStatus === 'online' ? 'text-[#2E6900]' : 'text-red-500'}`}>
-                    {backendUser?.haStatus === 'online' ? t('profile.online') : t('profile.offline')}
+                  <span className={`text-sm font-bold ${homeAssistantConnection.status === 'online' ? 'text-[#2E6900]' : 'text-red-500'}`}>
+                    {homeAssistantConnection.status === 'online' ? t('profile.online') : t('profile.offline')}
                   </span>
-                  <input type="text" value={homeAssistantIdDisplay} className='flex-1 min-w-0 bg-white border border-[rgba(23,37,20,0.2)] rounded-lg px-3 py-2 text-[1.4ch] outline-none' readOnly />
+                  <h2 className={`flex-1 min-w-0 bg-white border border-[rgba(23,37,20,0.2)] rounded-lg px-3 py-2 text-[1.4ch] outline-none ${homeAssistantConnection.status  === 'online' ? '' : 'text-gray-500'}`} readOnly>
+                    {homeAssistantIdDisplay}
+                  </h2> 
                   <button onClick={() => setIsHomeAssistantModalOpen(true)} className='bg-[#57BD36] hover:bg-[#4ea531] text-white px-4 py-1.5 rounded-xl font-semibold transition-colors'>
                     {t('profile.edit')}
                   </button>

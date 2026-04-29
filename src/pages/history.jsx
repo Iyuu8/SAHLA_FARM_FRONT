@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useContext } from 'react'
 import { profileSettingOptions } from '../utilities/data/profileSettings'
 import { useTranslation } from 'react-i18next'
 import { SunnyIcon, ClearNightIcon, CloudyIcon, HeavyRainIcon, HeavyRainAltIcon, WindyIcon } from '../utilities/data/Icons'
 import HistoryDetailCard from '../utilities/components/history/HistoryDetailCard'
-import useHistory from '../hooks/useHistory'
 import useHistoryDetail from '../hooks/useHistoryDetail'
 import HACredentialsRequired from './haCredentialsRequired'
 import Spinner from '../utilities/components/loading/Spinner.jsx'
+import { HistoryContext } from '../context/HistoryContext'
 
 const weatherIconMap = {
   sunny: SunnyIcon,
@@ -156,7 +156,7 @@ const CustomDropdown = ({ value, onChange, options, placeholder }) => {
 
 export default function History({ temperatureUnit, humidityUnit, soilMoistureUnit, lightIntensityUnit }) {
   const { t } = useTranslation()
-  const { history, loading, error, hasMore, loadMore, refresh } = useHistory()
+  const { history, loading, error, hasMore, loadMore } = useContext(HistoryContext)
   const { detail, loading: detailLoading, error: detailError, fetchDetail } = useHistoryDetail()
   const [Input, setInput] = useState({
     date: '', time: '', crop: '',
@@ -177,7 +177,7 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
   }
   const isMobile = useIsMobile()
 
-  useEffect(() => { refresh() }, [])
+  //useEffect(() => { refresh() }, [])
 
   const handleItemClick = async (item) => {
     setShowModal(true)
@@ -186,9 +186,6 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
 
   const closeModal = () => setShowModal(false)
 
-  if (error && (error.includes('credentials') || error.includes('farm') || error.includes('Farm') || error.includes('token'))) {
-    return <HACredentialsRequired />
-  }
 
   const FilteredHistory = history.filter(p => {
     const dateMatch = Input.date === '' || p.date.includes(Input.date)

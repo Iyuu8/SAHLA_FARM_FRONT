@@ -7,7 +7,7 @@ const SocketContext = createContext(null);
 export function SocketProvider({ children }) {
   const socketRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
-
+/* 
   useEffect(() => {
     let socket;
 
@@ -59,7 +59,7 @@ export function SocketProvider({ children }) {
       }
     };
   }, []);
-
+  */
   return (
     <SocketContext.Provider value={{ socket: socketRef.current, isConnected }}>
       {children}

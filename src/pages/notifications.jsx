@@ -32,16 +32,6 @@ export default function Notifications() {
     </div>
   )
 
-  if (error) {
-  if (error.includes('credentials') || error.includes('farm')) {
-    return <HACredentialsRequired />
-  }
-  return (
-    <div className='flex flex-1 items-center justify-center font-newblack'>
-      <p className='text-red-500 font-semibold text-lg'>{error}</p>
-    </div>
-  )
-}
 
   const NotificationItem = ({ item }) => (
     <div

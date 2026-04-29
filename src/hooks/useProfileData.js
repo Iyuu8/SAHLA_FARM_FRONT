@@ -50,6 +50,7 @@ export default function useProfileData() {
         });
 
         const json = await res.json();
+        console.log("Profile response:", json);
         if (!res.ok) {
           setError({
             message: json.error || "Failed to load profile",

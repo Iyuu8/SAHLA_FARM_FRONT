@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../supabaseClient";
+import { useHaConfiguration } from "../context/HaContext.jsx";
 
 const LIMIT = 50;
 
@@ -41,11 +42,13 @@ const mapNotification = (n) => ({
 });
 
 export default function useNotifications() {
+  const { isHAConfigured, configurationError } = useHaConfiguration();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchNotifications = useCallback(async () => {
+    if (!isHAConfigured && configurationError?.status !== "haDown") return
     try {
       const {
         data: { session },
@@ -74,10 +77,9 @@ export default function useNotifications() {
       setLoading(false);
     }
   }, []);
-
   useEffect(() => {
     fetchNotifications();
-  }, [fetchNotifications]);
+  }, [isHAConfigured, configurationError]);
 
   const markAsRead = async (id) => {
     // Optimistic update

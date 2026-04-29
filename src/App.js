@@ -20,7 +20,7 @@ import { useHaConfiguration } from "./context/HaContext.jsx";
 
 function App() {
   // Temporary frontend flag until backend controls HA credentials onboarding state.
-  const { isHAConfigured } = useHaConfiguration();
+  const { isHAConfigured, configurationError } = useHaConfiguration();
 
   // App is intentionally thin: pages read/write shared state through storage-backed hooks.
   // History remains prop-driven, so we expose current unit preferences here.
@@ -31,7 +31,7 @@ function App() {
     lightIntensityUnit,
   } = useFarmPreferences();
 
-  const blockedPage = <HACredentialsRequired />;
+  const blockedPage = <HACredentialsRequired configurationError={configurationError} />;
 
   const protectedElement = (element) =>
     isHAConfigured ? element : blockedPage;
@@ -58,7 +58,7 @@ function App() {
 
             <Route
               path="/history"
-              element={isHAConfigured ? (
+              element={isHAConfigured || configurationError?.status === "haDown" ? (
                 <History
                   temperatureUnit={temperatureUnit}
                   humidityUnit={humidityUnit}
@@ -69,11 +69,11 @@ function App() {
             />
             <Route path="/stream" element={isHAConfigured ? <CamStream /> : blockedPage} />
 
-            <Route path="/chat" element={isHAConfigured ? <AIchat /> : blockedPage} />
+            <Route path="/chat" element={isHAConfigured  || configurationError?.status === "haDown"  ? <AIchat /> : blockedPage} />
 
             <Route
               path="/notifications"
-              element={isHAConfigured ? <Notifications /> : blockedPage}
+              element={isHAConfigured || configurationError?.status === "haDown"  ? <Notifications /> : blockedPage}
             />
 
             <Route path="/settings" element={<Settings />} />

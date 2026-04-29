@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "../supabaseClient";
+import { useHaConfiguration } from "../context/HaContext.jsx";
 
 const LIMIT = 20;
 
@@ -30,17 +31,17 @@ const formatTimestamp = (timestamp) => {
 };
 
 export default function useHistory() {
+  const { isHAConfigured, configurationError } = useHaConfiguration();  
   const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
 
   const fetchHistory = useCallback(
     async (reset = false) => {
-      if (loading) return;
-      setLoading(true);
       setError(null);
+      setLoading(true);
 
       try {
         const {
@@ -86,11 +87,15 @@ export default function useHistory() {
         setLoading(false);
       }
     },
-    [loading, offset],
+    [offset],
   );
 
-  const loadMore = () => fetchHistory(false);
-  const refresh = () => fetchHistory(true);
+  useEffect(() => {
+    if (!isHAConfigured && configurationError?.status !== "haDown") return
+    fetchHistory(true);
+  }, [isHAConfigured, configurationError]);
 
-  return { history, loading, error, hasMore, loadMore, refresh };
+  const loadMore = () => fetchHistory(false);
+
+  return { history, loading, error, hasMore, loadMore };
 }

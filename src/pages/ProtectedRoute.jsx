@@ -8,7 +8,7 @@ export default function ProtectedRoute() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const { setIsHAConfigured } = useHaConfiguration();
+  const { setIsHAConfigured, setConfigurationError } = useHaConfiguration();
 
   useEffect(() => {
     const checkAuthAndHA = async () => {
@@ -34,12 +34,15 @@ export default function ProtectedRoute() {
 
         // 3. If backend says NO → HA not configured
         if (!response.ok) {
+          const errorData = await response.json();
           setIsHAConfigured(false);
+          setConfigurationError({ status: errorData.status, message: errorData.message });
           setLoading(false);
           return;
         }
 
         // 4. Backend OK → HA configured
+        setConfigurationError(null);
         setIsHAConfigured(true);
       } catch (err) {
         console.error("Auth/HA check failed:", err);
