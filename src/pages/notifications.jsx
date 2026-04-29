@@ -3,6 +3,7 @@ import { useState, useContext, useMemo } from 'react';
 import { NotificationsContext } from '../layout';
 import { useTranslation } from 'react-i18next';
 import HACredentialsRequired from './haCredentialsRequired'
+import Spinner from '../utilities/components/loading/Spinner';
 
 export default function Notifications() {
   const { t } = useTranslation();
@@ -27,7 +28,7 @@ export default function Notifications() {
 
   if (loading) return (
     <div className='flex flex-1 items-center justify-center font-newblack'>
-      <p className='text-[#192514] font-semibold text-lg'>Loading notifications...</p>
+      <Spinner size={70} />
     </div>
   )
 

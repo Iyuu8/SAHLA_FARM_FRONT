@@ -31,6 +31,8 @@ import { useActuators } from '../hooks/useActuators';
 import { buildRangeSeries } from '../utilities/data/dashboardData.js';
 import { formatSensorUnit } from '../utilities/data/dashboardData.js';
 
+import Spinner from '../utilities/components/loading/Spinner.jsx';
+
 /**
  * Dashboard page composition.
  *
@@ -248,7 +250,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
         activeRange={activeRange}
         onChangeRange={setActiveRange}
         className="h-full"
-      /> : <div className="w-full h-full flex items-center justify-center text-gray-500"><h2>Loading...</h2></div>}
+      /> : <div className="w-full h-full flex items-center justify-center"><Spinner size={50} /></div>}
     </motion.div>
   );
 
