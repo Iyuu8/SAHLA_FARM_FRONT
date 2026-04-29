@@ -6,16 +6,19 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import { HAProvider } from "./context/HaContext";
+import { SocketProvider } from "./context/SocketContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <HAProvider>
+       <SocketProvider>
       <Router>
         <Routes>
           <Route path="/*" element={<App />} />
         </Routes>
       </Router>
+      </SocketProvider>
     </HAProvider>
   </React.StrictMode>,
 );

@@ -47,6 +47,7 @@ function App() {
         
         {/* Protected routes — ProtectedRoute checks Supabase session */}
         <Route element={<ProtectedRoute/>}>
+       
           <Route path="/" element={<Layout />}>
             <Route index element={isHAConfigured ? <Dashboard /> : blockedPage} />
 
@@ -79,6 +80,7 @@ function App() {
           </Route>
 
           <Route path="*" element={<NotFound />} />
+
         </Route>
       </Routes>
     </>

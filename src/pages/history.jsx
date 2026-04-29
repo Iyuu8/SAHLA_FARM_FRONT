@@ -282,7 +282,7 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
             </div>
           )}
           {loading && history.length > 0 && (
-            <Spinner size={70} />
+            <div className='m-3'><Spinner size={30} /></div>
           )}
         </div>
       </div>
