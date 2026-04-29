@@ -39,6 +39,7 @@ export default function ProfilePage() {
     age: backendUser.age,
     address: backendUser.address,
     pfp: backendUser.avatarUrl || '',
+    haStatus : backendUser.haStatus || 'offline',
     homeAssistantId: backendUser.haUrl || 'No Home Assistant configured yet',
     displayUnits: {
       temp: backendUser.preferences?.displayUnits?.temperature || '°C',
@@ -80,7 +81,7 @@ export default function ProfilePage() {
     return { url, token };
   };
 
-  const [homeAssistantConnection, setHomeAssistantConnection] = useState({ url: '', token: '', status: 'offline' });
+  const [homeAssistantConnection, setHomeAssistantConnection] = useState({ url: backendUser?.haUrl || '', token: '', status: backendUser?.haStatus || 'offline' });
 
   useEffect(() => {
     if (backendUser?.haUrl) {

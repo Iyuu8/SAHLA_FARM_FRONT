@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef, useContext } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { profileSettingOptions } from '../utilities/data/profileSettings'
 import { useTranslation } from 'react-i18next'
 import { SunnyIcon, ClearNightIcon, CloudyIcon, HeavyRainIcon, HeavyRainAltIcon, WindyIcon } from '../utilities/data/Icons'
 import HistoryDetailCard from '../utilities/components/history/HistoryDetailCard'
 import useHistoryDetail from '../hooks/useHistoryDetail'
+import useHistory from '../hooks/useHistory'
 import HACredentialsRequired from './haCredentialsRequired'
 import Spinner from '../utilities/components/loading/Spinner.jsx'
-import { HistoryContext } from '../context/HistoryContext'
 
 const weatherIconMap = {
   sunny: SunnyIcon,
@@ -156,7 +156,7 @@ const CustomDropdown = ({ value, onChange, options, placeholder }) => {
 
 export default function History({ temperatureUnit, humidityUnit, soilMoistureUnit, lightIntensityUnit }) {
   const { t } = useTranslation()
-  const { history, loading, error, hasMore, loadMore } = useContext(HistoryContext)
+  const { history, loading, error, hasMore, loadMore, loadingMore } = useHistory()
   const { detail, loading: detailLoading, error: detailError, fetchDetail } = useHistoryDetail()
   const [Input, setInput] = useState({
     date: '', time: '', crop: '',
@@ -273,13 +273,15 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
             )
           })}
 
-          {hasMore && !loading && (
+          {hasMore && !loadingMore && !loading && (
             <div className="py-4 text-center text-[#1A3D00] font-bold bg-white text-sm cursor-pointer hover:text-[#55BB33]" onClick={loadMore}>
               {t('history.loading')}
             </div>
           )}
-          {loading && history.length > 0 && (
-            <div className='m-3'><Spinner size={30} /></div>
+          {loadingMore && (
+            <div className="py-4 text-center bg-white flex items-center justify-center gap-2">
+              <Spinner size={30} />
+            </div>
           )}
         </div>
       </div>

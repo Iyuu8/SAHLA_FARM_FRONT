@@ -10,5 +10,5 @@ export function useGraphData() {
             .catch(err => console.error("Error fetching graph data:", err));
     }, []);
 
-    return { graphData, setGraphData };
+    return { graphData };
 }

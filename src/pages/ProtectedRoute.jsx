@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router";
 import { supabase } from "../supabaseClient";
 import { useHaConfiguration } from "../context/HaContext.jsx";
+import { useSocket } from "../context/SocketContext.jsx";
 import Spinner from "../utilities/components/loading/Spinner.jsx";
 
 export default function ProtectedRoute() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const { isConnected } = useSocket();
 
   const { setIsHAConfigured, setConfigurationError } = useHaConfiguration();
 
@@ -53,7 +56,7 @@ export default function ProtectedRoute() {
     };
 
     checkAuthAndHA();
-  }, []);
+  }, [isConnected]);
 
   // 1. loading state
   if (loading) {

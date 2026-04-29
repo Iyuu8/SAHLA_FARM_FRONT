@@ -34,6 +34,7 @@ export default function useHistory() {
   const { isHAConfigured, configurationError } = useHaConfiguration();  
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(null);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -41,7 +42,11 @@ export default function useHistory() {
   const fetchHistory = useCallback(
     async (reset = false) => {
       setError(null);
-      setLoading(true);
+      if (reset) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
 
       try {
         const {
@@ -75,16 +80,21 @@ export default function useHistory() {
         if (reset) {
           setHistory(mapped);
           setOffset(LIMIT);
+          setLoading(false);
         } else {
           setHistory((prev) => [...prev, ...mapped]);
           setOffset((prev) => prev + LIMIT);
+          setLoadingMore(false);
         }
 
         setHasMore(mapped.length === LIMIT);
       } catch (err) {
         setError(err.message);
-      } finally {
-        setLoading(false);
+        if (reset) {
+          setLoading(false);
+        } else {
+          setLoadingMore(false);
+        }
       }
     },
     [offset],
@@ -97,5 +107,5 @@ export default function useHistory() {
 
   const loadMore = () => fetchHistory(false);
 
-  return { history, loading, error, hasMore, loadMore };
+  return { history, loading, error, hasMore, loadMore, loadingMore };
 }

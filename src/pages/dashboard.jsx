@@ -31,7 +31,10 @@ import { useActuators } from '../hooks/useActuators';
 import { buildRangeSeries } from '../utilities/data/dashboardData.js';
 import { formatSensorUnit } from '../utilities/data/dashboardData.js';
 
+import { useSocket } from '../context/SocketContext.jsx';
+
 import Spinner from '../utilities/components/loading/Spinner.jsx';
+import { data } from 'react-router';
 
 /**
  * Dashboard page composition.
@@ -57,27 +60,16 @@ export default function Dashboard() {
 
   
   const {
-   // crop,
-   // setCrop,
-  //  cropOptions,
-   // addCropOption,
-   // growthStage,
-  //  setGrowthStage,
-   // mode,
-  //  setMode,
     temperatureUnit,
     humidityUnit,
     soilMoistureUnit,
     lightIntensityUnit,
   } = useFarmPreferences();
-  
 
-  const { crop, setCrop, cropOptions, addCropOption, growthStage, setGrowthStage, mode, setMode } = useCropInfo();
-  const { recommendation } = useRecommendation();
-  const { warnings } = useWarnings();
-  const { sensors } = useSensors();
-  const { graphData } = useGraphData();
-  const { actuators, setActuators } = useActuators();
+
+  const { crop, recommendation, warnings, sensors, graphData, actuators, setActuators, socket } = useSocket();
+
+  const { setCrop, cropOptions, addCropOption, setGrowthStage, mode, setMode } = useCropInfo();
 
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
@@ -170,7 +162,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
           : sensor.currentValue,
       };
     }),
-    [displayUnits, baseTemperature]
+    [displayUnits, baseTemperature, sensors]
   );
 
   // Converts normalized chart series per selected display units.
@@ -194,7 +186,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
         return [sensorId, convertedSeries];
       })
     ),
-    [displayUnits, baseTemperature]
+    [displayUnits, baseTemperature, sensors]
   );
 
   const selectedSensor = useMemo(
@@ -215,6 +207,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
         return { ...actuator, status: actuator.status === 'on' ? 'off' : 'on' };
       })
     );
+    socket.emit('change_state', {target: 'actuators', newState : actuators});
   };
 
   const handleToggleGlobalMode = (nextSemiAutoState) => {
@@ -224,6 +217,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
         control_mode: nextSemiAutoState ? 'semi_auto' : 'auto',
       }))
     );
+    socket.emit('change_state', {target: 'actuators', newState : actuators});
   };
 
   const handleToggleActuatorMode = (actuatorId) => {
@@ -234,6 +228,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
           : actuator
       )
     );
+    socket.emit('change_state', {target: 'actuators', newState : actuators});
   };
 
   const chartSection = sensors.length > 0 && (
@@ -300,7 +295,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     >
       {convertedSensors.map((sensor) => (
         <SensorCard
-          key={sensor.id}
+          key={sensor.type}
           sensor={sensor}
           isSelected={sensor.id === selectedSensorId}
           onClick={() => setSelectedSensorId(sensor.id)}
@@ -318,13 +313,13 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
       transition={{ delay: 0.22, duration: 0.3, ease: 'easeOut' }}
     >
       <CropInfoCard
-        crop={crop ?? NORMALIZED_USER.farmSettings.crop}
+        crop={crop.type ?? NORMALIZED_USER.farmSettings.crop}
         setCrop={setCrop}
         cropOptions={cropOptions ?? profileSettingOptions.cropOptions}
         onAddCropOption={addCropOption}
-        growthStage={growthStage ?? NORMALIZED_USER.farmSettings.growth}
+        growthStage={crop.growth_stage ?? NORMALIZED_USER.farmSettings.growth}
         setGrowthStage={setGrowthStage}
-        mode={mode ?? NORMALIZED_USER.farmSettings.mode}
+        mode={crop.mode ?? NORMALIZED_USER.farmSettings.mode}
         setMode={setMode}
         actuators={actuators}
         recommendation={recommendation}
@@ -332,7 +327,11 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     </motion.div>
   );
 
-  return (
+  return !sensors.length ? (
+      <div className="w-full h-full flex items-center justify-center">
+        <Spinner size={60} />
+      </div>
+    ) : (
     <motion.div
       className="w-full min-h-full flex flex-col gap-4 p-3 overflow-y-auto overflow-x-hidden font-newblack bg-[#F5F7F6]"
       initial={{ opacity: 0, y: 8 }}
@@ -370,5 +369,6 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
         onToggleActuatorMode={handleToggleActuatorMode}
       />
     </motion.div>
-  );
+  )
+  ;
 }
