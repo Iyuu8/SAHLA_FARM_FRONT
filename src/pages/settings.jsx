@@ -12,6 +12,7 @@ import useActuatorsState from '../hooks/useActuatorsState';
 import { useTranslation } from 'react-i18next';
 import useProfileData from '../hooks/useProfileData';
 import { supabase } from '../supabaseClient';
+import Spinner from '../utilities/components/loading/Spinner.jsx';
 
 export default function ProfilePage() {
   const { t } = useTranslation();
@@ -98,7 +99,7 @@ export default function ProfilePage() {
 
   if (loading) return (
     <div className='flex-1 min-h-0 h-full w-full bg-[#F5F7F6] flex items-center justify-center font-newblack'>
-      <p className='text-[#192514] font-semibold text-lg'>Loading profile...</p>
+      <Spinner size={65} />
     </div>
   );
 
