@@ -22,7 +22,7 @@ function RangeSelector({ activeRange, onChange, isCompact }) {
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
-
+ console.log(selected)
   return (
     <div className='relative shrink-0' ref={containerRef}>
       <motion.button
@@ -197,13 +197,13 @@ export default function ChartCard({
                 <stop offset='100%' stopColor='#000000' stopOpacity={1} />
               </linearGradient>
             </defs>
-
             <XAxis
               dataKey='label'
               tickLine={false}
               axisLine={false}
               interval={0}
               padding={{ left: isCompact ? 8 : 16, right: isCompact ? 10 : 20 }}
+              tickFormatter={(label) => t(`history.day.${label.toLowerCase()}`)}
               tick={{ fill: 'rgba(25,37,20,0.7)', fontSize: isCompact ? 12 : 14 }}
               dy={isCompact ? 10 : 12}
             />
@@ -218,8 +218,8 @@ export default function ChartCard({
             />
             <Tooltip
               cursor={false}
-              formatter={(value) => [`${value}${selectedSensor?.unit || ''}`, t('dashboard.chart.value')]}
-              labelFormatter={(label) => `${label}`}
+              formatter={(value) => [`${value}${selectedSensor?.unit || ''}`, t('dashboard.chart.tooltipValue')]}
+              labelFormatter={(label) => t(`history.day.${label.toLowerCase()}`)}
               contentStyle={{
                 border: '1px solid rgba(25,37,20,0.15)',
                 borderRadius: '8px',

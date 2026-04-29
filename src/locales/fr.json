@@ -59,6 +59,51 @@
       "errorLoad": "Impossible de charger cette image. Veuillez essayer un autre fichier.",
       "errorNoImage": "Veuillez d'abord ajouter une image.",
       "errorProcess": "Impossible de traiter l'image. Veuillez réessayer."
+    },
+    "options": {
+      "mode": {
+        "balanced": "Équilibré",
+        "waterSaving": "Économie d'eau",
+        "energySaving": "Économie d'énergie",
+        "growthPriority": "Priorité à la croissance"
+      },
+      "manualControl": {
+        "on": "Activé",
+        "off": "Désactivé"
+      },
+      "growthStage": {
+        "germination": "Germination",
+        "seedling": "Semis",
+        "vegetative": "Croissance végétative",
+        "flowering": "Floraison",
+        "fruiting": "Fructification",
+        "maturity": "Maturité"
+      },
+      "crops": {
+        "tomatoes": "Tomates",
+        "lettuce": "Laitue",
+        "cucumber": "Concombre",
+        "strawberries": "Fraises",
+        "basil": "Basilic",
+        "spinach": "Épinards",
+        "peppers": "Poivrons"
+      },
+      "languages": {
+        "english": "Anglais",
+        "arabic": "Arabe",
+        "french": "Français"
+      },
+      "units": {
+        "celsius": "Celsius °C",
+        "fahrenheit": "Fahrenheit °F",
+        "kelvin": "Kelvin K",
+        "humidityPct": "Humidité %",
+        "absHumidity": "Humidité abs. g/m³",
+        "soilMoisture": "Humidité du sol %",
+        "lux": "Lux (lux)",
+        "footCandle": "Foot-candle (fc)",
+        "lumen": "Lumen (lm)"
+      }
     }
   },
   "notifications": {
@@ -95,6 +140,15 @@
       "fr": "Ve",
       "sa": "Sa"
     },
+    "day": {
+  "sun": "Dim",
+  "mon": "Lun",
+  "tue": "Mar",
+  "wed": "Mer",
+  "thu": "Jeu",
+  "fri": "Ven",
+  "sat": "Sam"
+},
     "labels": {
       "date": "Date",
       "time": "Heure",
@@ -371,6 +425,7 @@
     "rememberMe": "Se souvenir de moi",
     "forgotPassword": "mot de passe oublié",
     "signInButton": "Se connecter",
+    "signingIn": "Connexion en cours...",
     "createAccount": "Nouveau sur SAHLA FARM ? Créer un compte",
     "demoMode": "Mode Démo",
     "demoModeDesc": "Utilisez n'importe quel e-mail/mot de passe pour tester la connexion",
@@ -380,7 +435,11 @@
     "feature1Title": "Automatisation Intelligente",
     "feature1Desc": "surveillez et automatisez instantanément",
     "feature2Title": "Plateforme Unifiée",
-    "feature2Desc": "tout en un seul endroit"
+    "feature2Desc": "tout en un seul endroit",
+    "errors": {
+      "invalid": "E-mail ou mot de passe invalide. Veuillez réessayer.",
+      "unconfirmed": "Veuillez vérifier votre adresse e-mail avant de vous connecter."
+    }
   },
   "resetPassword": {
     "passwordLengthError": "Le mot de passe doit comporter au moins 8 caractères",
@@ -438,5 +497,28 @@
     "feature1Desc": "surveillez et automatisez instantanément",
     "feature2Title": "Plateforme Unifiée",
     "feature2Desc": "tout en un seul endroit"
+  },
+  "notfound":{
+    "title": "La page n'existe pas"
+  },
+  "ha_required": {
+    "badge": "CONFIGURATION REQUISE",
+    "title": "URL/Jeton Home Assistant Manquant",
+    "description": "Veuillez ajouter votre URL Home Assistant et votre jeton d'accès longue durée dans les paramètres avant d'utiliser cette page.",
+    "button": "Aller aux paramètres"
+  },
+  "setup": {
+    "required": "CONFIGURATION REQUISE",
+    "title": "URL/Jeton Home Assistant Manquant",
+    "description": "Veuillez ajouter votre URL Home Assistant et votre jeton d'accès longue durée dans les paramètres avant d'utiliser cette page.",
+    "button": "Aller aux paramètres"
+  },
+  "notFound": {
+    "error": "ERREUR 404",
+    "title": "Page Non Trouvée",
+    "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "goDashboard": "Tableau de bord",
+    "openSettings": "Paramètres"
   }
+
 }

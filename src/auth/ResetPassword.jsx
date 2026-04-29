@@ -7,9 +7,10 @@ import { Bot, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import LoginFeatureContainer from '../utilities/components/login/loginFeature'
 import LanguageSwitcher from '../utilities/components/login/LanguageSwitcher'
+import {translateText} from '../utilities/functions/translateText'
 
 export default function ResetPassword() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
@@ -67,7 +68,8 @@ export default function ResetPassword() {
         navigate('/login')
       }, 3000)
     } catch (err) {
-      setError(err.message)
+      const translatedMessage = await translateText(err.message, i18n.language)
+      setError(translatedMessage)
     } finally {
       setLoading(false)
     }

@@ -59,6 +59,51 @@
       "errorLoad": "Could not load this image. Please try another file.",
       "errorNoImage": "Please add an image first.",
       "errorProcess": "Could not process image. Please try again."
+    },
+    "options": {
+      "mode": {
+        "balanced": "Balanced",
+        "waterSaving": "Water Saving",
+        "energySaving": "Energy Saving",
+        "growthPriority": "Growth Priority"
+      },
+      "manualControl": {
+        "on": "On",
+        "off": "Off"
+      },
+      "growthStage": {
+        "germination": "Germination",
+        "seedling": "Seedling",
+        "vegetative": "Vegetative Growth",
+        "flowering": "Flowering",
+        "fruiting": "Fruiting",
+        "maturity": "Maturity"
+      },
+      "crops": {
+        "tomatoes": "Tomatoes",
+        "lettuce": "Lettuce",
+        "cucumber": "Cucumber",
+        "strawberries": "Strawberries",
+        "basil": "Basil",
+        "spinach": "Spinach",
+        "peppers": "Peppers"
+      },
+      "languages": {
+        "english": "English",
+        "arabic": "العربية",
+        "french": "French"
+      },
+      "units": {
+        "celsius": "Celsius °C",
+        "fahrenheit": "Fahrenheit °F",
+        "kelvin": "Kelvin K",
+        "humidityPct": "Humidity %",
+        "absHumidity": "Abs. Humidity g/m³",
+        "soilMoisture": "Soil Moisture %",
+        "lux": "Lux (lux)",
+        "footCandle": "Foot-candle (fc)",
+        "lumen": "Lumen (lm)"
+      }
     }
   },
   "notifications": {
@@ -77,6 +122,15 @@
     },
     "days": {
       "su": "Su", "mo": "Mo", "tu": "Tu", "we": "We", "th": "Th", "fr": "Fr", "sa": "Sa"
+    },
+    "day": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
     },
     "labels": {
       "date": "Date",
@@ -355,6 +409,7 @@
     "rememberMe": "Remember me",
     "forgotPassword": "forgot password",
     "signInButton": "Sign in",
+    "signingIn": "Signing in...",
     "createAccount": "New to SAHLA FARM? Create an account",
     "demoMode": "Demo Mode",
     "demoModeDesc": "Use any email/password to test the login flow",
@@ -364,7 +419,11 @@
     "feature1Title": "Smart Automation",
     "feature1Desc": "monitor & automate instantly",
     "feature2Title": "Unified Platform",
-    "feature2Desc": "everything in one single place"
+    "feature2Desc": "everything in one single place",
+    "errors": {
+      "invalid": "Invalid email or password. Please try again.",
+      "unconfirmed": "Please verify your email address before logging in."
+    }
   },
   "resetPassword": {
     "passwordLengthError": "Password must be at least 8 characters long",
@@ -422,6 +481,28 @@
     "feature1Desc": "monitor & automate instantly",
     "feature2Title": "Unified Platform",
     "feature2Desc": "everything in one single place"
+  },
+  "notfound":{
+    "title": "The page you are looking for does not exist or was moved."
+  },
+  "ha_required": {
+    "badge": "SETUP REQUIRED",
+    "title": "Home Assistant URL/Token Missing",
+    "description": "Please add your Home Assistant URL and Long-Lived Access Token in Settings before using this page.",
+    "button": "Go To Settings"
+  },
+  "setup": {
+    "required": "SETUP REQUIRED",
+    "title": "Home Assistant URL/Token Missing",
+    "description": "Please add your Home Assistant URL and Long-Lived Access Token in Settings before using this page.",
+    "button": "Go To Settings"
+  },
+  "notFound": {
+    "error": "ERROR 404",
+    "title": "Page Not Found",
+    "description": "The page you are looking for does not exist or was moved.",
+    "goDashboard": "Go To Dashboard",
+    "openSettings": "Open Settings"
   }
 
 }

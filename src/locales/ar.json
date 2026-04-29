@@ -59,6 +59,51 @@
       "errorLoad": "تعذر تحميل هذه الصورة. يرجى تجربة ملف آخر.",
       "errorNoImage": "يرجى إضافة صورة أولاً.",
       "errorProcess": "تعذر معالجة الصورة. يرجى المحاولة مرة أخرى."
+    },
+    "options": {
+      "mode": {
+        "balanced": "متوازن",
+        "waterSaving": "توفير المياه",
+        "energySaving": "توفير الطاقة",
+        "growthPriority": "أولوية النمو"
+      },
+      "manualControl": {
+        "on": "تشغيل",
+        "off": "إيقاف"
+      },
+      "growthStage": {
+        "germination": "إنبات",
+        "seedling": "شتلة",
+        "vegetative": "نمو خضري",
+        "flowering": "تزهير",
+        "fruiting": "إثمار",
+        "maturity": "نضج"
+      },
+      "crops": {
+        "tomatoes": "طماطم",
+        "lettuce": "خس",
+        "cucumber": "خيار",
+        "strawberries": "فراولة",
+        "basil": "ريحان",
+        "spinach": "سبانخ",
+        "peppers": "فلفل"
+      },
+      "languages": {
+        "english": "الإنجليزية",
+        "arabic": "العربية",
+        "french": "الفرنسية"
+      },
+      "units": {
+        "celsius": "درجة مئوية °C",
+        "fahrenheit": "فهرنهايت °F",
+        "kelvin": "كلفن K",
+        "humidityPct": "الرطوبة %",
+        "absHumidity": "الرطوبة المطلقة g/m³",
+        "soilMoisture": "رطوبة التربة %",
+        "lux": "لوكس (lux)",
+        "footCandle": "شمعة قدم (fc)",
+        "lumen": "لومن (lm)"
+      }
     }
   },
   "notifications": {
@@ -77,6 +122,15 @@
     },
     "days": {
       "su": "أح", "mo": "إث", "tu": "ثلا", "we": "أر", "th": "خم", "fr": "جم", "sa": "سب"
+    },
+    "day": {
+      "sun": "الأحد",
+      "mon": "الإثنين",
+      "tue": "الثلاثاء",
+      "wed": "الأربعاء",
+      "thu": "الخميس",
+      "fri": "الجمعة",
+      "sat": "السبت"
     },
     "labels": {
       "date": "التاريخ",
@@ -355,6 +409,7 @@
     "rememberMe": "تذكرني",
     "forgotPassword": "هل نسيت كلمة المرور؟",
     "signInButton": "تسجيل الدخول",
+    "signingIn": "جاري تسجيل الدخول...",
     "createAccount": "مستخدم جديد في سهلة فارم؟ أنشئ حساباً",
     "demoMode": "وضع العرض التوضيحي",
     "demoModeDesc": "استخدم أي بريد إلكتروني/كلمة مرور لاختبار عملية تسجيل الدخول",
@@ -364,7 +419,11 @@
     "feature1Title": "أتمتة ذكية",
     "feature1Desc": "مراقبة وأتمتة على الفور",
     "feature2Title": "منصة موحدة",
-    "feature2Desc": "كل شيء في مكان واحد"
+    "feature2Desc": "كل شيء في مكان واحد",
+    "errors": {
+      "invalid": "البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى المحاولة مرة أخرى.",
+      "unconfirmed": "يرجى تأكيد بريدك الإلكتروني قبل تسجيل الدخول."
+    }
   },
   "resetPassword": {
     "passwordLengthError": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
@@ -422,5 +481,27 @@
     "feature1Desc": "مراقبة وأتمتة على الفور",
     "feature2Title": "منصة موحدة",
     "feature2Desc": "كل شيء في مكان واحد"
+  },
+  "notfound":{
+    "title": "The page you are looking for does not exist or was moved."
+  },
+  "ha_required": {
+    "badge": "مطلوب الإعداد",
+    "title": "رابط/رمز Home Assistant مفقود",
+    "description": "يرجى إضافة رابط Home Assistant ورمز الوصول طويل الأمد في الإعدادات قبل استخدام هذه الصفحة.",
+    "button": "الذهاب إلى الإعدادات"
+  },
+  "setup": {
+    "required": "الإعداد مطلوب",
+    "title": "رابط أو رمز Home Assistant مفقود",
+    "description": "يرجى إضافة رابط Home Assistant ورمز الوصول طويل المدى في الإعدادات قبل استخدام هذه الصفحة.",
+    "button": "الذهاب إلى الإعدادات"
+  },
+  "notFound": {
+    "error": "خطأ 404",
+    "title": "الصفحة غير موجودة",
+    "description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+    "goDashboard": "الذهاب إلى لوحة التحكم",
+    "openSettings": "فتح الإعدادات"
   }
 }

@@ -66,9 +66,9 @@ useEffect(() => {
       if (signinError) {
         // Handle specific error cases
         if (signinError.message.includes('Invalid login credentials')) {
-          throw new Error('Invalid email or password. Please try again.');
+          throw new Error(t('login.errors.invalid'));
         } else if (signinError.message.includes('Email not confirmed')) {
-          throw new Error('Please verify your email address before logging in.');
+          throw new Error(t('login.errors.unconfirmed'));
         } else {
           throw signinError;
         };
@@ -196,7 +196,7 @@ useEffect(() => {
               disabled={loading}
               className='bg-[#55BB33] w-full py-3 rounded-[6px] font-bold text-white hover:bg-[#66cd43] transition disabled:opacity-50'
             >
-              {loading ? 'Signing in...' : `${t('login.signInButton')}`}
+              {loading ? t('login.signingIn') : `${t('login.signInButton')}`}
             </button>
             <Link to="/signup" className='font-bold underline text-[#1A3D00]'>{t('login.createAccount')}</Link>
           </div>
