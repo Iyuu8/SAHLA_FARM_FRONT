@@ -12,15 +12,15 @@ import Layout from "./layout.jsx";
 import NotFound from "./pages/notFound.jsx";
 import HACredentialsRequired from "./pages/haCredentialsRequired.jsx";
 import useFarmPreferences from "./hooks/useFarmPreferences";
-import ProtectedRoute from "./pages/ProtectedRoute .jsx";
+import ProtectedRoute from "./pages/ProtectedRoute.jsx";
 import ForgotPassword from './auth/ForgotPassword'
 import ResetPassword from './auth/ResetPassword'
-
+import { useHaConfiguration } from "./context/HaContext.jsx";
 
 
 function App() {
   // Temporary frontend flag until backend controls HA credentials onboarding state.
-  const [isHAConfigured] = useState(true);
+  const { isHAConfigured, configurationError } = useHaConfiguration();
 
   // App is intentionally thin: pages read/write shared state through storage-backed hooks.
   // History remains prop-driven, so we expose current unit preferences here.
@@ -31,7 +31,7 @@ function App() {
     lightIntensityUnit,
   } = useFarmPreferences();
 
-  const blockedPage = <HACredentialsRequired />;
+  const blockedPage = <HACredentialsRequired configurationError={configurationError} />;
 
   const protectedElement = (element) =>
     isHAConfigured ? element : blockedPage;
@@ -47,38 +47,40 @@ function App() {
         
         {/* Protected routes — ProtectedRoute checks Supabase session */}
         <Route element={<ProtectedRoute/>}>
+       
           <Route path="/" element={<Layout />}>
-            <Route index element={protectedElement(<Dashboard />)} />
+            <Route index element={isHAConfigured ? <Dashboard /> : blockedPage} />
 
             <Route
               path="/dashboard"
-              element={protectedElement(<Dashboard />)}
+              element={isHAConfigured ? <Dashboard /> : blockedPage}
             />
 
             <Route
               path="/history"
-              element={protectedElement(
+              element={isHAConfigured || configurationError?.status === "haDown" ? (
                 <History
                   temperatureUnit={temperatureUnit}
                   humidityUnit={humidityUnit}
                   soilMoistureUnit={soilMoistureUnit}
                   lightIntensityUnit={lightIntensityUnit}
-                />,
-              )}
+                />
+              ) : blockedPage}
             />
-            <Route path="/stream" element={protectedElement(<CamStream />)} />
+            <Route path="/stream" element={isHAConfigured ? <CamStream /> : blockedPage} />
 
-            <Route path="/chat" element={protectedElement(<AIchat />)} />
+            <Route path="/chat" element={isHAConfigured  || configurationError?.status === "haDown"  ? <AIchat /> : blockedPage} />
 
             <Route
               path="/notifications"
-              element={protectedElement(<Notifications />)}
+              element={isHAConfigured || configurationError?.status === "haDown"  ? <Notifications /> : blockedPage}
             />
 
             <Route path="/settings" element={<Settings />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />
+
         </Route>
       </Routes>
     </>

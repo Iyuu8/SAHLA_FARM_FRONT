@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useContext } from 'react'
 import { profileSettingOptions } from '../utilities/data/profileSettings'
 import { useTranslation } from 'react-i18next'
 import { SunnyIcon, ClearNightIcon, CloudyIcon, HeavyRainIcon, HeavyRainAltIcon, WindyIcon } from '../utilities/data/Icons'
 import HistoryDetailCard from '../utilities/components/history/HistoryDetailCard'
-import useHistory from '../hooks/useHistory'
 import useHistoryDetail from '../hooks/useHistoryDetail'
 import HACredentialsRequired from './haCredentialsRequired'
+import Spinner from '../utilities/components/loading/Spinner.jsx'
+import { HistoryContext } from '../context/HistoryContext'
 
 const weatherIconMap = {
   sunny: SunnyIcon,
@@ -155,7 +156,7 @@ const CustomDropdown = ({ value, onChange, options, placeholder }) => {
 
 export default function History({ temperatureUnit, humidityUnit, soilMoistureUnit, lightIntensityUnit }) {
   const { t } = useTranslation()
-  const { history, loading, error, hasMore, loadMore, refresh } = useHistory()
+  const { history, loading, error, hasMore, loadMore } = useContext(HistoryContext)
   const { detail, loading: detailLoading, error: detailError, fetchDetail } = useHistoryDetail()
   const [Input, setInput] = useState({
     date: '', time: '', crop: '',
@@ -176,7 +177,7 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
   }
   const isMobile = useIsMobile()
 
-  useEffect(() => { refresh() }, [])
+  //useEffect(() => { refresh() }, [])
 
   const handleItemClick = async (item) => {
     setShowModal(true)
@@ -185,9 +186,6 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
 
   const closeModal = () => setShowModal(false)
 
-  if (error && (error.includes('credentials') || error.includes('farm') || error.includes('Farm') || error.includes('token'))) {
-    return <HACredentialsRequired />
-  }
 
   const FilteredHistory = history.filter(p => {
     const dateMatch = Input.date === '' || p.date.includes(Input.date)
@@ -239,7 +237,7 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
         <div className="flex-1 overflow-y-auto min-h-0 bg-white custom-scrollbar">
           {loading && history.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full py-16">
-              <p className="text-[#192514] font-bold text-[14px] md:text-[18px] opacity-50">Loading history...</p>
+              <Spinner size={70} />
             </div>
           )}
 
@@ -281,7 +279,7 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
             </div>
           )}
           {loading && history.length > 0 && (
-            <div className="py-4 text-center text-[#1A3D00] font-bold bg-white text-sm">Loading...</div>
+            <div className='m-3'><Spinner size={30} /></div>
           )}
         </div>
       </div>
@@ -292,7 +290,7 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
           <div className="relative max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             {detailLoading && (
               <div className="bg-white rounded-3xl p-8 text-center">
-                <p className="text-[#192514] font-semibold">Loading details...</p>
+                <Spinner size={50} />
               </div>
             )}
             {detailError && (

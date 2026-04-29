@@ -259,6 +259,7 @@
       "modes": {
         "auto": "auto",
         "semi-auto": "semi-auto",
+        "semi_auto": "semi_auto",
         "mixed": "mixed"
       }
     },

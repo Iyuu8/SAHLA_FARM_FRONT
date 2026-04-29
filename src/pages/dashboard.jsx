@@ -31,6 +31,8 @@ import { useActuators } from '../hooks/useActuators';
 import { buildRangeSeries } from '../utilities/data/dashboardData.js';
 import { formatSensorUnit } from '../utilities/data/dashboardData.js';
 
+import Spinner from '../utilities/components/loading/Spinner.jsx';
+
 /**
  * Dashboard page composition.
  *
@@ -234,7 +236,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     );
   };
 
-  const chartSection = (
+  const chartSection = sensors.length > 0 && (
     <motion.div
       key="chart"
       className="w-full shrink-0 h-[380px] lg:h-full lg:min-h-[280px]"
@@ -248,11 +250,11 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
         activeRange={activeRange}
         onChangeRange={setActiveRange}
         className="h-full"
-      /> : <div className="w-full h-full flex items-center justify-center text-gray-500"><h2>Loading...</h2></div>}
+      /> : <div className="w-full h-full flex items-center justify-center"><Spinner size={50} /></div>}
     </motion.div>
   );
 
-  const alertsSection = (
+  const alertsSection = sensors.length > 0 && (
     <motion.div
       key="alerts"
       className="w-full shrink-0 min-h-[350px] lg:min-h-0 lg:h-full"
@@ -264,7 +266,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     </motion.div>
   );
 
-  const actuatorsSection = (
+  const actuatorsSection = sensors.length > 0 && (
     <motion.div
       key="actuators"
       className="grid grid-cols-[minmax(0,1fr)_158px] sm:grid-cols-[minmax(0,1fr)_170px] md:flex md:flex-row md:items-stretch gap-3 min-w-0 shrink-0"
@@ -307,7 +309,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     </motion.div>
   );
 
-  const cropInfoSection = (
+  const cropInfoSection = sensors.length > 0 &&(
     <motion.div
       key="crop-info"
       className="w-full shrink-0 min-h-[200px] lg:h-full"

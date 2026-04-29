@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { toFormatedControlMode, toCapitalizeFirstLetter } from '../../functions/stringTools.js';
 
 function ToggleSwitch({ checked, onToggle, ariaLabel, onText, offText }) {
   return (
@@ -89,10 +90,10 @@ export default function EditActuatorsModal({
                 transition={{ duration: 0.2 }}
               >
                 <div>
-                  <p className='text-base text-[#192514]'>{actuator.name}</p>
+                  <p className='text-base text-[#192514]'>{toCapitalizeFirstLetter(actuator.type)}</p>
                   <p className='text-sm text-[rgba(25,37,20,0.62)] capitalize'>
                     {/* Translates "auto" or "semi-auto" */}
-                    {t(`dashboard.editActuators.modes.${actuator.control_mode}`, actuator.control_mode)}
+                    {t(`dashboard.editActuators.modes.${toFormatedControlMode(actuator.control_mode)}`, toFormatedControlMode(actuator.control_mode))}
                   </p>
                 </div>
 
