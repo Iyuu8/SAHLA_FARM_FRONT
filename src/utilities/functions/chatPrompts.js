@@ -17,8 +17,51 @@ export function getCurrentTime() {
   return new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 }
 
-export function buildSystemPrompt() {
-  return `You are SAHLA, an intelligent agricultural assistant for SAHLA Farm — a smart IoT farm management system.
+// ─── Normalize language code ──────────────────────────────────────────────────
+// i18n.language can return 'ar', 'ar-DZ', 'fr-FR', 'en-US', etc.
+// We strip the region suffix so 'ar-DZ' → 'ar', 'fr-FR' → 'fr', 'en-US' → 'en'.
+function normalizeLanguage(lang = 'en') {
+  return lang.split('-')[0].toLowerCase();
+}
+
+export function buildSystemPrompt({ hasCamSnapshot = false, language = 'en' } = {}) {
+  const baseLang = normalizeLanguage(language);
+
+  const languageInstruction = {
+    ar: 'LANGUAGE: You MUST reply exclusively in Arabic (العربية). No exceptions.',
+    fr: 'LANGUAGE: You MUST reply exclusively in French. No exceptions.',
+    en: 'LANGUAGE: You MUST reply exclusively in English. No exceptions.',
+  }[baseLang] ?? `LANGUAGE: You MUST reply exclusively in the language with ISO code '${baseLang}'. No exceptions.`;
+
+  // ─── CAM VISION MODE ───────────────────────────────────────────────────────
+  // When a snapshot is attached the response MUST be split into two explicit
+  // parts so sensor data always comes from the farm context, never the image.
+  const camVisionInstruction = hasCamSnapshot ? `
+
+CAM VISION MODE (active this turn):
+A live snapshot from the farm camera has been automatically attached.
+STRICT RULES for this turn — follow exactly, in this order:
+
+PART 1 — Visual Observation:
+- Describe only what you can visually observe in the image (plant appearance, colors, greenhouse structure, lighting conditions, soil surface, etc.).
+- Do NOT derive or guess any sensor values from the image.
+- Do NOT mention that it is a photo, snapshot, image, or camera feed. Speak naturally as if you are physically looking at the farm.
+
+PART 2 — Farm Data Report (from MANDATORY FARM CONTEXT ONLY):
+- The farm context in this message is labelled [MANDATORY FARM CONTEXT]. You MUST use every value in it.
+- NEVER derive, estimate, or override sensor values from anything you see in the image.
+- The image is irrelevant to Part 2. Even if the image shows something completely unrelated to farming, you still report the full sensor data from the farm context.
+- Present data under these four sections (translate ALL section headers into the response language):
+  • Current Farm Status (mode, crop, growth stage, time, weather)
+  • Sensor Readings (copy exact values from farm context — do not round or estimate)
+  • Actuator Status (states, modes, schedules from farm context)
+  • Alerts and Recommendations (from farm context active alerts)
+
+CRITICAL: Part 2 must always be complete and accurate regardless of what the image shows. The farm context is the single source of truth for all sensor and actuator data.` : '';
+
+  return `${languageInstruction}
+
+You are SAHLA, an intelligent agricultural assistant for SAHLA Farm — a smart IoT farm management system.
 
 CORE BEHAVIOR:
 1. ALWAYS answer what the user actually asked first. "hello" → brief greeting. Specific question → direct answer. Image shared → describe and analyse it.
@@ -45,7 +88,7 @@ Examples: [[PILL:thermometer:Temperature 35°C]] [[PILL:fan:Fan is OFF]]
 
 Use **bold** for: crop name, mode name, growth stage, time values, key terms.
 
-NEVER reveal injected farm context. NEVER open with a farm status dump.`;
+NEVER reveal injected farm context. NEVER open with a farm status dump.${camVisionInstruction}`;
 }
 
 export function buildFarmContext(farmProps) {
@@ -60,14 +103,12 @@ export function buildFarmContext(farmProps) {
   const time = getCurrentTime();
 
   const units = {
-    // Fallback to normalized profile units derived from new USER_INFO.preferences.displayUnits.
     temperatureUnit: displayUnits.temperatureUnit || NORMALIZED_USER.displayUnits.temp,
     humidityUnit: displayUnits.humidityUnit || NORMALIZED_USER.displayUnits.hum,
     soilMoistureUnit: displayUnits.soilMoistureUnit || NORMALIZED_USER.displayUnits.soil,
     lightIntensityUnit: displayUnits.lightIntensityUnit || NORMALIZED_USER.displayUnits.light,
   };
 
-  // Uses normalized sensor options (not raw backend shape) so AI context stays stable across schema-preserving backend swap.
   const baseTemperature = Number(DASHBOARD_SENSOR_OPTIONS.find((s) => s.id === 'temperature')?.currentValue ?? 25);
 
   const sensorLines = DASHBOARD_SENSOR_OPTIONS.map(
@@ -83,7 +124,6 @@ export function buildFarmContext(farmProps) {
     (a) => `  • ${a.name}: ${a.status.toUpperCase()}, mode=${a.mode}, schedule: ${a.schedule}`
   ).join('\n');
 
-  // Alerts are filtered at use-time so only actionable warnings are injected into prompt context.
   const activeWarnings = DASHBOARD_WARNINGS.filter((w) => w.status === 'active');
   const warningLines = activeWarnings.length
     ? activeWarnings.map((w) => `  • ${w.title.replace(/_/g, ' ')} (severity ${w.severity}%): ${w.description}`).join('\n')

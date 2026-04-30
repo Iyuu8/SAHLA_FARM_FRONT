@@ -88,7 +88,7 @@ export const profileSettingOptions = {
     manualControlOptions: ['on', 'off'],
     growthStageOptions: ['Germination', 'Seedling', 'Vegetative Growth', 'Flowering', 'Fruiting', 'Maturity'],
     cropOptions: ['Tomatoes', 'Lettuce', 'Cucumber', 'Strawberries', 'Basil', 'Spinach', 'Peppers'],
-    languageOptions: ['English', 'العربية', 'french'],
+    languageOptions: ['English', 'العربية', 'Français'],
     temperatureOptions: [
         { value: '°C', label: 'Celsius °C' },
         { value: '°F', label: 'Fahrenheit °F' },

@@ -4,7 +4,15 @@ import { FaCaretDown } from 'react-icons/fa6';
 export default function PrefDropdown({ label, value, options, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
-
+  const supportedLanguages = [
+      { code: 'ar', label: 'العربية' },
+      { code: 'en', label: 'English' },
+      { code: 'fr', label: 'Français' }
+    ];
+  function getLanguageLabel(code) {
+    return supportedLanguages.find((lang) => lang.code === code)?.label || code;
+  }
+  console.log(getLanguageLabel(value));
   useEffect(() => {
     const closeOnOutsideClick = (event) => {
       if (containerRef.current && !containerRef.current.contains(event.target)) {
@@ -29,7 +37,7 @@ export default function PrefDropdown({ label, value, options, onChange }) {
         className={base}
         onClick={() => setIsOpen((prev) => !prev)}
       >
-        <span className='capitalize'>{label}: {value}</span>
+        <span className='capitalize'>{label}: {getLanguageLabel(value)}</span>
         <span className={`text-xs transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}><FaCaretDown /></span>
       </button>
 

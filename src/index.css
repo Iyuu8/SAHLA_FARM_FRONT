@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-:root{
-
+:root {
+  --sidebar-width: 88px;
 }
 
 @font-face {

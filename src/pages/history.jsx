@@ -52,13 +52,13 @@ function DatePicker({ value, onChange }) {
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
   const prevMonthDays = new Date(viewYear, viewMonth, 0).getDate()
   return (
-    <div className="relative w-full" ref={ref}>
+    <div className="relative w-[130px] md:w-[160px]" ref={ref}>
       <div onClick={() => setIsOpen(!isOpen)} className={`bg-white rounded-lg border-2 outline-none cursor-pointer flex justify-between items-center transition-all duration-200 px-2 py-1 text-[10px] md:text-[16px] ${isOpen ? "border-[#55BB33] shadow-[0_0_4px_0_#55BB33]" : "border-[#C0C5D0] hover:border-[#55BB33] hover:shadow-[0_0_4px_0_#55BB33]"}`}>
         <span className={!displayValue ? "text-gray-400" : "text-gray-700"}>{displayValue || t('history.placeholders.date')}</span>
         <svg className={`flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""} w-3 h-3 md:w-3.5 md:h-3.5 lg:w-4 lg:h-4`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
       </div>
       {isOpen && (
-        <div className="absolute top-full left-0 w-full mt-1.5 md:mt-2 bg-white rounded-xl shadow-[0_0_8px_#4b53489c] z-50 overflow-hidden">
+        <div className="absolute top-full left-0 w-[220px] md:w-[260px] mt-1.5 md:mt-2 bg-white rounded-xl shadow-[0_0_8px_#4b53489c] z-50 overflow-hidden">
           <div className="flex items-center justify-between border-b border-gray-100 px-1.5 py-1 md:px-2 md:py-1.5 lg:px-3 lg:py-2">
             <button onClick={() => changeMonth(-1)} className="rounded hover:bg-[rgba(176,255,146,0.49)] text-gray-600 leading-none px-1 text-xs md:text-sm lg:text-base">‹</button>
             <div className="flex items-center gap-0.5">

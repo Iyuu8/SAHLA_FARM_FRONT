@@ -65,7 +65,7 @@ export default function Header() {
     return () => clearInterval(interval);            // cleanup on unmount
   }, [t]);
   return (
-    <div className='flex w-full justify-between items-center'>
+    <div className='flex w-full justify-between items-center px-2 md:px-4 lg:px-8'>
       <div className='flex items-center  w-full gap-2'>
          
         <div className='md:hidden'><LogoIcon/></div>

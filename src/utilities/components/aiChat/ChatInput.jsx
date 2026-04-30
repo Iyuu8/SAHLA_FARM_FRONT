@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Plus, ChevronDown, FileText, Image as ImageIcon, X, SquarePen } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+
 /**
  * ChatInput — the fixed bottom input bar.
  *
@@ -20,10 +21,12 @@ export default function ChatInput({ onSend, onNewChat, isThinking, responseMode,
   const [input, setInput] = useState('');
   const [attachedFiles, setAttachedFiles] = useState([]);
   const [showModeMenu, setShowModeMenu] = useState(false);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   const fileInputRef = useRef(null);
   const textareaRef  = useRef(null);
   const modeMenuRef  = useRef(null);
+  const dragCounterRef = useRef(0); // tracks nested drag enter/leave events
 
   useEffect(() => {
     const handler = (e) => {
@@ -62,6 +65,56 @@ export default function ChatInput({ onSend, onNewChat, isThinking, responseMode,
     e.target.style.height = Math.min(e.target.scrollHeight, 130) + 'px';
   };
 
+  // ─── Paste handler ───────────────────────────────────────────────────────
+  const handlePaste = (e) => {
+    const items = Array.from(e.clipboardData?.items || []);
+    const imageItems = items.filter((item) => item.type.startsWith('image/'));
+    if (imageItems.length === 0) return;
+    e.preventDefault();
+    const files = imageItems.map((item) => item.getAsFile()).filter(Boolean);
+    if (files.length > 0) {
+      setAttachedFiles((prev) => [...prev, ...files]);
+    }
+  };
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // ─── Drag-and-drop handlers ───────────────────────────────────────────────
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current += 1;
+    if (e.dataTransfer.types.includes('Files')) {
+      setIsDraggingOver(true);
+    }
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current -= 1;
+    if (dragCounterRef.current === 0) {
+      setIsDraggingOver(false);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current = 0;
+    setIsDraggingOver(false);
+
+    const droppedFiles = Array.from(e.dataTransfer.files || []);
+    if (droppedFiles.length > 0) {
+      setAttachedFiles((prev) => [...prev, ...droppedFiles]);
+    }
+  };
+  // ─────────────────────────────────────────────────────────────────────────
+
   return (
     <div className="shrink-0 px-2 sm:px-6 md:px-12 lg:px-20 pb-3 sm:pb-4 pt-2">
 
@@ -89,11 +142,43 @@ export default function ChatInput({ onSend, onNewChat, isThinking, responseMode,
         )}
       </AnimatePresence>
 
-      {/* Input row */}
+      {/* Input card — drag-and-drop target */}
       <div
-        className="bg-white rounded-2xl px-2.5 sm:px-3 py-2"
-        style={{ border: '1.5px solid rgba(85,187,51,0.45)', boxShadow: '0px 4px 10px 0px rgba(0,0,0,0.06)' }}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onPaste={handlePaste}
+        className="relative bg-white rounded-2xl px-2.5 sm:px-3 py-2 transition-all duration-200"
+        style={{
+          border: isDraggingOver
+            ? '1.5px dashed #55BB33'
+            : '1.5px solid rgba(85,187,51,0.45)',
+          boxShadow: isDraggingOver
+            ? '0px 0px 0px 3px rgba(85,187,51,0.15), 0px 4px 10px 0px rgba(0,0,0,0.06)'
+            : '0px 4px 10px 0px rgba(0,0,0,0.06)',
+          background: isDraggingOver ? 'rgba(85,187,51,0.04)' : 'white',
+        }}
       >
+        {/* Drag overlay hint */}
+        <AnimatePresence>
+          {isDraggingOver && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="absolute inset-0 rounded-2xl flex flex-col items-center justify-center gap-1.5 pointer-events-none z-10"
+              style={{ background: 'rgba(85,187,51,0.06)' }}
+            >
+              <ImageIcon size={22} className="text-[#55BB33]" strokeWidth={1.8} />
+              <span className="text-sm font-semibold text-[#55BB33]">
+                {t('aiChat.dropFile', 'Drop to attach')}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="min-w-0">
           <textarea
             ref={textareaRef}

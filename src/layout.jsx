@@ -39,7 +39,11 @@ export default function Layout() {
           <Sidebar isOpen={isMobileOpen} setIsOpen={setIsMobileOpen} />
         </div>
         <div
-          className={`md:pl-[88px] flex flex-col flex-1 p-2 h-screen bg-[#F5F7F6] bg-opacity-95 ${location.pathname === "/notifications" || "/history" ? "overflow-hidden" : ""}`}
+          className={`md:pl-[var(--sidebar-width)] flex flex-col flex-1 min-w-0 p-2 h-screen bg-[#F5F7F6] bg-opacity-95 ${
+            location.pathname === "/notifications" || location.pathname === "/history"
+              ? "overflow-hidden"
+              : ""
+          }`}
         >
           <header className="w-full h-16 text-white flex items-center justify-start md:px-[2px] gap-1">
             <button
@@ -51,7 +55,9 @@ export default function Layout() {
             <Header />
           </header>
           <main
-            className={`flex flex-1 ${location.pathname === "/notifications" ? "overflow-y-auto" : "min-h-0"}`}
+            className={`flex flex-1 min-w-0 overflow-x-hidden ${
+              location.pathname === "/notifications" ? "overflow-y-auto" : "min-h-0"
+            }`}
           >
             <Outlet />
           </main>

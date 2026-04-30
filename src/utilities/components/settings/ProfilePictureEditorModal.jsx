@@ -1,6 +1,13 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
+
+const VIEWPORT_SIZE = 280;
+const FRAME_DIAMETER = 200;
+const FRAME_RADIUS = FRAME_DIAMETER / 2;
+const OUTPUT_SIZE = 320;
+
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
 export default function ProfilePictureEditorModal({
   isOpen,
@@ -8,13 +15,17 @@ export default function ProfilePictureEditorModal({
   onConfirm,
 }) {
   const { t } = useTranslation();
-  const canvasRef = useRef(null);
-  const previewCanvasRef = useRef(null);
   const inputRef = useRef(null);
+  const imageRef = useRef(null);
+
   const [imageUrl, setImageUrl] = useState('');
-  const [scale, setScale] = useState(1);
+  const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+
+  const dragRef = useRef({ startX: 0, startY: 0, initialX: 0, initialY: 0 });
 
   useEffect(() => {
     if (!isOpen) return undefined;
@@ -25,192 +36,349 @@ export default function ProfilePictureEditorModal({
     };
   }, [isOpen]);
 
-  // Update preview canvas when image or scale changes
   useEffect(() => {
-    if (!imageUrl || !previewCanvasRef.current) return;
-
-    const canvas = previewCanvasRef.current;
-    const img = new Image();
-    img.onload = () => {
-      const size = Math.min(img.width, img.height);
-      canvas.width = size;
-      canvas.height = size;
-
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return;
-
-      const scaledSize = size / scale;
-      const x = (img.width - scaledSize) / 2;
-      const y = (img.height - scaledSize) / 2;
-
-      ctx.drawImage(img, x, y, scaledSize, scaledSize, 0, 0, size, size);
-
-      // Draw circle overlay
-      ctx.strokeStyle = '#57BD36';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(size / 2, size / 2, size / 2, 0, 2 * Math.PI);
-      ctx.stroke();
-    };
-    img.src = imageUrl;
-  }, [imageUrl, scale]);
-
-  if (!isOpen) return null;
-
-  const handleFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setError('Please select a valid image file');
-      return;
+    if (!isOpen) {
+      setImageUrl('');
+      setImageSize({ width: 0, height: 0 });
+      setOffset({ x: 0, y: 0 });
+      setZoom(1);
+      setIsDragging(false);
+      setError('');
     }
+  }, [isOpen]);
 
-    if (file.size > 5 * 1024 * 1024) {
-      setError('Image size must be less than 5MB');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setImageUrl(event.target?.result || '');
-      setScale(1);
+  useEffect(() => {
+    if (!imageUrl) return undefined;
+    const nextImage = new Image();
+    nextImage.onload = () => {
+      setImageSize({ width: nextImage.naturalWidth, height: nextImage.naturalHeight });
+      setOffset({ x: 0, y: 0 });
+      setZoom(1);
       setError('');
     };
-    reader.readAsDataURL(file);
-  };
+    nextImage.onerror = () => {
+      setError(t('profile.pfpEditorModal.errorLoad'));
+      setImageUrl('');
+    };
+    nextImage.src = imageUrl;
+    return () => {
+      nextImage.onload = null;
+      nextImage.onerror = null;
+    };
+  }, [imageUrl, t]);
 
-  const handleCropAndConfirm = async () => {
-    const canvas = canvasRef.current;
-    if (!canvas || !imageUrl) return;
+  useEffect(() => {
+    if (!isOpen) return undefined;
 
-    try {
-      setLoading(true);
-      const img = new Image();
-      img.onload = async () => {
-        try {
-          const baseSize = Math.min(img.width, img.height);
-          const scaledSize = baseSize / scale;
-          const x = (img.width - scaledSize) / 2;
-          const y = (img.height - scaledSize) / 2;
+    const handleMouseMove = (event) => {
+      if (!isDragging || !imageSize.width || !imageSize.height) return;
+      const dx = event.clientX - dragRef.current.startX;
+      const dy = event.clientY - dragRef.current.startY;
+      const nextX = dragRef.current.initialX + dx;
+      const nextY = dragRef.current.initialY + dy;
+      setOffset(clampOffset(nextX, nextY, imageSize, zoom));
+    };
 
-          canvas.width = baseSize;
-          canvas.height = baseSize;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) return;
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
 
-          ctx.drawImage(img, x, y, scaledSize, scaledSize, 0, 0, baseSize, baseSize);
-          const croppedUrl = canvas.toDataURL('image/png');
-          
-          await onConfirm(croppedUrl);
-          setImageUrl('');
-          setScale(1);
-          setError('');
-        } catch (err) {
-          setError('Failed to upload image');
-        } finally {
-          setLoading(false);
-        }
-      };
-      img.src = imageUrl;
-    } catch (err) {
-      setError('Failed to process image');
-      setLoading(false);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, imageSize, isOpen, zoom]);
+
+  const baseScale = useMemo(() => {
+    if (!imageSize.width || !imageSize.height) return 1;
+    return Math.max(FRAME_DIAMETER / imageSize.width, FRAME_DIAMETER / imageSize.height);
+  }, [imageSize]);
+
+  const effectiveScale = baseScale * zoom;
+
+  const selectImageFile = (file) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError(t('profile.pfpEditorModal.errorFileType'));
+      return;
     }
+
+    const objectUrl = URL.createObjectURL(file);
+    setImageUrl((prev) => {
+      if (prev && prev.startsWith('blob:')) {
+        URL.revokeObjectURL(prev);
+      }
+      return objectUrl;
+    });
   };
 
-  const handleClose = () => {
-    setImageUrl('');
-    setScale(1);
-    setError('');
+  useEffect(() => {
+    return () => {
+      if (imageUrl && imageUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
+  }, [imageUrl]);
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    const file = event.dataTransfer?.files?.[0];
+    selectImageFile(file);
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files?.[0];
+    selectImageFile(file);
+    event.target.value = '';
+  };
+
+  const startDrag = (clientX, clientY) => {
+    dragRef.current = {
+      startX: clientX,
+      startY: clientY,
+      initialX: offset.x,
+      initialY: offset.y,
+    };
+    setIsDragging(true);
+  };
+
+  const handleMouseDown = (event) => {
+    if (!imageUrl) return;
+    event.preventDefault();
+    startDrag(event.clientX, event.clientY);
+  };
+
+  const handleTouchStart = (event) => {
+    if (!imageUrl) return;
+    const touch = event.touches?.[0];
+    if (!touch) return;
+    startDrag(touch.clientX, touch.clientY);
+  };
+
+  const handleTouchMove = (event) => {
+    if (!isDragging || !imageSize.width || !imageSize.height) return;
+    const touch = event.touches?.[0];
+    if (!touch) return;
+    const dx = touch.clientX - dragRef.current.startX;
+    const dy = touch.clientY - dragRef.current.startY;
+    setOffset(
+      clampOffset(
+        dragRef.current.initialX + dx,
+        dragRef.current.initialY + dy,
+        imageSize,
+        zoom
+      )
+    );
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(false);
+  };
+
+  const handleZoomChange = (event) => {
+    const nextZoom = Number(event.target.value);
+    setZoom(nextZoom);
+    setOffset((prev) => clampOffset(prev.x, prev.y, imageSize, nextZoom));
+  };
+
+  const handleConfirm = () => {
+    if (!imageRef.current || !imageSize.width || !imageSize.height) {
+      setError(t('profile.pfpEditorModal.errorNoImage'));
+      return;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = OUTPUT_SIZE;
+    canvas.height = OUTPUT_SIZE;
+    const ctx = canvas.getContext('2d');
+
+    if (!ctx) {
+      setError(t('profile.pfpEditorModal.errorProcess'));
+      return;
+    }
+
+    const scale = effectiveScale;
+    const sourceRadius = FRAME_RADIUS / scale;
+    const centerX = imageSize.width / 2 - offset.x / scale;
+    const centerY = imageSize.height / 2 - offset.y / scale;
+
+    const sourceSize = sourceRadius * 2;
+    const sourceX = clamp(centerX - sourceRadius, 0, imageSize.width - sourceSize);
+    const sourceY = clamp(centerY - sourceRadius, 0, imageSize.height - sourceSize);
+
+    ctx.clearRect(0, 0, OUTPUT_SIZE, OUTPUT_SIZE);
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(OUTPUT_SIZE / 2, OUTPUT_SIZE / 2, OUTPUT_SIZE / 2, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+
+    ctx.drawImage(
+      imageRef.current,
+      sourceX,
+      sourceY,
+      sourceSize,
+      sourceSize,
+      0,
+      0,
+      OUTPUT_SIZE,
+      OUTPUT_SIZE
+    );
+
+    ctx.restore();
+
+    const nextPfp = canvas.toDataURL('image/png');
+    onConfirm(nextPfp);
     onClose();
   };
 
+  if (!isOpen) return null;
+
   return createPortal(
-    <div className='fixed inset-0 z-[999] flex items-center justify-center bg-black/30 backdrop-blur-[3px] p-4'>
-      <div className='w-full max-w-[540px] rounded-2xl bg-white p-5 sm:p-6 shadow-[0_10px_34px_rgba(0,0,0,0.28)]'>
-        <h3 className='text-lg sm:text-xl font-bold text-[#192514] mb-4'>{t('profile.pfpEditorModal.title') || 'Edit Profile Picture'}</h3>
+    <div className='fixed inset-0 z-[1000] flex items-center justify-center bg-black/30 backdrop-blur-[3px] p-4'>
+      <div className='w-full max-w-[620px] rounded-2xl bg-white p-5 sm:p-6 shadow-[0_10px_34px_rgba(0,0,0,0.28)]'>
+        <h3 className='text-lg sm:text-xl font-bold text-[#192514]'>{t('profile.pfpEditorModal.title')}</h3>
 
         {!imageUrl ? (
-          <div className='flex flex-col items-center gap-4'>
-            <div className='w-32 h-32 border-2 border-dashed border-[#57BD36] rounded-lg flex items-center justify-center'>
-              <span className='text-sm text-[rgba(25,37,20,0.5)]'>No image selected</span>
-            </div>
+          <div
+            className='mt-4 rounded-xl border-2 border-dashed border-[rgba(23,37,20,0.3)] bg-[#F5F7F6] p-6 sm:p-8 text-center'
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+          >
+            <p className='text-sm sm:text-base text-[#192514] font-semibold'>{t('profile.pfpEditorModal.dropImage')}</p>
+            <p className='text-xs sm:text-sm text-[rgba(25,37,20,0.65)] mt-1'>{t('profile.pfpEditorModal.or')}</p>
+            <button
+              type='button'
+              onClick={() => inputRef.current?.click()}
+              className='mt-3 rounded-lg px-4 py-2 text-sm font-semibold text-white bg-[#57BD36] hover:bg-[#4ea531] transition-colors'
+            >
+              {t('profile.pfpEditorModal.browse')}
+            </button>
             <input
               ref={inputRef}
               type='file'
               accept='image/*'
-              onChange={handleFileSelect}
               className='hidden'
+              onChange={handleFileChange}
             />
+          </div>
+        ) : (
+          <div className='mt-4 flex flex-col gap-4'>
+            <div className='mx-auto'>
+              <div
+                className='relative overflow-hidden rounded-2xl bg-[#E8ECE7] select-none'
+                style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
+                onMouseDown={handleMouseDown}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+              >
+                <img
+                  ref={imageRef}
+                  src={imageUrl}
+                  alt='Profile crop preview'
+                  draggable={false}
+                  className='absolute top-1/2 left-1/2 max-w-none'
+                  style={{
+                    width: imageSize.width,
+                    height: imageSize.height,
+                    transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px)) scale(${effectiveScale})`,
+                    transformOrigin: 'center center',
+                    cursor: isDragging ? 'grabbing' : 'grab',
+                  }}
+                />
+
+                <div className='pointer-events-none absolute inset-0'>
+                  <div
+                    className='absolute border-[3px] border-[#57BD36] rounded-full shadow-[0_0_0_9999px_rgba(25,37,20,0.45)]'
+                    style={{
+                      width: FRAME_DIAMETER,
+                      height: FRAME_DIAMETER,
+                      left: (VIEWPORT_SIZE - FRAME_DIAMETER) / 2,
+                      top: (VIEWPORT_SIZE - FRAME_DIAMETER) / 2,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <label className='flex flex-col gap-1 text-sm text-[#192514]'>
+              <span className='font-semibold'>{t('profile.pfpEditorModal.zoom')}</span>
+              <input
+                type='range'
+                min='1'
+                max='3'
+                step='0.01'
+                value={zoom}
+                onChange={handleZoomChange}
+                className='accent-[#57BD36]'
+              />
+            </label>
+
             <button
               type='button'
               onClick={() => inputRef.current?.click()}
-              className='px-4 py-2 bg-[#57BD36] text-white rounded-lg font-semibold hover:bg-[#4ea531] transition-colors'
+              className='w-fit rounded-lg px-3 py-1.5 text-sm font-semibold text-[#192514] bg-[#E8ECE7] hover:bg-[#DDE3DC] transition-colors'
             >
-              Select Image
+              {t('profile.pfpEditorModal.chooseAnother')}
             </button>
-          </div>
-        ) : (
-          <div className='flex flex-col gap-4'>
-            <div className='flex justify-center'>
-              <canvas
-                ref={previewCanvasRef}
-                alt='Preview'
-                className='max-w-full max-h-64 rounded-lg border-2 border-[#57BD36]'
-              />
-            </div>
-            <div className='flex flex-col gap-2'>
-              <label className='text-sm font-semibold text-[#192514]'>
-                Scale
-              </label>
-              <input
-                type='range'
-                min='0.5'
-                max='2'
-                step='0.1'
-                value={scale}
-                onChange={(e) => setScale(Number(e.target.value))}
-                className='w-full'
-              />
-            </div>
-            <button
-              type='button'
-              onClick={() => {
-                setImageUrl('');
-                setScale(1);
-              }}
-              className='px-4 py-2 bg-[#E8ECE7] text-[#192514] rounded-lg font-semibold hover:bg-[#DDE3DC] transition-colors'
-            >
-              Choose Different Image
-            </button>
+            <input
+              ref={inputRef}
+              type='file'
+              accept='image/*'
+              className='hidden'
+              onChange={handleFileChange}
+            />
           </div>
         )}
 
-        {error && <p className='mt-3 text-sm text-[#C73030]'>{error}</p>}
-
-        <canvas ref={canvasRef} className='hidden' />
+        {error ? <p className='mt-3 text-sm text-[#C73030]'>{error}</p> : null}
 
         <div className='mt-5 flex justify-end gap-2'>
           <button
             type='button'
             className='rounded-lg px-4 py-2 text-sm font-semibold text-[#192514] bg-[#E8ECE7] hover:bg-[#DDE3DC] transition-colors'
-            onClick={handleClose}
-            disabled={loading}
+            onClick={onClose}
           >
-            {t('profile.editProfileModal.cancel') || 'Cancel'}
+            {t('profile.pfpEditorModal.cancel')}
           </button>
           <button
             type='button'
             className='rounded-lg px-4 py-2 text-sm font-semibold text-white bg-[#57BD36] hover:bg-[#4ea531] transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-            onClick={handleCropAndConfirm}
-            disabled={!imageUrl || loading}
+            onClick={handleConfirm}
+            disabled={!imageUrl}
           >
-            {loading ? 'Processing...' : 'Confirm'}
+            {t('profile.pfpEditorModal.confirm')}
           </button>
         </div>
       </div>
     </div>,
     document.body
   );
+}
+
+function clampOffset(nextX, nextY, imageSize, zoom) {
+  if (!imageSize.width || !imageSize.height) {
+    return { x: 0, y: 0 };
+  }
+
+  const baseScale = Math.max(FRAME_DIAMETER / imageSize.width, FRAME_DIAMETER / imageSize.height);
+  const effectiveScale = baseScale * zoom;
+  const halfWidth = (imageSize.width * effectiveScale) / 2;
+  const halfHeight = (imageSize.height * effectiveScale) / 2;
+
+  const maxX = Math.max(0, halfWidth - FRAME_RADIUS);
+  const maxY = Math.max(0, halfHeight - FRAME_RADIUS);
+
+  return {
+    x: clamp(nextX, -maxX, maxX),
+    y: clamp(nextY, -maxY, maxY),
+  };
 }

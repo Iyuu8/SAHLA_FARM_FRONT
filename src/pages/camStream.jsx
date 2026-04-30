@@ -60,6 +60,19 @@ const CheckIcon = ({ size = 16, color = "currentColor" }) => (
   </svg>
 );
 
+// ── NEW: chevron icons for lightbox navigation ─────────────────────────────────
+const ChevronLeft = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#192514" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+);
+
+const ChevronRight = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#192514" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
+
 // ── Responsive hook ───────────────────────────────────────────────────────────
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint);
@@ -106,7 +119,12 @@ export default function CamStream() {
   const { t } = useTranslation();
 
   const [confirmDelete, setConfirmDelete] = useState(null); 
-  const [streaming, setStreaming]     = useState(false);
+  const [streaming, setStreaming]     = useState(() => sessionStorage.getItem("camStreaming") === "true");
+
+  useEffect(() => {
+    sessionStorage.setItem("camStreaming", streaming);
+  }, [streaming]);
+
   const [snapped, setSnapped]         = useState(false);
   const [snapFlash, setSnapFlash]     = useState(false);
   const [camError, setCamError]       = useState("");
@@ -141,7 +159,8 @@ export default function CamStream() {
   const canvasRef  = useRef(null);
   const galleryRef = useRef(null);
 
-  const STREAM_URL = "http://10.201.157.253:8080/video";
+  /* const STREAM_URL = "http://10.201.157.253:8080/video"; */
+  const STREAM_URL = "http://172.19.32.237:8123/api/camera_proxy_stream/camera.farm_camera_farm_camera_feed?token=2f5f57e71c3bbe93b8520168c07369ae60d28d0377eedc94d5941792b185347a";
 
   // ── Camera ──
   const startCam = () => {
@@ -212,7 +231,12 @@ export default function CamStream() {
       setLightbox(null);
     } else {
       setGallery(prev => prev.filter(s => s.id !== confirmDelete.id));
-      if (lightbox === confirmDelete.id) setLightbox(null);
+      // NEW: if deleted item is open, move to neighbour or close
+      if (lightbox === confirmDelete.id) {
+        const idx = gallery.findIndex(s => s.id === confirmDelete.id);
+        const next = gallery[idx + 1] || gallery[idx - 1];
+        setLightbox(next ? next.id : null);
+      }
     }
     setConfirmDelete(null);
   };
@@ -224,41 +248,51 @@ export default function CamStream() {
     link.click();
   };
 
+  // ── NEW: keyboard navigation for lightbox ─────────────────────────────────
+  useEffect(() => {
+    if (!lightbox) return;
+    const handler = (e) => {
+      const idx = gallery.findIndex(s => s.id === lightbox);
+      if (e.key === "ArrowLeft"  && idx < gallery.length - 1) setLightbox(gallery[idx + 1].id);
+      if (e.key === "ArrowRight" && idx > 0)                  setLightbox(gallery[idx - 1].id);
+      if (e.key === "Escape")                                  setLightbox(null);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightbox, gallery]);
+
   const iconSize = isMobile ? 10 : 15;
 
   // ── Confirm toast ─────────────────────────────────────────────────────────────
   function ConfirmToast({ onConfirm, onCancel }) {
     const { t } = useTranslation();
-  return (
-    <div className="fixed inset-0 z-[9999]  flex items-center justify-center bg-black/40 backdrop-blur-[3px] p-4
-    ">
-      <div className="bg-white md:px-7 md:py-5 px-5 py-3 flex flex-col justify-start items-start gap-4 font-newblack max-w-[540px] rounded-2xl p-5 sm:p-6 shadow-[0_10px_34px_rgba(0,0,0,0.28)]
-      ">
-        <h3 className='text-lg sm:text-xl font-bold text-[#192514]'>{t('camStream.modals.saveTitle')}</h3>
-        <p className="text-[#000000] md:text-[16px] text-[11px] ">
-          {t('camStream.modals.saveDesc')}
-        </p>
-
-        <div className='mt-5 flex justify-end self-end gap-2'>
-          <button
-            type='button'
-            className='rounded-lg px-4 py-2 text-sm font-semibold text-[#192514] bg-[#E8ECE7] hover:bg-[#DDE3DC] transition-colors'
-            onClick={onCancel}
-          >
-            {t('camStream.modals.cancel')}
-          </button>
-          <button
-            type='button'
-            className='rounded-lg px-4 py-2 text-sm font-semibold text-white bg-[#57BD36] hover:bg-[#4ea531] transition-colors'
-            onClick={onConfirm}
-          >
-            {t('camStream.modals.save')}
-          </button>
-        </div>  
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-[3px] p-4">
+        <div className="bg-white md:px-7 md:py-5 px-5 py-3 flex flex-col justify-start items-start gap-4 font-newblack max-w-[540px] rounded-2xl p-5 sm:p-6 shadow-[0_10px_34px_rgba(0,0,0,0.28)]">
+          <h3 className='text-lg sm:text-xl font-bold text-[#192514]'>{t('camStream.modals.saveTitle')}</h3>
+          <p className="text-[#000000] md:text-[16px] text-[11px] ">
+            {t('camStream.modals.saveDesc')}
+          </p>
+          <div className='mt-5 flex justify-end self-end gap-2'>
+            <button
+              type='button'
+              className='rounded-lg px-4 py-2 text-sm font-semibold text-[#192514] bg-[#E8ECE7] hover:bg-[#DDE3DC] transition-colors'
+              onClick={onCancel}
+            >
+              {t('camStream.modals.cancel')}
+            </button>
+            <button
+              type='button'
+              className='rounded-lg px-4 py-2 text-sm font-semibold text-white bg-[#57BD36] hover:bg-[#4ea531] transition-colors'
+              onClick={onConfirm}
+            >
+              {t('camStream.modals.save')}
+            </button>
+          </div>  
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   function ConfirmDelete({ onConfirm, onCancel, type }) {
     const { t } = useTranslation();
@@ -275,8 +309,6 @@ export default function CamStream() {
           onClick={e => e.stopPropagation()}
           className="bg-white rounded-xl md:px-8 w-fit md:py-6 px-5 py-4 flex flex-col items-start gap-4 font-newblack shadow-xl"
         >
-
-          {/* Message */}
           <h3 className='text-lg sm:text-xl font-bold text-[#192514]'>{type === "all"
               ? `${t('camStream.modals.deleteAllTitle')}`
               : `${t('camStream.modals.deleteSingleTitle')}`
@@ -287,8 +319,6 @@ export default function CamStream() {
               : `${t('camStream.modals.cannotRecoverIt')}`
             }
           </p>
-
-          {/* Buttons */}
           <div className="flex gap-3 self-end">
             <button
               onClick={onConfirm}
@@ -311,10 +341,10 @@ export default function CamStream() {
   }
   
   return (
-    <div className="flex flex-col gap-3 w-full font-newblack mx-2 ">
+    <div className="flex flex-col gap-3 w-full font-newblack overflow-hidden px-3 sm:px-5">
 
       {/* ── Viewfinder ── */}
-      <div className="relative w-full max-w-[800px] mx-auto bg-[#0A1F0A] rounded-[40px] overflow-hidden h-[80%]">
+      <div className="relative w-full max-w-[680px] bg-[#0A1F0A] rounded-[40px] overflow-hidden" style={{ aspectRatio: "4/3" }}>
         <Corner pos="top-left"     isMobile={isMobile} />
         <Corner pos="top-right"    isMobile={isMobile} />
         <Corner pos="bottom-left"  isMobile={isMobile} />
@@ -340,7 +370,7 @@ export default function CamStream() {
 
         <img
           ref={imgRef}
-          crossOrigin="anonymous"
+          //crossOrigin="anonymous"
           src={streaming ? STREAM_URL : ""}
           style={{
             position: "absolute", inset: 0, width: "100%", height: "100%",
@@ -484,20 +514,58 @@ export default function CamStream() {
             ))}
           </div>
 
-          {/* Lightbox */}
+          {/* ── Lightbox — ONLY THIS BLOCK WAS CHANGED ── */}
           {lightbox && (() => {
-            const snap = gallery.find(s => s.id === lightbox);
+            const snapIndex = gallery.findIndex(s => s.id === lightbox); // was: find()
+            const snap = gallery[snapIndex];
             if (!snap) return null;
+
+            const hasPrev = snapIndex < gallery.length - 1; // older image exists
+            const hasNext = snapIndex > 0;                  // newer image exists
+
             return (
               <div
                 className="flex-col gap-3 fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-[3px] p-4"
               >
-                <img
-                  src={snap.dataUrl}
-                  alt="snapshot enlarged"
-                  onClick={e => e.stopPropagation()}
-                  className="max-w-[800px] max-h-[600px] rounded-[50px] shadow-[0_0_10px_2px_#5c5e5ba0] object-contain"
-                />
+                {/* Image + side arrows */}
+                <div className="relative flex items-center justify-center w-full max-w-[800px]">
+
+                  {/* ← Prev (older) */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setLightbox(gallery[snapIndex + 1].id); }}
+                    disabled={!hasPrev}
+                    className="absolute -left-5 md:-left-7 z-10 w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center
+                      bg-white/90 shadow-lg hover:bg-white active:scale-95 transition-all
+                      disabled:opacity-20 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft size={isMobile ? 15 : 18} />
+                  </button>
+
+                  <img
+                    src={snap.dataUrl}
+                    alt="snapshot enlarged"
+                    onClick={e => e.stopPropagation()}
+                    className="max-w-[800px] max-h-[600px] rounded-[50px] shadow-[0_0_10px_2px_#5c5e5ba0] object-contain select-none"
+                  />
+
+                  {/* → Next (newer) */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setLightbox(gallery[snapIndex - 1].id); }}
+                    disabled={!hasNext}
+                    className="absolute -right-5 md:-right-7 z-10 w-9 h-9 md:w-11 md:h-11 rounded-full flex items-center justify-center
+                      bg-white/90 shadow-lg hover:bg-white active:scale-95 transition-all
+                      disabled:opacity-20 disabled:cursor-not-allowed"
+                  >
+                    <ChevronRight size={isMobile ? 15 : 18} />
+                  </button>
+                </div>
+
+                {/* Counter pill */}
+                <span className="text-white/55 text-[11px] md:text-[13px] font-newblack tabular-nums bg-white/10 rounded-full px-3 py-0.5">
+                  {snapIndex + 1} / {gallery.length}
+                </span>
+
+                {/* Original action buttons — unchanged */}
                 <div style={{ display: "flex", gap: 10 }} onClick={e => e.stopPropagation()}>
                   <button
                     onClick={() => handleDownload(snap)}
@@ -518,7 +586,6 @@ export default function CamStream() {
                   >
                     {t('camStream.gallery.close')}
                   </button>
-                  
                 </div>
                 
                 <span className="text-[#e8ffe0] text-[11px] md:text-[16px] opacity-70 font-newblack [text-shadow:0_1px_1px_rgba(0,0,0,0.1)]">

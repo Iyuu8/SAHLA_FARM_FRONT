@@ -233,14 +233,21 @@ export default function ProfilePage() {
             {/* ── HOME ASSISTANT ── */}
             <div className='flex flex-col gap-4'>
               <h2 className='text-base sm:text-[2ch] font-bold text-[#192514]'>{t('profile.ha_connection')}</h2>
-              <div className='bg-gray-100 rounded-xl p-3 sm:p-4 flex flex-col lg:flex-row items-center gap-4'>
-                <div className='w-12 h-12 bg-[rgba(16,53,0,0.2)] rounded-xl flex items-center justify-center flex-shrink-0'>
-                  <img src="/homeassistant-svgrepo-com 1.svg" alt="HA" className="w-10 h-10" />
+              <div className='bg-gray-100 rounded-xl p-3 sm:p-4 flex flex-col lg:flex-row items-stretch lg:items-center gap-4 lg:gap-5'>
+                <div className='w-12 h-12 sm:w-14 sm:h-14 bg-[rgba(16,53,0,0.2)] rounded-xl flex items-center justify-center flex-shrink-0 mx-auto lg:mx-0'>
+                  <img src="/homeassistant-svgrepo-com 1.svg" alt="Home Assistant" className="w-10 h-10" />
                 </div>
-                <div className='flex flex-1 items-center gap-2 w-full'>
+                <div className='flex items-center justify-center lg:justify-start gap-2'>
+                  <span className='text-sm sm:text-base font-bold text-[#192514]'>{t('profile.status')}</span>
                   <span className={`text-sm font-bold ${backendUser?.haStatus === 'online' ? 'text-[#2E6900]' : 'text-red-500'}`}>
                     {backendUser?.haStatus === 'online' ? t('profile.online') : t('profile.offline')}
                   </span>
+                    {backendUser?.haStatus === 'online' && (
+                      <span className='w-2 h-2 rounded-full bg-[#57BD36] inline-block shadow-[0px_0px_5px_3px_rgb(104,225,65)]'></span>
+                    )}
+                </div>
+
+                <div className='flex flex-1 flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 lg:ml-4 min-w-0'>
                   <input type="text" value={homeAssistantIdDisplay} className='flex-1 min-w-0 bg-white border border-[rgba(23,37,20,0.2)] rounded-lg px-3 py-2 text-[1.4ch] outline-none' readOnly />
                   <button onClick={() => setIsHomeAssistantModalOpen(true)} className='bg-[#57BD36] hover:bg-[#4ea531] text-white px-4 py-1.5 rounded-xl font-semibold transition-colors'>
                     {t('profile.edit')}
@@ -248,6 +255,7 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
+
 
             {/* ── MODALS ── */}
             <EditProfileModal
