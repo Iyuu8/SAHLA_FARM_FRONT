@@ -18,15 +18,8 @@ import {
   formatConvertedValue,
 } from '../utilities/functions/conversionFunctions';
 import useFarmPreferences from '../hooks/useFarmPreferences';
-import useActuatorsState from '../hooks/useActuatorsState';
 import usePersistentState from '../hooks/usePersistentState';
 
-import { useWarnings } from '../hooks/useWarnings';
-import { useRecommendation } from '../hooks/useRecommendation';
-import { useCropInfo } from '../hooks/useCropInfo';
-import { useSensors } from '../hooks/useSensors';
-import { useGraphData } from '../hooks/useGraphData';
-import { useActuators } from '../hooks/useActuators';
 
 import { buildRangeSeries } from '../utilities/data/dashboardData.js';
 import { formatSensorUnit } from '../utilities/data/dashboardData.js';
@@ -34,7 +27,7 @@ import { formatSensorUnit } from '../utilities/data/dashboardData.js';
 import { useSocket } from '../context/SocketContext.jsx';
 
 import Spinner from '../utilities/components/loading/Spinner.jsx';
-import { data } from 'react-router';
+
 
 /**
  * Dashboard page composition.
@@ -67,9 +60,22 @@ export default function Dashboard() {
   } = useFarmPreferences();
 
 
-  const { crop, recommendation, warnings, sensors, graphData, actuators, setActuators, socket } = useSocket();
+  const { crop, recommendation, warnings, sensors, graphData, actuators, socket } = useSocket();
 
-  const { setCrop, cropOptions, addCropOption, setGrowthStage, mode, setMode } = useCropInfo();
+
+
+  const setCrop = (next) => {
+    socket.emit('change_state', { target: "crop", newState: { ...crop, type: next } });
+  };
+  const setGrowthStage = (next) => {
+
+    socket.emit('change_state', { target: "crop", newState: { ...crop, growth_stage: next } });
+  };
+  const setMode = (next) => {
+    const capitalizedNext = next.charAt(0).toUpperCase() + next.slice(1).toLowerCase();
+    socket.emit('change_state', { target: "crop", newState: { ...crop, mode: capitalizedNext } });
+  };
+
 
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
@@ -200,35 +206,29 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
   }, [actuators]);
 
   const handleToggleActuatorStatus = (actuatorId) => {
-    setActuators((prev) =>
-      prev.map((actuator) => {
+    const newActuatorsState = actuators.map((actuator) => {
         if (actuator.id !== actuatorId) return actuator;
         if (actuator.control_mode !== 'semi_auto') return actuator;
         return { ...actuator, status: actuator.status === 'on' ? 'off' : 'on' };
       })
-    );
-    socket.emit('change_state', {target: 'actuators', newState : actuators});
+    socket.emit('change_state', {target: 'actuators', newState : newActuatorsState});
   };
 
   const handleToggleGlobalMode = (nextSemiAutoState) => {
-    setActuators((prev) =>
-      prev.map((actuator) => ({
+    const newActuatorsState = actuators.map((actuator) => ({
         ...actuator,
         control_mode: nextSemiAutoState ? 'semi_auto' : 'auto',
       }))
-    );
-    socket.emit('change_state', {target: 'actuators', newState : actuators});
+    socket.emit('change_state', {target: 'actuators', newState : newActuatorsState});
   };
 
   const handleToggleActuatorMode = (actuatorId) => {
-    setActuators((prev) =>
-      prev.map((actuator) =>
+    const newActuatorsState = actuators.map((actuator) =>
         actuator.id === actuatorId
           ? { ...actuator, control_mode: actuator.control_mode === 'semi_auto' ? 'auto' : 'semi_auto' }
           : actuator
       )
-    );
-    socket.emit('change_state', {target: 'actuators', newState : actuators});
+    socket.emit('change_state', {target: 'actuators', newState : newActuatorsState});  
   };
 
   const chartSection = sensors.length > 0 && (
@@ -315,11 +315,10 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
       <CropInfoCard
         crop={crop.type ?? NORMALIZED_USER.farmSettings.crop}
         setCrop={setCrop}
-        cropOptions={cropOptions ?? profileSettingOptions.cropOptions}
-        onAddCropOption={addCropOption}
+        cropOptions={profileSettingOptions.cropOptions}
         growthStage={crop.growth_stage ?? NORMALIZED_USER.farmSettings.growth}
         setGrowthStage={setGrowthStage}
-        mode={crop.mode ?? NORMALIZED_USER.farmSettings.mode}
+        mode={crop?.mode}
         setMode={setMode}
         actuators={actuators}
         recommendation={recommendation}

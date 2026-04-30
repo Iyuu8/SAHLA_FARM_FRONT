@@ -64,7 +64,6 @@ export default function CropInfoDropdown({
         onChange?.(match);
         setInputVal(match);
       } else {
-        onAddOption?.(trimmed); // add to shared list
         onChange?.(trimmed);
         setInputVal(trimmed);
       }

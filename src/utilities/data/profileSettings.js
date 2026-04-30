@@ -1,5 +1,3 @@
-import { useState, useEffect } from "react";
-import { supabase } from "../../supabaseClient";
 
 
 export const USER_INFO = {
@@ -87,7 +85,7 @@ export const profileSettingOptions = {
     modeOptions: ['balanced', 'water saving', 'energy saving', 'growth priority'],
     manualControlOptions: ['on', 'off'],
     growthStageOptions: ['Germination', 'Seedling', 'Vegetative Growth', 'Flowering', 'Fruiting', 'Maturity'],
-    cropOptions: ['Tomatoes', 'Lettuce', 'Cucumber', 'Strawberries', 'Basil', 'Spinach', 'Peppers'],
+    cropOptions: ['Tomato', 'Lettuce', 'Cucumber', 'Peas', 'Barley', 'Pepper', 'Rice', 'Carrot', 'Corn', 'Wheat'],
     languageOptions: ['English', 'العربية', 'french'],
     temperatureOptions: [
         { value: '°C', label: 'Celsius °C' },

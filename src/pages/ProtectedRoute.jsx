@@ -14,6 +14,7 @@ export default function ProtectedRoute() {
   const { setIsHAConfigured, setConfigurationError } = useHaConfiguration();
 
   useEffect(() => {
+    console.log("Checking authentication and Home Assistant configuration...");
     const checkAuthAndHA = async () => {
       try {
         // 1. Get session
@@ -49,6 +50,7 @@ export default function ProtectedRoute() {
         setIsHAConfigured(true);
       } catch (err) {
         console.error("Auth/HA check failed:", err);
+        setConfigurationError({ status: 'backendDown', message: 'An unexpected error occurred while verifying authentication and Home Assistant configuration.' });
         setIsHAConfigured(false);
       } finally {
         setLoading(false);

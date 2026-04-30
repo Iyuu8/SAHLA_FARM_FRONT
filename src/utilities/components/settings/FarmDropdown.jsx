@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaCaretDown } from 'react-icons/fa6';
 
-export default function FarmDropdown({ label, value, options, onChange, color }) {
+export default function FarmDropdown({ label, value, options, onChange, color, disabled = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
@@ -16,7 +16,7 @@ export default function FarmDropdown({ label, value, options, onChange, color })
     return () => document.removeEventListener('mousedown', closeOnOutsideClick);
   }, []);
 
-  const base = 'max-w-full flex items-center gap-1 px-2 sm:px-3 py-2 rounded-[10px] text-xs sm:text-[1.6ch] font-semibold cursor-pointer select-none';
+  const base = `max-w-full flex items-center gap-1 px-2 sm:px-3 py-2 rounded-[10px] text-xs sm:text-[1.6ch] font-semibold select-none ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`;
 
   return (
     <div className='relative' ref={containerRef}>
@@ -24,7 +24,8 @@ export default function FarmDropdown({ label, value, options, onChange, color })
         type='button'
         className={base}
         style={{ backgroundColor: color.bg, color: color.text }}
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => !disabled && setIsOpen((prev) => !prev)}
+        disabled={disabled}
       >
         <span className='capitalize'>{label}: {value}</span>
         <span className={`text-xs transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} style={{ color: color.text }}><FaCaretDown /></span>

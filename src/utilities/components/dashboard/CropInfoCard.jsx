@@ -1,6 +1,7 @@
 import { ClipboardCheck } from 'lucide-react';
 import CropInfoDropdown from './CropInfoDropdown';
 import { useTranslation } from 'react-i18next';
+import { profileSettingOptions } from '../../data/profileSettings';
 
 /**
  * CropInfoCard
@@ -20,7 +21,6 @@ export default function CropInfoCard({
   crop,
   setCrop,
   cropOptions = [],
-  onAddCropOption,
   growthStage,
   setGrowthStage,
   mode,
@@ -29,7 +29,7 @@ export default function CropInfoCard({
   recommendation,
 }) {
   const { t } = useTranslation();
-  const hasSemiAuto = actuators.some((a) => a.mode === 'semi-auto');
+  const hasSemiAuto = actuators.some((a) => a.mode === 'semi_auto');
 
   const recommendedText =
     'Your plants are overheating and the soil is very dry. Water them promptly and, if possible, provide some shade or cover to reduce heat stress and prevent further damage.';
@@ -60,7 +60,6 @@ export default function CropInfoCard({
               value={crop}
               options={cropOptions}
               onChange={setCrop}
-              onAddOption={onAddCropOption}
               placeholder={t('dashboard.cropInfo.enterCrop')}
               isCropInput
             />
@@ -71,14 +70,7 @@ export default function CropInfoCard({
             <span className="text-sm font-semibold text-white whitespace-nowrap">{t('dashboard.cropInfo.growthStage')}</span>
             <CropInfoDropdown
               value={growthStage}
-              options={[
-                t('dashboard.cropInfo.stages.germination'), 
-                t('dashboard.cropInfo.stages.seedling'), 
-                t('dashboard.cropInfo.stages.vegetativeGrowth'), 
-                t('dashboard.cropInfo.stages.flowering'), 
-                t('dashboard.cropInfo.stages.fruiting'), 
-                t('dashboard.cropInfo.stages.maturity')
-              ]}
+              options={profileSettingOptions.growthStageOptions}
               onChange={setGrowthStage}
               placeholder={t('dashboard.cropInfo.selectStage')}
             />
@@ -89,12 +81,7 @@ export default function CropInfoCard({
             <span className="text-sm font-semibold text-white whitespace-nowrap">{t('dashboard.cropInfo.mode')}</span>
             <CropInfoDropdown
               value={mode}
-              options={[
-                t('dashboard.cropInfo.modes.balanced'), 
-                t('dashboard.cropInfo.modes.waterSaving'), 
-                t('dashboard.cropInfo.modes.energySaving'), 
-                t('dashboard.cropInfo.modes.growthPriority')
-              ]}
+              options={profileSettingOptions.modeOptions}
               onChange={setMode}
               placeholder={t('dashboard.cropInfo.selectMode')}
             />

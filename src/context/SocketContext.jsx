@@ -15,9 +15,9 @@ export function SocketProvider({ children }) {
   const [ sensors, setSensors ] = useState([]);
   const [ crop, setCrop ] = useState({});
   const [ recommendation, setRecommendation ] = useState(null);
-  const [ newNotifcations, setNewNotifications ] = useState([]);
   const [ warnings, setWarnings ] = useState([]);
-  const [graphData, setGraphData] = useState(null);
+  const [ graphData, setGraphData ] = useState(null);
+
 
 
     useEffect(() => {
@@ -63,7 +63,6 @@ export function SocketProvider({ children }) {
           setSensors(state.sensors);
           setCrop(state.crop);
           setRecommendation(state.recommendation);
-          setNewNotifications(state.notifications);
           setWarnings(state.warnings);
         });  
 
@@ -73,7 +72,6 @@ export function SocketProvider({ children }) {
           if(updateState.target === "sensors") setSensors(updateState.newState);
           if(updateState.target === "crop") setCrop(updateState.newState);
           if(updateState.target === "recommendation") setRecommendation(updateState.newState);
-          if(updateState.target === "notifications") setNewNotifications(updateState.newState);
           if(updateState.target === "warnings") setWarnings(updateState.newState);
         });
 
@@ -105,7 +103,7 @@ export function SocketProvider({ children }) {
   }, [isHAConfigured]);
   
   return (
-    <SocketContext.Provider value={{ socket: socketRef.current, isConnected, actuators, setActuators, sensors, crop, recommendation, newNotifcations, warnings, graphData }}>
+    <SocketContext.Provider value={{ socket: socketRef.current, isConnected, setIsConnected, actuators, setActuators, sensors, crop, recommendation, warnings, graphData }}>
       {children}
     </SocketContext.Provider>
   );

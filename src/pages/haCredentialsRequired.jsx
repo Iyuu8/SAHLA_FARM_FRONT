@@ -8,6 +8,11 @@ export default function HACredentialsRequired({ configurationError }) {
   let description = null
 
   switch (configurationError?.status) {
+    case "backendDown":
+      title = "Server Unreachable"
+      header = "We can't reach the backend server."
+      description = "Please ensure the backend server is running and accessible."
+      break;
     case "noCredentials":
       title = "Welcome to Sahla Farm!"
       header = "Please set up your Home Assistant credentials."

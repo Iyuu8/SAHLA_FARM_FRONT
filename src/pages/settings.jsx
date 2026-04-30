@@ -8,16 +8,28 @@ import PrefDropdown from './../utilities/components/settings/PrefDropdown';
 import ProfilePictureEditorModal from './../utilities/components/settings/ProfilePictureEditorModal';
 import useProfileInfo from './../hooks/useProfileInfo';
 import useFarmPreferences from '../hooks/useFarmPreferences';
-import useActuatorsState from '../hooks/useActuatorsState';
 import { useTranslation } from 'react-i18next';
 import useProfileData from '../hooks/useProfileData';
 import { supabase } from '../supabaseClient';
 import Spinner from '../utilities/components/loading/Spinner.jsx';
+import { useSocket } from '../context/SocketContext.jsx';
+
+
+const { modeOptions, manualControlOptions, growthStageOptions, languageOptions, temperatureOptions, humidityOptions, soilMoistureOptions, lightIntensityOptions } = profileSettingOptions;
 
 
 export default function ProfilePage() {
   const { t } = useTranslation();
   const [authEmail, setAuthEmail] = useState('');
+  const { socket, actuators, crop, isConnected, setIsConnected } = useSocket();
+
+  const handleToggleGlobalMode = (nextSemiAutoState) => {
+    const newActuatorsState = actuators.map((actuator) => ({
+        ...actuator,
+        control_mode: nextSemiAutoState ? 'semi_auto' : 'auto',
+      }))
+    socket.emit('change_state', {target: 'actuators', newState : newActuatorsState});
+  };
 
   // Get actual auth email from Supabase
   useEffect(() => {
@@ -31,7 +43,7 @@ export default function ProfilePage() {
   }, []);
 
   // Fetch real profile from backend
-  const { data: backendUser, loading, error, invalidateCache } = useProfileData();
+  const { data: backendUser, setData, loading, error, invalidateCache } = useProfileData();
   const normalizedUser = backendUser ? {
     id: backendUser.id,
     userName: backendUser.username,
@@ -52,18 +64,26 @@ export default function ProfilePage() {
   } : NORMALIZED_USER;
 
   const {
-    mode, setMode, growthStage, setGrowthStage, crop, setCrop, cropOptions,
+    mode, setMode, growthStage, setGrowthStage, setCrop,
     addCropOption, temperatureUnit, setTemperatureUnit, humidityUnit, setHumidityUnit,
     soilMoistureUnit, setSoilMoistureUnit, lightIntensityUnit, setLightIntensityUnit,
     language, setLanguage,
   } = useFarmPreferences();
   
-  const [actuators, setActuators] = useActuatorsState();
 
-  const {
-    modeOptions, manualControlOptions, growthStageOptions, languageOptions,
-    temperatureOptions, humidityOptions, soilMoistureOptions, lightIntensityOptions,
-  } = profileSettingOptions;
+
+  const setCropHelper = (next) => {
+    const capitalizedNext = next.charAt(0).toUpperCase() + next.slice(1);
+    socket.emit('change_state', { target: "crop", newState: { ...crop, type: capitalizedNext } });
+  };
+  const setGrowthStageHelper = (next) => {
+    const capitalizedNext = next.charAt(0).toUpperCase() + next.slice(1);
+    socket.emit('change_state', { target: "crop", newState: { ...crop, growth_stage: capitalizedNext } });
+  };
+  const setModeHelper = (next) => {
+    const capitalizedNext = next.charAt(0).toUpperCase() + next.slice(1);
+    socket.emit('change_state', { target: "crop", newState: { ...crop, mode: capitalizedNext } });
+  };
 
   const { homeAssistantId, displayUnits, farmSettings } = normalizedUser;
   
@@ -81,18 +101,20 @@ export default function ProfilePage() {
     return { url, token };
   };
 
-  const [homeAssistantConnection, setHomeAssistantConnection] = useState({ url: backendUser?.haUrl || '', token: '', status: backendUser?.haStatus || 'offline' });
-
+  const [homeAssistantConnection, setHomeAssistantConnection] = useState({ url: backendUser?.haUrl || '', token: '', status: isConnected ? 'online' : 'offline' });
   useEffect(() => {
     if (backendUser?.haUrl) {
       const parts = getConnectionParts(backendUser.haUrl);
-      setHomeAssistantConnection({ url: parts.url, token: parts.token, status: backendUser.haStatus || 'offline' });
+      setHomeAssistantConnection({ url: parts.url, token: parts.token, status: isConnected && backendUser.haStatus === 'online' ? 'online' : 'offline' });
     }
   }, [backendUser?.haUrl]);
+  useEffect(() => {
+    setHomeAssistantConnection((prev) => ({...prev, status: isConnected ? 'online' : 'offline' }));
+  }, [isConnected]);
 
   const homeAssistantIdDisplay = homeAssistantConnection.url || 'No Home Assistant configured yet';
 
-  const allAuto = actuators.every((actuator) => actuator.mode === 'auto');
+  const allAuto = actuators.every((actuator) => actuator.control_mode === 'auto');
   const globalControlMode = allAuto ? 'auto' : 'semi-auto';
   const manualControlFromActuators = allAuto ? 'off' : 'on';
 
@@ -156,16 +178,17 @@ export default function ProfilePage() {
             <div className='flex flex-col gap-4'>
               <h2 className='text-base sm:text-[2ch] font-semibold text-[#192514]'>{t('profile.farm_settings_title')}</h2>
               <div className='flex flex-wrap gap-2 sm:gap-3'>
-                <FarmDropdown label={t('profile.labels.mode')} value={mode ?? farmSettings.mode} options={modeOptions} onChange={setMode} color={{ bg: '#192514', text: '#F8FFF6' }} />
+                <FarmDropdown label={t('profile.labels.mode')} value={crop.mode ?? farmSettings.mode} options={modeOptions} onChange={setModeHelper} color={{ bg: '#192514', text: '#F8FFF6' }} disabled={!isConnected} />
                 <FarmDropdown 
                   label={t('profile.labels.manual_control')} 
                   value={manualControlFromActuators} 
                   options={manualControlOptions} 
-                  onChange={(next) => setActuators((prev) => prev.map((a) => ({ ...a, mode: next === 'on' ? 'semi-auto' : 'auto' })))} 
-                  color={{ bg: '#192514', text: '#F8FFF6' }} 
+                  onChange={(next) => handleToggleGlobalMode(next === 'on')} 
+                  color={{ bg: '#192514', text: '#F8FFF6' }}
+                  disabled={!isConnected}
                 />
-                <FarmDropdown label={t('profile.labels.growth')} value={growthStage ?? farmSettings.growth} options={growthStageOptions} onChange={setGrowthStage} color={{ bg: '#D6F7CB', text: '#000000' }} />
-                <FarmDropdown label={t('profile.labels.crop')} value={crop ?? farmSettings.crop} options={cropOptions} onChange={(next) => { setCrop(next); addCropOption(next); }} color={{ bg: '#D6F7CB', text: '#000000' }} />
+                <FarmDropdown label={t('profile.labels.growth')} value={crop.growth_stage ?? farmSettings.growth} options={growthStageOptions} onChange={setGrowthStageHelper} color={{ bg: '#D6F7CB', text: '#000000' }} disabled={!isConnected} />
+                <FarmDropdown label={t('profile.labels.crop')} value={crop.type ?? farmSettings.crop} options={profileSettingOptions.cropOptions} onChange={(next) => { setCropHelper(next); addCropOption(next); }} color={{ bg: '#D6F7CB', text: '#000000' }} disabled={!isConnected} />
               </div>
               <div className='text-xs sm:text-sm text-[rgba(25,37,20,0.65)]'>
                 {t('profile.global_mode')} <span className='font-semibold capitalize'>{globalControlMode}</span>
@@ -326,6 +349,7 @@ export default function ProfilePage() {
               initialUrl={homeAssistantConnection.url}
               initialToken={homeAssistantConnection.token}
               onSave={(next) => {
+                setIsConnected(next.status === 'online'); // Trigger HA connection re-check with new credentials
                 setHomeAssistantConnection(next);
                 setIsHomeAssistantModalOpen(false);
               }}

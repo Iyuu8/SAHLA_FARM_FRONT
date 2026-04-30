@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
+import { useSocket } from "../context/SocketContext.jsx";
 
 let profileCache = null;
 let isFetching = false;
@@ -9,6 +10,7 @@ export default function useProfileData() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { isConnected } = useSocket();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -70,14 +72,14 @@ export default function useProfileData() {
     };
 
     fetchProfile();
-  }, []);
+  }, [isConnected]);
 
   const invalidateCache = () => {
     profileCache = null;
     cachedUserId = null;
   };
 
-  return { data, loading, error, invalidateCache };
+  return { data, setData, loading, error, invalidateCache };
 }
 
 export const clearProfileCache = () => {

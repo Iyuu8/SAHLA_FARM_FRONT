@@ -1,8 +1,6 @@
-import React from 'react'
 import { useState, useContext, useMemo } from 'react';
 import { NotificationsContext } from '../layout';
 import { useTranslation } from 'react-i18next';
-import HACredentialsRequired from './haCredentialsRequired'
 import Spinner from '../utilities/components/loading/Spinner';
 
 export default function Notifications() {

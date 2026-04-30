@@ -24,7 +24,7 @@ const FARM_PREFERENCES_DEFAULTS = {
   crop:
     DASHBOARD_CROP_DEFAULTS.crop ||
     NORMALIZED_USER.farmSettings.crop ||
-    "Tomatoes",
+    "Tomato",
   cropOptions: profileSettingOptions.cropOptions,
   temperatureUnit:
     DASHBOARD_DEFAULT_UNITS.temperatureUnit ||
