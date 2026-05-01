@@ -27,6 +27,7 @@ import { STORAGE_KEYS } from '../utilities/data/storageKeys';
 import useFarmPreferences from '../hooks/useFarmPreferences';
 import useActuatorsState from '../hooks/useActuatorsState';
 import usePersistentState from '../hooks/usePersistentState';
+import { useSocket } from '../context/SocketContext.jsx';
 
 // ─── Compress image to base64 JPEG (max 1024px, 85% quality) ─────────────────
 function compressImageToBase64(file) {
@@ -106,6 +107,8 @@ export default function AIchat({
 
   const [actuators] = useActuatorsState();
 
+  const { actuators: realActuators, sensors, crop: realCrop, recommendation, warnings, weather, location, isConnected } = useSocket();
+
   // AI chat is intentionally localStorage-backed in this simulation build.
   const [messages, setMessages] = usePersistentState(STORAGE_KEYS.chatHistory, []);
   const [responseMode, setResponseMode] = usePersistentState(`${STORAGE_KEYS.chatHistory}:mode`, 'Detailed');
@@ -148,11 +151,11 @@ export default function AIchat({
   };
 
   const farmProps = useMemo(() => ({
-    crop,
-    growthStage,
-    mode,
-    actuators,
-    recommendedAction,
+    crop: realCrop?.type,
+    growthStage: realCrop?.growth_stage,
+    mode: realCrop?.mode,
+    actuators: realActuators,
+    recommendedAction: recommendation,
     displayUnits: {
       temperatureUnit,
       humidityUnit,
@@ -160,13 +163,13 @@ export default function AIchat({
       lightIntensityUnit,
     },
   }), [
-    actuators,
-    crop,
+    realActuators,
+    realCrop,
     growthStage,
     humidityUnit,
     lightIntensityUnit,
     mode,
-    recommendedAction,
+    recommendation,
     soilMoistureUnit,
     temperatureUnit,
   ]);
@@ -217,7 +220,7 @@ export default function AIchat({
       ? CHAT_COPY.conciseModeInstruction
       : CHAT_COPY.detailedModeInstruction;
 
-    const farmContext = buildFarmContext(farmProps);
+    const farmContext = buildFarmContext(farmProps, sensors, warnings, isConnected, weather, location);
     const history = nextUserMessages.map((m) => ({ role: m.role, content: m.text }));
 
     try {

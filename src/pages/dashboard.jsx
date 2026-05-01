@@ -144,7 +144,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
   // Display units are composed here so both cards and chart use the same conversion source.
   // NORMALIZED_USER provides compatibility keys (temp/hum/soil/light) from new profile schema.
   const displayUnits = useMemo(
-    () => ( !sensors.length ? [] : {
+    () => ( !sensors?.length ? [] : {
       temperatureUnit: temperatureUnit ?? NORMALIZED_USER.displayUnits.temp,
       humidityUnit: humidityUnit ?? NORMALIZED_USER.displayUnits.hum,
       soilMoistureUnit: soilMoistureUnit ?? NORMALIZED_USER.displayUnits.soil,
@@ -201,7 +201,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
   );
 
   const globalMode = useMemo(() => {
-    const allAuto = actuators.every((a) => a.control_mode === 'auto');
+    const allAuto = (actuators || []).every((a) => a.control_mode === 'auto');
     return allAuto ? 'auto' : 'semi_auto';
   }, [actuators]);
 
@@ -231,7 +231,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     socket.emit('change_state', {target: 'actuators', newState : newActuatorsState});  
   };
 
-  const chartSection = sensors.length > 0 && (
+  const chartSection = sensors?.length > 0 && (
     <motion.div
       key="chart"
       className="w-full shrink-0 h-[380px] lg:h-full lg:min-h-[280px]"
@@ -249,7 +249,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     </motion.div>
   );
 
-  const alertsSection = sensors.length > 0 && (
+  const alertsSection = sensors?.length > 0 && (
     <motion.div
       key="alerts"
       className="w-full shrink-0 min-h-[350px] lg:min-h-0 lg:h-full"
@@ -261,7 +261,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     </motion.div>
   );
 
-  const actuatorsSection = sensors.length > 0 && (
+  const actuatorsSection = sensors?.length > 0 && (
     <motion.div
       key="actuators"
       className="grid grid-cols-[minmax(0,1fr)_158px] sm:grid-cols-[minmax(0,1fr)_170px] md:flex md:flex-row md:items-stretch gap-3 min-w-0 shrink-0"
@@ -285,7 +285,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     </motion.div>
   );
 
-  const sensorsSection = sensors.length > 0 &&(
+  const sensorsSection = sensors?.length > 0 &&(
     <motion.div
       key="sensors"
       className="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0"
@@ -304,7 +304,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     </motion.div>
   );
 
-  const cropInfoSection = sensors.length > 0 &&(
+  const cropInfoSection = sensors?.length > 0 &&(
     <motion.div
       key="crop-info"
       className="w-full shrink-0 min-h-[200px] lg:h-full"
@@ -326,7 +326,7 @@ const DASHBOARD_SENSOR_SERIES =  !graphData ? null : Object.fromEntries(
     </motion.div>
   );
 
-  return !sensors.length ? (
+  return !sensors?.length ? (
       <div className="w-full h-full flex items-center justify-center">
         <Spinner size={60} />
       </div>

@@ -16,6 +16,8 @@ export function SocketProvider({ children }) {
   const [ crop, setCrop ] = useState({});
   const [ recommendation, setRecommendation ] = useState(null);
   const [ warnings, setWarnings ] = useState([]);
+  const [ weather, setWeather ] = useState({});
+  const [ location, setLocation ] = useState({});
   const [ graphData, setGraphData ] = useState(null);
 
 
@@ -64,6 +66,8 @@ export function SocketProvider({ children }) {
           setCrop(state.crop);
           setRecommendation(state.recommendation);
           setWarnings(state.warnings);
+          setWeather(state.weather);
+          setLocation(state.location);
         });  
 
         socket.on("update_state", (updateState) => {
@@ -73,6 +77,7 @@ export function SocketProvider({ children }) {
           if(updateState.target === "crop") setCrop(updateState.newState);
           if(updateState.target === "recommendation") setRecommendation(updateState.newState);
           if(updateState.target === "warnings") setWarnings(updateState.newState);
+          if(updateState.target === "weather") setWeather(updateState.newState);
         });
 
         socket.on("ha_disconnected", () => {
@@ -103,7 +108,7 @@ export function SocketProvider({ children }) {
   }, [isHAConfigured]);
   
   return (
-    <SocketContext.Provider value={{ socket: socketRef.current, isConnected, setIsConnected, actuators, setActuators, sensors, crop, recommendation, warnings, graphData }}>
+    <SocketContext.Provider value={{ socket: socketRef.current, isConnected, setIsConnected, actuators, setActuators, sensors, crop, recommendation, warnings, weather, location, graphData }}>
       {children}
     </SocketContext.Provider>
   );

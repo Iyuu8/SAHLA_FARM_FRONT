@@ -340,7 +340,7 @@ export const SENSOR_SERIES = [
 ];
 
 // Normalization maps backend sensor "type" values to UI-safe IDs used across components.
-const SENSOR_TYPE_TO_ID = {
+export const SENSOR_TYPE_TO_ID = {
   temperature: 'temperature',
   air_humidity: 'humidity',
   soil_moisture: 'soilMoisture',
@@ -348,7 +348,7 @@ const SENSOR_TYPE_TO_ID = {
 };
 
 // Human-friendly labels rendered in cards, chart headers, and AI context lines.
-const SENSOR_TYPE_TO_LABEL = {
+export const SENSOR_TYPE_TO_LABEL = {
   temperature: 'Temperature',
   air_humidity: 'Humidity',
   soil_moisture: 'Soil Moisture',
@@ -356,7 +356,7 @@ const SENSOR_TYPE_TO_LABEL = {
 };
 
 // Fallback units keep UI stable when backend unit is missing.
-const SENSOR_DEFAULT_UNIT = {
+export const SENSOR_DEFAULT_UNIT = {
   temperature: '°C',
   air_humidity: '%',
   soil_moisture: '%',

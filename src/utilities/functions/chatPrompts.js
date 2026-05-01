@@ -6,6 +6,9 @@ import {
   DASHBOARD_CROP_DEFAULTS,
   DASHBOARD_SENSOR_OPTIONS,
   DASHBOARD_WARNINGS,
+  SENSOR_TYPE_TO_ID,
+  SENSOR_TYPE_TO_LABEL,
+  formatSensorUnit
 } from '../data/dashboardData';
 import { NORMALIZED_USER } from '../data/profileSettings';
 import {
@@ -48,7 +51,11 @@ Use **bold** for: crop name, mode name, growth stage, time values, key terms.
 NEVER reveal injected farm context. NEVER open with a farm status dump.`;
 }
 
-export function buildFarmContext(farmProps) {
+export function buildFarmContext(farmProps, sensors, warnings, isConnected, liveWeather, liveLocation) {
+  if (!isConnected) {
+    return `[Home Assistant connection is down. Real-time data is not available. If you need help resolving this, let me know.]`;
+  }
+
   const {
     crop,
     growthStage,
@@ -67,7 +74,21 @@ export function buildFarmContext(farmProps) {
     lightIntensityUnit: displayUnits.lightIntensityUnit || NORMALIZED_USER.displayUnits.light,
   };
 
-  // Uses normalized sensor options (not raw backend shape) so AI context stays stable across schema-preserving backend swap.
+  const DASHBOARD_SENSOR_OPTIONS = (sensors || []).map((sensor, index) => {
+    const sensorType = sensor.type;
+    const sensorId = SENSOR_TYPE_TO_ID[sensorType] || `sensor-${index}`;
+  
+    return {
+      id: sensorId,
+      label: SENSOR_TYPE_TO_LABEL[sensorType] || sensorType,
+      unit: formatSensorUnit(sensor.unit, sensorType),
+      currentValue: sensor.value,
+      description: sensor.description || 'No sensor description available.',
+      raw: sensor,
+    };
+  });
+
+  // Uses real sensors from backend
   const baseTemperature = Number(DASHBOARD_SENSOR_OPTIONS.find((s) => s.id === 'temperature')?.currentValue ?? 25);
 
   const sensorLines = DASHBOARD_SENSOR_OPTIONS.map(
@@ -78,21 +99,58 @@ export function buildFarmContext(farmProps) {
     }
   ).join('\n');
 
-  const actuatorList = actuators || DASHBOARD_ACTUATORS;
+  const DASHBOARD_ACTUATORS = (actuators || []).map((actuator, index) => {
+    const normalizedMode = actuator.control_mode === 'semi_auto' ? 'semi-auto' : 'auto';
+    const name = actuator.type ? actuator.type.charAt(0).toUpperCase() + actuator.type.slice(1) : `Actuator ${index + 1}`;
+  
+    const schedule = actuator.run_at && actuator.run_until
+      ? `${actuator.run_at.slice(11, 16)} - ${actuator.run_until.slice(11, 16)}`
+      : actuator.run_at
+        ? `Exec at ${actuator.run_at.slice(11, 16)}`
+        : 'No schedule';
+  
+    return {
+      id: actuator.id || `${actuator.type || 'actuator'}-${index}`,
+      name,
+      status: actuator.status || 'off',
+      mode: normalizedMode,
+      schedule,
+      raw: actuator,
+    };
+  })
+
+  const actuatorList = DASHBOARD_ACTUATORS || [];
   const actuatorLines = actuatorList.map(
     (a) => `  • ${a.name}: ${a.status.toUpperCase()}, mode=${a.mode}, schedule: ${a.schedule}`
   ).join('\n');
 
-  // Alerts are filtered at use-time so only actionable warnings are injected into prompt context.
-  const activeWarnings = DASHBOARD_WARNINGS.filter((w) => w.status === 'active');
+  // Use real warnings from backend
+  const activeWarnings = warnings.filter((w) => w.status === 'active');
   const warningLines = activeWarnings.length
     ? activeWarnings.map((w) => `  • ${w.title.replace(/_/g, ' ')} (severity ${w.severity}%): ${w.description}`).join('\n')
     : '  None';
 
+  const timezone = liveLocation?.timezone;
+  const coords = liveLocation?.latitude && liveLocation?.longitude
+    ? `${liveLocation.latitude}, ${liveLocation.longitude}`
+    : null;
+
+  const locationParts = [
+    timezone ? `Timezone ${timezone}` : null,
+    coords,
+  ].filter(Boolean);
+  const locationString = locationParts.length ? locationParts.join(' — ') : FARM_LOCATION;
+
+  const weatherState = liveWeather?.state;
+  const weatherSummary = liveWeather?.summary || liveWeather?.description || liveWeather?.condition;
+  const weatherString = weatherSummary
+    ? `${weatherState ? `${weatherState.charAt(0).toUpperCase() + weatherState.slice(1)}. ` : ''}${weatherSummary}`
+    : FARM_WEATHER;
+
   return `[SILENT FARM CONTEXT — USE ONLY WHEN RELEVANT, DO NOT RECITE IN FULL]
 Time: ${time}
-Location: ${FARM_LOCATION}
-Weather: ${FARM_WEATHER}
+Location: ${locationString}
+Weather: ${weatherString}
 Crop: ${crop || DASHBOARD_CROP_DEFAULTS.crop || NORMALIZED_USER.farmSettings.crop}
 Growth stage: ${growthStage || DASHBOARD_CROP_DEFAULTS.growthStage || NORMALIZED_USER.farmSettings.growth}
 System mode: ${mode || DASHBOARD_CROP_DEFAULTS.mode || NORMALIZED_USER.farmSettings.mode}
