@@ -227,10 +227,10 @@
       "mode": "Mode",
       "selectMode": "Select mode",
       "modes": {
-        "balanced": "balanced",
-        "waterSaving": "water saving",
-        "energySaving": "energy saving",
-        "growthPriority": "growth priority"
+        "balanced": "Balanced",
+        "waterSaving": "Water saving",
+        "energySaving": "Energy saving",
+        "growthPriority": "Growth priority"
       },
       "recommendedActions": "Recommended Actions",
       "explanationOfActions": "Explanation of Actions",

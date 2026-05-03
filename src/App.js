@@ -15,12 +15,12 @@ import useFarmPreferences from "./hooks/useFarmPreferences";
 import ProtectedRoute from "./pages/ProtectedRoute .jsx";
 import ForgotPassword from './auth/ForgotPassword'
 import ResetPassword from './auth/ResetPassword'
-
+import { useHAStatus, INVALID_STATUSES } from "./context/HAStatusContext";
 
 
 function App() {
   // Temporary frontend flag until backend controls HA credentials onboarding state.
-  const [isHAConfigured] = useState(true);
+  const { haStatus, haLoading } = useHAStatus();
 
   // App is intentionally thin: pages read/write shared state through storage-backed hooks.
   // History remains prop-driven, so we expose current unit preferences here.
@@ -31,11 +31,11 @@ function App() {
     lightIntensityUnit,
   } = useFarmPreferences();
 
-  const blockedPage = <HACredentialsRequired />;
-
-  const protectedElement = (element) =>
-    isHAConfigured ? element : blockedPage;
-
+  const protectedElement = (element) =>{
+    if (haLoading) return null;
+    if (INVALID_STATUSES.includes(haStatus)) return <HACredentialsRequired />;
+    return element;
+  }
   return (
     <>
       <Routes>

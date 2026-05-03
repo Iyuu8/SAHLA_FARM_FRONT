@@ -24,13 +24,6 @@ const LogoIcon = () => (
   </svg>
 );
 
-const ProfileIcon = () => (
-  <svg width="45" height="45" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M37.5 39.375V35.625C37.5 33.6359 36.7098 31.7282 35.3033 30.3217C33.8968 28.9152 31.9891 28.125 30 28.125H15C13.0109 28.125 11.1032 28.9152 9.6967 30.3217C8.29018 31.7282 7.5 33.6359 7.5 35.625V39.375M30 13.125C30 17.2671 26.6421 20.625 22.5 20.625C18.3579 20.625 15 17.2671 15 13.125C15 8.98286 18.3579 5.625 22.5 5.625C26.6421 5.625 30 8.98286 30 13.125Z" 
-      stroke="black" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
 const HomeIcon = () => (
   <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M9.375 22.9166V12.4999H15.625V22.9166M3.125 9.37492L12.5 2.08325L21.875 9.37492V20.8333C21.875 21.3858 21.6555 21.9157 21.2648 22.3064C20.8741 22.6971 20.3442 22.9166 19.7917 22.9166H5.20833C4.6558 22.9166 4.12589 22.6971 3.73519 22.3064C3.34449 21.9157 3.125 21.3858 3.125 20.8333V9.37492Z" 
@@ -78,15 +71,25 @@ const LogOutIcon = () => (
 export default function Sidebar({ isOpen, setIsOpen }) {
   const { data: backendUser, loading } = useProfileData()
 
-  const profileInfo = backendUser ? {
-    userName: backendUser.username || '',
-    pfp: backendUser.avatarUrl || '',
-    email: backendUser.email || '',
-  } : {
-    userName: loading ? '' : NORMALIZED_USER.userName || '',
-    pfp: loading ? '' : NORMALIZED_USER.pfp || '',
-    email: loading ? '' : NORMALIZED_USER.email || '',
+  const profileInfo = {
+    userName: backendUser?.username || '',
+    pfp: backendUser?.avatarUrl || '',
+    email: backendUser?.email || '',
   }
+    const ProfileIcon = () => (
+      profileInfo.pfp ? (
+        <img
+          src={profileInfo.pfp}
+          alt="Profile"
+          className="w-[45px] h-[45px] rounded-full object-cover"
+        />
+      ) : (
+        <svg width="45" height="45" viewBox="0 0 45 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M37.5 39.375V35.625C37.5 33.6359 36.7098 31.7282 35.3033 30.3217C33.8968 28.9152 31.9891 28.125 30 28.125H15C13.0109 28.125 11.1032 28.9152 9.6967 30.3217C8.29018 31.7282 7.5 33.6359 7.5 35.625V39.375M30 13.125C30 17.2671 26.6421 20.625 22.5 20.625C18.3579 20.625 15 17.2671 15 13.125C15 8.98286 18.3579 5.625 22.5 5.625C26.6421 5.625 30 8.98286 30 13.125Z" 
+            stroke="black" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      )
+    );
 
   return (
     <div className="">

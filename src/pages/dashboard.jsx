@@ -22,18 +22,12 @@ import {
 import useFarmPreferences from '../hooks/useFarmPreferences';
 import useActuatorsState from '../hooks/useActuatorsState';
 import usePersistentState from '../hooks/usePersistentState';
+import useLiveState,{ID_TO_ACTUATOR_TYPE,ACTUATOR_TYPE_TO_ID} from '../hooks/useLiveState';
+import { useSocket } from '../context/SocketContext';
 
-/**
- * Dashboard page composition.
- *
- * How data flows:
- * - User-editable farm preferences come from useFarmPreferences (shared with Settings/AIchat).
- * - Actuator state comes from useActuatorsState (shared with AIchat context and persisted).
- * - Sensor/time-series dummy data is imported from dashboardData and never persisted.
- * - Dashboard-only view state (selected sensor/range) is persisted to simulate user session continuity.
- */
+
 export default function Dashboard() {
-  
+
   const [isEditActuatorsOpen, setIsEditActuatorsOpen] = useState(false);
   const [selectedSensorId, setSelectedSensorId] = usePersistentState(
     `${STORAGE_KEYS.dashboardView}:selectedSensorId`,
@@ -46,21 +40,57 @@ export default function Dashboard() {
   const [isDesktop, setIsDesktop] = useState(true);
 
   const {
-    crop,
-    setCrop,
-    cropOptions,
-    addCropOption,
-    growthStage,
-    setGrowthStage,
-    mode,
-    setMode,
-    temperatureUnit,
-    humidityUnit,
-    soilMoistureUnit,
-    lightIntensityUnit,
+    crop, setCrop, cropOptions, addCropOption,
+    growthStage, setGrowthStage,
+    mode, setMode,
+    temperatureUnit, humidityUnit, soilMoistureUnit, lightIntensityUnit,
   } = useFarmPreferences();
 
   const [actuators, setActuators] = useActuatorsState();
+
+  // ── Live socket state ────────────────────────────────────────────────────
+  const { socket } = useSocket();
+  const {
+  liveSensors,
+  liveActuators,
+  liveCrop,
+  liveRecommendation,
+  liveWarnings
+} = useLiveState(DASHBOARD_SENSOR_OPTIONS);
+
+  console.log('🔍 liveWarnings from backend:', liveWarnings);
+  // Merge live actuators into local state when backend pushes an update
+  useEffect(() => {
+  if (!liveActuators) return;
+  setActuators((prev) =>
+    prev.map((actuator) => {
+      // match backend type → frontend id
+      const live = liveActuators.find(
+        (a) => ACTUATOR_TYPE_TO_ID[a.type] === actuator.id
+      );
+      if (!live) return actuator;
+      return {
+        ...actuator,
+        status: live.status          ?? actuator.status,
+        mode:   live.control_mode === 'semi_auto' ? 'semi-auto' : 'auto',
+        raw: {
+          ...actuator.raw,
+          run_at:           live.run_at,
+          run_until:        live.run_until,
+          duration_minutes: live.duration_minutes,
+        },
+      };
+    })
+  );
+}, [liveActuators]);
+
+  // Merge live crop into farm preferences when backend pushes an update
+  useEffect(() => {
+    if (!liveCrop) return;
+    if (liveCrop.type)         setCrop(liveCrop.type);
+    if (liveCrop.growth_stage) setGrowthStage(liveCrop.growth_stage);
+    if (liveCrop.mode)         setMode(liveCrop.mode);
+  }, [liveCrop]);
 
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
@@ -74,25 +104,25 @@ export default function Dashboard() {
     if (!exists) setSelectedSensorId(DEFAULT_SELECTED_SENSOR_ID);
   }, [selectedSensorId, setSelectedSensorId]);
 
-  // Display units are composed here so both cards and chart use the same conversion source.
-  // NORMALIZED_USER provides compatibility keys (temp/hum/soil/light) from new profile schema.
   const displayUnits = useMemo(
     () => ({
-      temperatureUnit: temperatureUnit ?? NORMALIZED_USER.displayUnits.temp,
-      humidityUnit: humidityUnit ?? NORMALIZED_USER.displayUnits.hum,
+      temperatureUnit:  temperatureUnit  ?? NORMALIZED_USER.displayUnits.temp,
+      humidityUnit:     humidityUnit     ?? NORMALIZED_USER.displayUnits.hum,
       soilMoistureUnit: soilMoistureUnit ?? NORMALIZED_USER.displayUnits.soil,
       lightIntensityUnit: lightIntensityUnit ?? NORMALIZED_USER.displayUnits.light,
     }),
     [temperatureUnit, humidityUnit, soilMoistureUnit, lightIntensityUnit]
   );
 
-  const baseTemperature = Number(DASHBOARD_SENSOR_OPTIONS.find((s) => s.id === 'temperature')?.currentValue ?? 25);
+  // Use live sensor value if available, otherwise fall back to dummy
+  const baseTemperature = Number(
+    (liveSensors ?? DASHBOARD_SENSOR_OPTIONS).find((s) => s.id === 'temperature')?.currentValue ?? 25
+  );
 
-  // Uses normalized sensor options from dashboardData and applies current display-unit conversion.
+  // Prefer live sensors over dummy data; apply unit conversion either way
   const convertedSensors = useMemo(
-    () => DASHBOARD_SENSOR_OPTIONS.map((sensor) => {
+    () => (liveSensors ?? DASHBOARD_SENSOR_OPTIONS).map((sensor) => {
       const converted = convertSensorValueById(sensor.id, sensor.currentValue, displayUnits, baseTemperature);
-
       return {
         ...sensor,
         unit: converted.unit,
@@ -101,11 +131,9 @@ export default function Dashboard() {
           : sensor.currentValue,
       };
     }),
-    [displayUnits, baseTemperature]
+    [liveSensors, displayUnits, baseTemperature]
   );
 
-  // Converts normalized chart series per selected display units.
-  // Note: today uses raw intraday points from data layer; wider ranges are pre-averaged there.
   const convertedSeriesBySensor = useMemo(
     () => Object.fromEntries(
       Object.entries(DASHBOARD_SENSOR_SERIES).map(([sensorId, seriesByRange]) => {
@@ -121,7 +149,6 @@ export default function Dashboard() {
             }),
           ])
         );
-
         return [sensorId, convertedSeries];
       })
     ),
@@ -139,33 +166,57 @@ export default function Dashboard() {
   }, [actuators]);
 
   const handleToggleActuatorStatus = (actuatorId) => {
-    setActuators((prev) =>
-      prev.map((actuator) => {
-        if (actuator.id !== actuatorId) return actuator;
-        if (actuator.mode !== 'semi-auto') return actuator;
-        return { ...actuator, status: actuator.status === 'on' ? 'off' : 'on' };
-      })
-    );
-  };
+  setActuators((prev) =>
+    prev.map((actuator) => {
+      if (actuator.id !== actuatorId) return actuator;
+      if (actuator.mode !== 'semi-auto') return actuator;
+      const nextStatus = actuator.status === 'on' ? 'off' : 'on';
+      socket?.emit('set_entity', {
+        type: 'actuator_status',
+        payload: {
+          actuatorType: ID_TO_ACTUATOR_TYPE[actuatorId] ?? actuatorId,
+          value: nextStatus,
+        },
+      });
+      return { ...actuator, status: nextStatus };
+    })
+  );
+};
 
   const handleToggleGlobalMode = (nextSemiAutoState) => {
-    setActuators((prev) =>
-      prev.map((actuator) => ({
-        ...actuator,
-        mode: nextSemiAutoState ? 'semi-auto' : 'auto',
-      }))
-    );
-  };
+  setActuators((prev) =>
+    prev.map((actuator) => {
+      const nextMode = nextSemiAutoState ? 'semi-auto' : 'auto';
+      socket?.emit('set_entity', {
+        type: 'actuator_control_mode',
+        payload: {
+          actuatorType: ID_TO_ACTUATOR_TYPE[actuator.id] ?? actuator.id,
+          value: nextSemiAutoState ? 'semi_auto' : 'auto',
+        },
+      });
+      return { ...actuator, mode: nextMode };
+    })
+  );
+};
 
   const handleToggleActuatorMode = (actuatorId) => {
-    setActuators((prev) =>
-      prev.map((actuator) =>
-        actuator.id === actuatorId
-          ? { ...actuator, mode: actuator.mode === 'semi-auto' ? 'auto' : 'semi-auto' }
-          : actuator
-      )
-    );
-  };
+  setActuators((prev) =>
+    prev.map((actuator) => {
+      if (actuator.id !== actuatorId) return actuator;
+      const nextMode = actuator.mode === 'semi-auto' ? 'auto' : 'semi-auto';
+      socket?.emit('set_entity', {
+        type: 'actuator_control_mode',
+        payload: {
+          actuatorType: ID_TO_ACTUATOR_TYPE[actuatorId] ?? actuatorId,
+          value: nextMode === 'semi-auto' ? 'semi_auto' : 'auto',
+        },
+      });
+      return { ...actuator, mode: nextMode };
+    })
+  );
+};
+
+  // ── Sections ─────────────────────────────────────────────────────────────
 
   const chartSection = (
     <motion.div
@@ -193,7 +244,7 @@ export default function Dashboard() {
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.18, duration: 0.3, ease: 'easeOut' }}
     >
-      <MonitoringAlerts />
+      <MonitoringAlerts warnings={liveWarnings} />
     </motion.div>
   );
 
@@ -249,15 +300,18 @@ export default function Dashboard() {
       transition={{ delay: 0.22, duration: 0.3, ease: 'easeOut' }}
     >
       <CropInfoCard
-        crop={crop ?? NORMALIZED_USER.farmSettings.crop}
+        crop={crop}
         setCrop={setCrop}
-        cropOptions={cropOptions ?? profileSettingOptions.cropOptions}
+        cropOptions={cropOptions}
         onAddCropOption={addCropOption}
-        growthStage={growthStage ?? NORMALIZED_USER.farmSettings.growth}
+        growthStage={growthStage}
         setGrowthStage={setGrowthStage}
-        mode={mode ?? NORMALIZED_USER.farmSettings.mode}
+        mode={mode}
         setMode={setMode}
         actuators={actuators}
+        recommendation={liveRecommendation}
+        socket={socket}
+        liveCropOptions={liveCrop?.options ?? []}
       />
     </motion.div>
   );
@@ -269,6 +323,14 @@ export default function Dashboard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: 'easeOut' }}
     >
+      {/* Live indicator */}
+      {socket?.connected && (
+        <div className="flex items-center gap-1.5 self-end px-1">
+          <span className="w-2 h-2 rounded-full bg-[#55BB33] animate-pulse" />
+          <span className="text-xs text-[#55BB33] font-medium font-newblack">Live</span>
+        </div>
+      )}
+
       {isDesktop ? (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-3 w-full">

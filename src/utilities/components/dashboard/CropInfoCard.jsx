@@ -1,21 +1,8 @@
 import { ClipboardCheck } from 'lucide-react';
 import CropInfoDropdown from './CropInfoDropdown';
 import { useTranslation } from 'react-i18next';
+import { useCallback } from 'react';
 
-/**
- * CropInfoCard
- *
- * Props:
- * crop            string
- * setCrop         fn
- * cropOptions     string[]
- * onAddCropOption fn          — adds a new crop to the shared options list
- * growthStage     string
- * setGrowthStage  fn
- * mode            string
- * setMode         fn
- * actuators       { mode: 'auto' | 'semi-auto' }[]
- */
 export default function CropInfoCard({
   crop,
   setCrop,
@@ -26,56 +13,65 @@ export default function CropInfoCard({
   mode,
   setMode,
   actuators = [],
+  recommendation = null,
+  socket,                 
+  liveCropOptions,       
 }) {
   const { t } = useTranslation();
   const hasSemiAuto = actuators.some((a) => a.mode === 'semi-auto');
 
-  const recommendedText =
-    'Your plants are overheating and the soil is very dry. Water them promptly and, if possible, provide some shade or cover to reduce heat stress and prevent further damage.';
+  // Use live HA options if available, otherwise fallback to local cropOptions
+  const displayOptions = (liveCropOptions && liveCropOptions.length) ? liveCropOptions : cropOptions;
 
-  const explanationText =
-    'All systems are running in automatic mode. The farm is monitoring temperature, soil moisture, and light intensity continuously. Actuators will activate automatically when thresholds are exceeded.';
+  // Override the add-crop behaviour: send to HA via socket, then update local state
+  const handleAddCrop = useCallback((newCropName) => {
+    const trimmed = newCropName.trim();
+    if (!trimmed) return;
+
+    // If we have a socket, tell the backend to add the crop to HA
+    if (socket) {
+      socket.emit('add_crop', { newCropName: trimmed });
+      // Optional: show a temporary "Adding…" indicator; we rely on liveCropOptions to update later
+      console.log(`[UI] Requesting to add crop: ${trimmed}`);
+    } else {
+      // Fallback: only local update (original behaviour)
+      onAddCropOption?.(trimmed);
+      setCrop(trimmed);
+    }
+  }, [socket, onAddCropOption, setCrop]);
 
   return (
     <div
       className="w-full h-full rounded-2xl p-4 sm:p-5 font-newblack flex flex-col gap-3"
       style={{ background: 'linear-gradient(310deg, #192514 0%, #25371E 100%)' }}
     >
-      {/* Layout:
-        - Mobile (< xs): Stacked (flex-col)
-        - Tablet (xs to lg): Side-by-side (xs:flex-row)
-        - Desktop (lg+): Stacked again (lg:flex-col)
-      */}
       <div className="flex flex-col xs:flex-row lg:flex-col gap-3 h-full">
-
-        {/* LEFT / TOP: Selectors */}
-        {/* Width logic ensures it is full width when stacked, and ~45% width when side-by-side */}
         <div className="flex flex-col gap-3 shrink-0 w-full xs:w-[45%] lg:w-full xs:justify-center lg:justify-start">
 
-          {/* CROP — text input */}
+          {/* CROP — editable combobox with auto-add */}
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-white whitespace-nowrap">{t('dashboard.cropInfo.crop')}</span>
             <CropInfoDropdown
               value={crop}
-              options={cropOptions}
+              options={displayOptions}
               onChange={setCrop}
-              onAddOption={onAddCropOption}
+              onAddOption={handleAddCrop}        // ← key change
               placeholder={t('dashboard.cropInfo.enterCrop')}
               isCropInput
             />
           </div>
 
-          {/* GROWTH STAGE */}
+          {/* GROWTH STAGE (unchanged) */}
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-white whitespace-nowrap">{t('dashboard.cropInfo.growthStage')}</span>
             <CropInfoDropdown
               value={growthStage}
               options={[
-                t('dashboard.cropInfo.stages.germination'), 
-                t('dashboard.cropInfo.stages.seedling'), 
-                t('dashboard.cropInfo.stages.vegetativeGrowth'), 
-                t('dashboard.cropInfo.stages.flowering'), 
-                t('dashboard.cropInfo.stages.fruiting'), 
+                t('dashboard.cropInfo.stages.germination'),
+                t('dashboard.cropInfo.stages.seedling'),
+                t('dashboard.cropInfo.stages.vegetativeGrowth'),
+                t('dashboard.cropInfo.stages.flowering'),
+                t('dashboard.cropInfo.stages.fruiting'),
                 t('dashboard.cropInfo.stages.maturity')
               ]}
               onChange={setGrowthStage}
@@ -83,15 +79,15 @@ export default function CropInfoCard({
             />
           </div>
 
-          {/* MODE */}
+          {/* MODE (unchanged) */}
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-white whitespace-nowrap">{t('dashboard.cropInfo.mode')}</span>
             <CropInfoDropdown
               value={mode}
               options={[
-                t('dashboard.cropInfo.modes.balanced'), 
-                t('dashboard.cropInfo.modes.waterSaving'), 
-                t('dashboard.cropInfo.modes.energySaving'), 
+                t('dashboard.cropInfo.modes.balanced'),
+                t('dashboard.cropInfo.modes.waterSaving'),
+                t('dashboard.cropInfo.modes.energySaving'),
                 t('dashboard.cropInfo.modes.growthPriority')
               ]}
               onChange={setMode}
@@ -100,7 +96,7 @@ export default function CropInfoCard({
           </div>
         </div>
 
-        {/* RIGHT / BOTTOM: Recommended Actions box */}
+        {/* RECOMMENDED ACTIONS (unchanged) */}
         <div
           className="flex-1 rounded-xl p-3 sm:p-4 flex flex-col gap-2 w-full xs:w-auto lg:w-full"
           style={{
@@ -123,10 +119,9 @@ export default function CropInfoCard({
             />
           </div>
           <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.80)' }}>
-            {hasSemiAuto ? t('dashboard.cropInfo.recommendedText') : t('dashboard.cropInfo.explanationText')}
+            {hasSemiAuto ? recommendation : t('dashboard.cropInfo.explanationText')}
           </p>
         </div>
-
       </div>
     </div>
   );

@@ -142,8 +142,7 @@ export default function HistoryDetailCard({
   const tempValue = sensorsObj['temperature'] ?? 0
   const humValue = sensorsObj['humidity'] ?? 0
   const soilValue = sensorsObj['soil moisture'] ?? 0
-  const lightValue = sensorsObj['luminosity'] ?? 0
-
+  const lightValue = sensorsObj['Light Intensity'] ?? 0
   const convertedSensors = {
     temperature: formatConvertedValue(convertTemperature(tempValue, temperatureUnit), temperatureUnit, 1),
     humidity: formatConvertedValue(convertHumidity(humValue, humidityUnit, tempValue), humidityUnit, 1),

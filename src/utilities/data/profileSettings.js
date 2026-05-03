@@ -21,7 +21,7 @@ export const USER_INFO = {
   },
   farmSettings: {
     crop: "tomatoes",
-    mode: "balanced",
+    mode: "Balanced",
     growthStage: "flowering"
   }
 };
@@ -84,7 +84,7 @@ export const NORMALIZED_USER = {
 export const user = NORMALIZED_USER;
 
 export const profileSettingOptions = {
-    modeOptions: ['balanced', 'water saving', 'energy saving', 'growth priority'],
+    modeOptions: ['Balanced', 'Water saving', 'Energy saving', 'Growth priority'],
     manualControlOptions: ['on', 'off'],
     growthStageOptions: ['Germination', 'Seedling', 'Vegetative Growth', 'Flowering', 'Fruiting', 'Maturity'],
     cropOptions: ['Tomatoes', 'Lettuce', 'Cucumber', 'Strawberries', 'Basil', 'Spinach', 'Peppers'],

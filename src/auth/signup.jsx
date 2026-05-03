@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   FaCalendar,
   FaEye,
@@ -17,7 +17,7 @@ import { supabase } from '../supabaseClient'
 import LanguageSwitcher from '../utilities/components/login/LanguageSwitcher'
 
 export default function SignUp() {
-  const { t , i18n} = useTranslation()
+  const { t, i18n } = useTranslation()
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -25,12 +25,11 @@ export default function SignUp() {
   const [address, setAddress] = useState('')
   const [showPass, setShowPass] = useState(false)
   const navigate = useNavigate()
+  
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [passwordError, setPasswordError] = useState('')
-  const [emailError, setEmailError] = useState('')
-  
 
   const validatePassword = (value) => {
     if (value.length > 0 && value.length < 8) {
@@ -42,56 +41,18 @@ export default function SignUp() {
     }
   }
 
-  const checkEmailExists = async (value) => {
-    if (!value) return
-    try {
-      const { data } = await supabase
-        .from('users')
-        .select('id')
-        .eq('email', value)
-        .single()
-
-      if (data) {
-        setEmailError(t('signUp.emailExistsError'))
-        return true
-      } else {
-        setEmailError('')
-        return false
-      }
-    } catch {
-      setEmailError('')
-      return false
-    }
-  }
-
   const handlePasswordChange = (e) => {
     const value = e.target.value
     setPassword(value)
     validatePassword(value)
   }
 
-  const handleEmailChange = async (e) => {
-    const value = e.target.value
-    setEmail(value)
-    if (value) {
-      await checkEmailExists(value)
-    } else {
-      setEmailError('')
-    }
-  }
-
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault() // Prevents the browser from refreshing the page
     setError('')
 
     if (!validatePassword(password)) {
       setError(t('signUp.fixErrors'))
-      return
-    }
-
-    const emailExists = await checkEmailExists(email)
-    if (emailExists) {
-      setError(t('signUp.emailExistsError'))
       return
     }
 
@@ -104,29 +65,34 @@ export default function SignUp() {
           data: {
             username: username,
             age: age,
-            language: i18n.language || "english"  // or "en", "fr"
+            language: i18n.language || "english" 
           },
           emailRedirectTo: window.location.origin + '/login',
         },
       })
 
+      // 1. Catch explicit errors thrown by Supabase
       if (signUpError) {
-        if (signUpError.message.includes('already registered')) {
-          throw new Error(t('signUp.emailExistsError'))
-        } else if (signUpError.message.includes('password')) {
+        const errorMsg = signUpError.message.toLowerCase()
+        if (signUpError.status === 422 || errorMsg.includes('already registered') || errorMsg.includes('already exists')) {
+          throw new Error(t('signUp.emailExistsError')) 
+        } else if (errorMsg.includes('password')) {
           throw new Error(t('signUp.passwordLengthError'))
         } else {
           throw signUpError
         }
       }
 
-      // Store user data — will be sent to backend after email confirmation
-      /* pendingSetup.current = {
-        username,
-        age: parseInt(age),
-        address,
-        email,
-      } */
+      // 2. Catch SILENT existing user errors (Email Enumeration Protection)
+      if (data?.user && data.user.identities && data.user.identities.length === 0) {
+        // Using "throw" acts as an emergency brake. 
+        // It immediately stops the code and jumps directly to the "catch" block below.
+        throw new Error(t('signUp.emailExistsError'))
+      }
+
+      // --- IF WE REACH THIS POINT, THE SIGNUP WAS 100% SUCCESSFUL ---
+      
+      // Store user data to be handled after email confirmation
       localStorage.setItem('pendingSetup', JSON.stringify({
         username,
         age: parseInt(age),
@@ -135,13 +101,16 @@ export default function SignUp() {
         language: i18n.language || "english",
       }))
       
-
-      setSuccess(true);
-      // Redirect to login after 3 seconds
+      setSuccess(true); // Shows the green success UI
+      
+      // Navigate ONLY after a real success
       setTimeout(() => {
         navigate('/login');
-      }, 3000); 
+      }, 3000);
+
     } catch (err) {
+      // --- THE EMERGENCY BRAKE LANDS HERE ---
+      // The error banner is set, success remains false, and NO navigation occurs.
       setError(err.message)
       setSuccess(false)
     } finally {
@@ -183,6 +152,7 @@ export default function SignUp() {
           <p className='text-[#636364] font-normal text-[15px] xs:text-[16px] md:text-[18px] laptop:text-[20px] single-tall:text-[23px] single-taller:text-[26px] text-center px-4'>{t('signUp.subtitle')}</p>
         </div>
 
+        {/* Global Error Banner */}
         {error && (
           <div className='bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mx-auto w-[80%] xs:w-[70%] mb-4'>
             <span className='block sm:inline'>{error}</span>
@@ -211,7 +181,7 @@ export default function SignUp() {
 
           <label className='flex flex-col items-start w-[80%] xs:w-[70%] gap-[4px]'>
             <h2 className='text-[#444] font-medium font-family-poppins w-full text-[14px] md:text-[15px] single-tall:text-[20px] single-taller:text-[22px]'>{t('signUp.emailLabel')}</h2>
-            <div className={`flex border-2 rounded-[10px] px-4 items-center py-[1px] w-full min-h-[40px] single-tall:min-h-[66px] single-tall:py-[8px] single-taller:min-h-[74px] single-taller:py-[10px] ${emailError ? 'border-red-500' : 'border-[#D9D9D9]'}`}>
+            <div className={`flex border-2 rounded-[10px] px-4 items-center py-[1px] w-full min-h-[40px] single-tall:min-h-[66px] single-tall:py-[8px] single-taller:min-h-[74px] single-taller:py-[10px] border-[#D9D9D9]`}>
               <span className='font-light text-[22px] single-tall:text-[33px] single-taller:text-[36px] text-[#929292]'><FaRegEnvelope /></span>
               <input
                 name='email'
@@ -219,11 +189,10 @@ export default function SignUp() {
                 className='outline-none text-[clamp(1.3ch,1.7vw,2ch)] single-tall:text-[2.4ch] single-taller:text-[2.65ch] text-[#444444] px-[10px] py-[2px] bg-transparent max-w-[80%]'
                 placeholder='you@example.com'
                 required
-                onChange={handleEmailChange}
+                onChange={(e) => setEmail(e.target.value)}
                 value={email}
               />
             </div>
-            {emailError && <p className='text-red-500 text-xs mt-1'>{emailError}</p>}
           </label>
 
           <label className='flex flex-col items-start w-[80%] xs:w-[70%] gap-[4px]'>
@@ -288,7 +257,7 @@ export default function SignUp() {
           <div className='w-[85%] xs:w-[70%] flex justify-center mb-[clamp(4px,1vh,10px)] mt-[clamp(4px,1vh,12px)] flex-col items-center gap-[clamp(5px,0.8vh,10px)] single-tall:mt-[16px] single-tall:mb-[16px] single-tall:gap-[12px] single-taller:mt-[20px] single-taller:mb-[18px] single-taller:gap-[14px]'>
             <button
               type='submit'
-              disabled={loading || !!passwordError || !!emailError}
+              disabled={loading || !!passwordError}
               className='bg-[#55BB33] w-[90%] xs:w-[80%] py-[6px] single-tall:py-[13px] single-taller:py-[16px] rounded-[6px] font-bold text-white font-family-poppins cursor-pointer transition-all duration-300 hover:bg-[#66cd43] md:text-[20px] text-[18px] single-tall:text-[28px] single-taller:text-[31px] shadow-sm shadow-[#55BB33] disabled:opacity-50 disabled:cursor-not-allowed'
             >
               {loading ? t('signUp.creatingButton') : t('signUp.createButton')}

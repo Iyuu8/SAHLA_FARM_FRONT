@@ -10,13 +10,14 @@ import {
 } from "../utilities/data/dashboardData";
 import { STORAGE_KEYS } from "../utilities/data/storageKeys";
 import usePersistentState from "./usePersistentState";
+import { useSocket } from "../context/SocketContext";
 import { supabase } from "../supabaseClient";
 
 const FARM_PREFERENCES_DEFAULTS = {
   mode:
     DASHBOARD_CROP_DEFAULTS.mode ||
     NORMALIZED_USER.farmSettings.mode ||
-    "balanced",
+    "Balanced",
   growthStage:
     DASHBOARD_CROP_DEFAULTS.growthStage ||
     NORMALIZED_USER.farmSettings.growth ||
@@ -136,6 +137,9 @@ export default function useFarmPreferences() {
     FARM_PREFERENCES_DEFAULTS,
   );
 
+  // Get socket for emitting state changes to HA
+  const { socket, isAuthenticated } = useSocket();
+
   const safePreferences = useMemo(() => {
     const merged = {
       ...FARM_PREFERENCES_DEFAULTS,
@@ -150,10 +154,29 @@ export default function useFarmPreferences() {
     return { ...merged, cropOptions: safeOptions };
   }, [preferences]);
 
-  const setMode = (next) => setPreferences((prev) => ({ ...prev, mode: next }));
-  const setGrowthStage = (next) =>
+  const emitCropChange = (field, value, options = {}) => {
+    const { silent = false } = options;
+    if (silent || !socket || !isAuthenticated) return;
+    socket.emit("set_entity", {
+      type: "crop",
+      payload: { field, value },
+    });
+  };
+
+  const setMode = (next, options = {}) => {
+    setPreferences((prev) => ({ ...prev, mode: next }));
+    emitCropChange("mode", next, options);
+  };
+
+  const setGrowthStage = (next, options = {}) => {
     setPreferences((prev) => ({ ...prev, growthStage: next }));
-  const setCrop = (next) => setPreferences((prev) => ({ ...prev, crop: next }));
+    emitCropChange("growth_stage", next, options);
+  };
+
+  const setCrop = (next, options = {}) => {
+    setPreferences((prev) => ({ ...prev, crop: next }));
+    emitCropChange("type", next, options);
+  };
 
   // Unit setters — update local state AND call backend
   const setTemperatureUnit = (next) => {

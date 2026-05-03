@@ -1,17 +1,33 @@
+// MonitoringAlerts.jsx
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { TriangleAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import AlertModal from './AlertModal';
-import { DASHBOARD_WARNINGS } from '../../data/dashboardData';
-import { formatWarningsToUI } from './../../functions/transformWarningsDashboard';
 
-export default function MonitoringAlerts() {
+// Optional: map warning title to an icon URL (if you have custom SVG icons)
+// For simplicity, we'll use a default alert icon – you can extend.
+const getIconUrl = (title) => {
+  // Return a data URL or a path; here we just return a placeholder.
+  // You can replace with your own mapping, e.g.:
+  // if (title === 'high_temperature_detected') return '/icons/high-temp.svg';
+  return '/icons/alert-triangle.svg';
+};
+
+// Map severity (0‑100) to a color (hex) for the icon background
+const getSeverityColor = (severity = 50) => {
+  if (severity >= 80) return '#E53935';
+  if (severity >= 60) return '#FB8C00';
+  if (severity >= 30) return '#FFC107';
+  return '#9E9E9E';
+};
+
+export default function MonitoringAlerts({ warnings = [] }) {
   const { t } = useTranslation();
   const [selectedAlert, setSelectedAlert] = useState(null);
 
-  // Filters out the false values based on your instruction requirement
-  const activeWarnings = formatWarningsToUI(DASHBOARD_WARNINGS);
+  // Filter only active warnings (status === "active")
+  const activeWarnings = (warnings || []).filter(w => w.status === 'active');
 
   return (
     <>
@@ -25,7 +41,7 @@ export default function MonitoringAlerts() {
           `,
         }}
       >
-        {/* ── Header ── */}
+        {/* Header */}
         <div className="px-5 pt-6 pb-4 shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-[#EBB5A3] font-normal text-lg sm:text-[1.15rem] tracking-wide leading-none">
@@ -38,7 +54,7 @@ export default function MonitoringAlerts() {
           </p>
         </div>
 
-        {/* ── Scrollable list ── */}
+        {/* Scrollable list */}
         <div
           className="flex-1 min-h-0 overflow-y-auto px-5 pb-5 flex flex-col gap-3
                      [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
@@ -49,15 +65,16 @@ export default function MonitoringAlerts() {
             </p>
           ) : (
             activeWarnings.map((warning, index) => {
+              const severityColor = getSeverityColor(warning.severity);
+              const iconUrl = getIconUrl(warning.title);
+
               return (
                 <motion.button
                   key={warning.id}
                   type="button"
                   onClick={() => setSelectedAlert(warning)}
-                  // CHANGED: text-left to text-start for RTL support
                   className="w-full rounded-xl px-4 py-4 flex items-center justify-between text-start"
                   style={{
-                    // Opacity divided significantly to match the subtle dark glassy card style
                     background:
                       'linear-gradient(135deg, rgba(209,114,84,0.03) 0%, rgba(70,35,24,0.02) 55%, rgba(189,214,48,0.03) 100%)',
                     border: '1px solid rgba(255, 255, 255, 0.06)',
@@ -72,23 +89,21 @@ export default function MonitoringAlerts() {
                   }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {/* CHANGED: pr-3 to pe-3 (padding-inline-end) for RTL support */}
                   <span className="text-[#FFE7DF] text-[0.9rem] font-normal leading-snug pe-3">
-                    {/* Wraps dynamic title in a translation hook, defaulting to the raw title string */}
-                    {t(`warnings.${warning.id}.title`, warning.title)}
+                    {t(`warnings.${warning.title}.title`, warning.title)}
                   </span>
                   <div
-                    className="shrink-0 w-5 h-5" 
+                    className="shrink-0 w-5 h-5"
                     style={{
-                        backgroundColor: warning.color,
-                        WebkitMaskImage: `url(${warning.icon})`,
-                        maskImage: `url(${warning.icon})`,
-                        WebkitMaskSize: 'contain',
-                        maskSize: 'contain',
-                        WebkitMaskRepeat: 'no-repeat',
-                        maskRepeat: 'no-repeat',
-                        WebkitMaskPosition: 'center',
-                        maskPosition: 'center',
+                      backgroundColor: severityColor,
+                      WebkitMaskImage: `url(${iconUrl})`,
+                      maskImage: `url(${iconUrl})`,
+                      WebkitMaskSize: 'contain',
+                      maskSize: 'contain',
+                      WebkitMaskRepeat: 'no-repeat',
+                      maskRepeat: 'no-repeat',
+                      WebkitMaskPosition: 'center',
+                      maskPosition: 'center',
                     }}
                   />
                 </motion.button>
@@ -98,12 +113,12 @@ export default function MonitoringAlerts() {
         </div>
       </div>
 
-      {/* Alert Modal */}
+      {/* Alert Modal – expects an alert object with id, title, description, severity, etc. */}
       <AnimatePresence>
         {selectedAlert && (
           <AlertModal
             alert={selectedAlert}
-            config={{ color: selectedAlert.color, Icon: selectedAlert.icon }}
+            config={{ color: getSeverityColor(selectedAlert.severity), Icon: TriangleAlert }}
             onClose={() => setSelectedAlert(null)}
           />
         )}

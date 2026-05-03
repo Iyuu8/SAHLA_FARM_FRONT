@@ -91,39 +91,6 @@ export default function EditProfileModal({
     <div className='fixed inset-0 z-[999] flex items-center justify-center bg-black/30 backdrop-blur-[3px] p-4 font-newblack'>
       <div className='w-full max-w-[540px] rounded-2xl bg-white p-5 sm:p-6 shadow-[0_10px_34px_rgba(0,0,0,0.28)]'>
         <h3 className='text-lg sm:text-xl font-bold text-[#192514]'>{t('profile.editProfileModal.title')}</h3>
-        {/* ── AVATAR EDIT SECTION ── */}
-        <div className="flex flex-col items-center gap-2 mt-4 mb-6">
-          <div className="relative group w-20 h-20">
-            {/* Use optional chaining (initialValues?.pfp) to prevent the crash */}
-            {initialValues?.pfp ? (
-              <img 
-                src={initialValues.pfp} 
-                alt="Preview" 
-                className="w-full h-full rounded-full object-cover border-2 border-[#57BD36]" 
-              />
-            ) : (
-              <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center text-xl font-bold text-gray-500">
-                {/* Use optional chaining here too */}
-                {(formValues.userName || initialValues?.userName || '?').charAt(0).toUpperCase()}
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={onEditPhoto}
-              className="absolute bottom-0 right-0 p-1.5 bg-[#57BD36] text-white rounded-full shadow-md hover:bg-[#4ea531] transition-transform active:scale-90"
-            >
-              <FiEdit2 size={12} />
-            </button>
-          </div>
-          <button 
-            type="button" 
-            onClick={onEditPhoto}
-            className="text-[1.2ch] font-bold text-[#57BD36] hover:underline"
-          >
-            {t('profile.editProfileModal.changePhoto')}
-          </button>
-        </div>
-
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
           <label className='flex flex-col gap-1 text-sm text-[#192514] sm:col-span-2'>
             <span className='font-semibold'>{t('profile.editProfileModal.userNameLabel')}</span>

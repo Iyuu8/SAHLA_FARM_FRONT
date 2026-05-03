@@ -8,7 +8,7 @@ import LoginFeatureContainer from '../utilities/components/login/loginFeature'
 import LanguageSwitcher from '../utilities/components/login/LanguageSwitcher'
 
 export default function ForgotPassword() {
-  const { t } = useTranslation()
+  const { t , i18n} = useTranslation()
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -29,6 +29,9 @@ export default function ForgotPassword() {
 
     try {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
+        data: {
+            language: i18n.language || "en"  // or "en", "fr"
+        },
         redirectTo: `${window.location.origin}/reset-password`,
       })
 

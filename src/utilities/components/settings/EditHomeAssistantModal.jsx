@@ -89,10 +89,11 @@ export default function EditHomeAssistantModal({
       setStatus(data.status); // 'online' or 'offline'
 
       if (data.status === 'online') {
-        onSave({ url: trimmedUrl, token: trimmedToken });
+        onSave({ url: trimmedUrl, token: trimmedToken, status: data.status });
         onClose();
       } else {
         setError(data.message || 'HA connected but reported offline.');
+        onSave({ url: trimmedUrl, token: trimmedToken, status: 'offline' });
       }
 
     } catch (err) {

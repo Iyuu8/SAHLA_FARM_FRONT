@@ -12,11 +12,13 @@ import useActuatorsState from '../hooks/useActuatorsState';
 import { useTranslation } from 'react-i18next';
 import useProfileData from '../hooks/useProfileData';
 import { supabase } from '../supabaseClient';
+import { useHAStatus } from '../context/HAStatusContext';
+import { useSocket } from '../context/SocketContext';
 
 export default function ProfilePage() {
   const { t } = useTranslation();
   const [authEmail, setAuthEmail] = useState('');
-
+  const [localHaStatus, setLocalHaStatus] = useState(null);
   // Get actual auth email from Supabase
   useEffect(() => {
     const getAuthEmail = async () => {
@@ -57,6 +59,7 @@ export default function ProfilePage() {
   } = useFarmPreferences();
   
   const [actuators, setActuators] = useActuatorsState();
+  const { socket, isAuthenticated } = useSocket();
 
   const {
     modeOptions, manualControlOptions, growthStageOptions, languageOptions,
@@ -95,6 +98,27 @@ export default function ProfilePage() {
   const allAuto = actuators.every((actuator) => actuator.mode === 'auto');
   const globalControlMode = allAuto ? 'auto' : 'semi-auto';
   const manualControlFromActuators = allAuto ? 'off' : 'on';
+
+  // Handle manual control mode changes with socket emit
+  const handleManualControlChange = (next) => {
+    setActuators((prev) =>
+      prev.map((a) => {
+        const nextMode = next === 'on' ? 'semi-auto' : 'auto';
+        const actuatorType = a.raw?.type ?? a.type ?? a.id;
+        // Emit to HA via socket
+        if (socket && isAuthenticated) {
+          socket.emit('set_entity', {
+            type: 'actuator_control_mode',
+            payload: {
+              actuatorType,
+              value: nextMode === 'semi-auto' ? 'semi_auto' : 'auto',
+            },
+          });
+        }
+        return { ...a, mode: nextMode };
+      })
+    );
+  };
 
   if (loading) return (
     <div className='flex-1 min-h-0 h-full w-full bg-[#F5F7F6] flex items-center justify-center font-newblack'>
@@ -161,7 +185,7 @@ export default function ProfilePage() {
                   label={t('profile.labels.manual_control')} 
                   value={manualControlFromActuators} 
                   options={manualControlOptions} 
-                  onChange={(next) => setActuators((prev) => prev.map((a) => ({ ...a, mode: next === 'on' ? 'semi-auto' : 'auto' })))} 
+                  onChange={handleManualControlChange} 
                   color={{ bg: '#192514', text: '#F8FFF6' }} 
                 />
                 <FarmDropdown label={t('profile.labels.growth')} value={growthStage ?? farmSettings.growth} options={growthStageOptions} onChange={setGrowthStage} color={{ bg: '#D6F7CB', text: '#000000' }} />
@@ -194,8 +218,14 @@ export default function ProfilePage() {
                   <img src="/homeassistant-svgrepo-com 1.svg" alt="HA" className="w-10 h-10" />
                 </div>
                 <div className='flex flex-1 items-center gap-2 w-full'>
-                  <span className={`text-sm font-bold ${backendUser?.haStatus === 'online' ? 'text-[#2E6900]' : 'text-red-500'}`}>
-                    {backendUser?.haStatus === 'online' ? t('profile.online') : t('profile.offline')}
+                  <span className={`text-sm font-bold ${
+                    (localHaStatus ?? backendUser?.haStatus) === 'online' 
+                      ? 'text-[#2E6900]' 
+                      : 'text-red-500'
+                  }`}>
+                    {(localHaStatus ?? backendUser?.haStatus) === 'online' 
+                      ? t('profile.online') 
+                      : t('profile.offline')}
                   </span>
                   <input type="text" value={homeAssistantIdDisplay} className='flex-1 min-w-0 bg-white border border-[rgba(23,37,20,0.2)] rounded-lg px-3 py-2 text-[1.4ch] outline-none' readOnly />
                   <button onClick={() => setIsHomeAssistantModalOpen(true)} className='bg-[#57BD36] hover:bg-[#4ea531] text-white px-4 py-1.5 rounded-xl font-semibold transition-colors'>
@@ -319,7 +349,11 @@ export default function ProfilePage() {
               initialUrl={homeAssistantConnection.url}
               initialToken={homeAssistantConnection.token}
               onSave={(next) => {
-                setHomeAssistantConnection(next);
+                setHomeAssistantConnection({ url: next.url, token: next.token });
+                if (next.status) {
+                  setLocalHaStatus(next.status);
+                }
+                invalidateCache();
                 setIsHomeAssistantModalOpen(false);
               }}
             />

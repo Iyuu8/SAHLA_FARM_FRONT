@@ -8,11 +8,9 @@ import { NORMALIZED_USER } from '../../data/profileSettings';
 
 import { supabase } from "../../../supabaseClient";
 import { useNavigate } from 'react-router'
+import { clearProfileCache } from '../../../hooks/useProfileData.js'
 
-
-export default function MobileSidebar({isOpen, setIsOpen , userName = "user" , LogOutIcon , NotificationIcon , HistoryIcon , HomeIcon , CameraIcon , ChatIcon , LogoIcon ,ProfileIcon}) {
-  const { profileInfo, updateProfileInfo, updateProfilePhoto } = useProfileInfo(NORMALIZED_USER);
-  
+export default function MobileSidebar({profileInfo, isOpen, setIsOpen, LogOutIcon , NotificationIcon , HistoryIcon , HomeIcon , CameraIcon , ChatIcon , LogoIcon ,ProfileIcon}) { 
   const location = useLocation();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -24,10 +22,12 @@ export default function MobileSidebar({isOpen, setIsOpen , userName = "user" , L
   { name: "Notifications", path: "/notifications", icon: NotificationIcon },
   ];
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) console.error('Logout error:', error.message);
-    navigate('/login');
-  };
+    // Clear profile cache on logout
+    clearProfileCache();
+    const { error } = await supabase.auth.signOut()
+    if (error) console.error('Logout error:', error.message)
+    navigate('/login')
+  }
   return (
     <>
       
