@@ -7,7 +7,8 @@ import { useTranslation } from 'react-i18next';
 
 
 function RangeSelector({ activeRange, onChange, isCompact }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const [open, setOpen] = useState(false);
   const containerRef = useRef(null);
   const selected = CHART_RANGE_OPTIONS.find((option) => option.key === activeRange) || CHART_RANGE_OPTIONS[2];
@@ -51,7 +52,7 @@ function RangeSelector({ activeRange, onChange, isCompact }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.18 }}
-            className='absolute right-0 mt-2 min-w-[160px] rounded-lg border border-[rgba(25,37,20,0.15)] bg-[#F8FFF6] shadow-[0_8px_20px_rgba(0,0,0,0.15)] overflow-hidden z-20'
+            className={`absolute ${isAr ? 'left-0' : 'right-0'} mt-2 min-w-[160px] rounded-lg border border-[rgba(25,37,20,0.15)] bg-[#F8FFF6] shadow-[0_8px_20px_rgba(0,0,0,0.15)] overflow-hidden z-20`}
           >
             {CHART_RANGE_OPTIONS.map((option) => (
               <button
@@ -61,7 +62,7 @@ function RangeSelector({ activeRange, onChange, isCompact }) {
                   onChange(option.key);
                   setOpen(false);
                 }}
-                className={`w-full text-left px-3 py-2 text-sm capitalize transition-colors ${
+                 className={`w-full ${isAr ? 'text-right' : 'text-left'} px-3 py-2 text-sm capitalize transition-colors ${
                   option.key === activeRange
                     ? 'bg-[#D6F7CB] text-[#192514]'
                     : 'text-[#192514] hover:bg-[#EEF5EB]'
@@ -96,13 +97,29 @@ export default function ChartCard({
   }, []);
 
   const chartData = useMemo(() => {
-    const series = seriesByRange?.[activeRange] || [];
-    return series.map((point) => ({
-      label: point.label,
-      value: point.value,
-    }));
-  }, [seriesByRange, activeRange]);
+    // 1. Treat seriesByRange directly as the array of data points
+    const series = Array.isArray(seriesByRange) ? seriesByRange : [];
+    
+    return series.map((point) => {
+      // 2. Format the timestamp into a readable label for the X-axis (e.g., "03:00" or "May 4")
+      let displayLabel = point.label;
+      
+      if (!displayLabel && point.timestamp) {
+        const date = new Date(point.timestamp);
+        // If range is today, show hours (e.g., "03:00"). Otherwise, show date (e.g., "May 4")
+        if (activeRange === 'today') {
+          displayLabel = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } else {
+          displayLabel = date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        }
+      }
 
+      return {
+        label: displayLabel || 'Unknown',
+        value: point.value,
+      };
+    });
+  }, [seriesByRange, activeRange]);
   const hasData = chartData.length > 0;
 
   const yDomain = useMemo(() => {
@@ -225,7 +242,7 @@ export default function ChartCard({
               />
               <Tooltip
                 cursor={false}
-                formatter={(value) => [`${value}${selectedSensor?.unit || ''}`, t('dashboard.chart.value')]}
+                formatter={(value) => [`${value}${selectedSensor?.unit || ''}`, t('dashboard.chart.tooltipValue')]}
                 labelFormatter={(label) => `${label}`}
                 contentStyle={{
                   border: '1px solid rgba(25,37,20,0.15)',

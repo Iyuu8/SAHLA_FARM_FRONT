@@ -1,4 +1,4 @@
-import React from 'react'
+import React  , { useEffect , useRef} from 'react'
 import { Link } from 'react-router'
 import { useLocation } from 'react-router';
 import Tooltip from './Tooltip';
@@ -12,18 +12,36 @@ import { supabase } from "../../../supabaseClient";
 import { useNavigate } from 'react-router'
 
 
+
 export default function DesktopSidebar({ profileInfo, LogOutIcon , NotificationIcon , HistoryIcon , HomeIcon , CameraIcon , ChatIcon , LogoIcon ,ProfileIcon}) {
   //const { profileInfo, updateProfileInfo, updateProfilePhoto } = useProfileInfo(NORMALIZED_USER);
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isAr = i18n.language === 'ar';
   const navItems = [
   { name: t('sidebar.home'),          path: "/",              icon: HomeIcon         },
   { name: t('sidebar.chat'),       path: "/chat",          icon: ChatIcon         },
   { name: t('sidebar.camera'),        path: "/stream",        icon: CameraIcon       },
   { name: t('sidebar.history'),       path: "/history",       icon: HistoryIcon      },
   { name: t('sidebar.notifications'), path: "/notifications", icon: NotificationIcon },
-];
-  //console.log(profileInfo);
+  ];
+  const asideRef = useRef(null)
+
+    // Broadcast sidebar width to CSS variable whenever it changes
+    useEffect(() => {
+      const el = asideRef.current
+      if (!el) return
+
+      const updateWidth = () => {
+        document.documentElement.style.setProperty('--sidebar-width', `${el.offsetWidth}px`)
+      }
+
+      updateWidth() // initial
+
+      const ro = new ResizeObserver(updateWidth)
+      ro.observe(el)
+      return () => ro.disconnect()
+    }, [profileInfo?.userName]) // re-check when username changes
   const navigate = useNavigate();
   const handleLogout = async () => {
   // Clear profile cache on logout
@@ -33,9 +51,12 @@ export default function DesktopSidebar({ profileInfo, LogOutIcon , NotificationI
   navigate('/login')
 }
   return (
-    <aside className="px-2 w-[84px] h-screen fixed left-0 top-0 z-30 flex flex-col items-center py-5 overflow-visible" 
-    style={{background: "linear-gradient(180deg, rgba(43, 32, 51, 1) 0%, rgba(28, 35, 42, 1) 100%)"}}>
-      <div>
+    <aside
+      ref={asideRef}
+      className={`px-3 h-screen fixed ${isAr ? 'right-0' : 'left-0'} top-0 z-30 flex flex-col items-center py-5 overflow-visible min-w-[84px] w-max bg-sidebar-gradient`}
+
+    >
+      <div className='flex flex-col justify-center items-center w-full'>
         <div className='mb-6'>
           <LogoIcon />
         </div>
@@ -53,7 +74,7 @@ export default function DesktopSidebar({ profileInfo, LogOutIcon , NotificationI
             <span className="text-[15px] text-gray-400 font-medium tracking-wide">
               {profileInfo?.userName || ''}
             </span>
-            <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none absolute left-14 ml-2 top-6 -translate-y-1/2 z-50'>
+            <div className={`opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none absolute ${isAr ? "right-full " : "left-full "}   top-7 -translate-y-1/2 z-50`}>
               <Tooltip title={t('sidebar.settings')}/>
             </div>
           </Link>
@@ -80,12 +101,12 @@ export default function DesktopSidebar({ profileInfo, LogOutIcon , NotificationI
                       } : {}}
                   >
                     {isActive && (
-                      <div className="absolute left-[12px] w-1 h-3 bg-[#67BF49] rounded-r-[2px]" />
-                    )}
+                    <div className="absolute right-[calc(var(--sidebar-width)/2+6px)] w-1 h-3 bg-[#67BF49] rounded-r-[2px]" />
+                  )}
                     <item.icon />
                     
                   </Link>
-                  <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none absolute left-14 ml-2 top-1/2 -translate-y-1/2 z-50'>
+                  <div className={`opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none absolute ${isAr ? "right-full " : "left-full "}   top-1/2 -translate-y-1/2 z-50`}>
                     <Tooltip title={item.name}/>
                   </div>
                   
@@ -94,7 +115,7 @@ export default function DesktopSidebar({ profileInfo, LogOutIcon , NotificationI
             })}
           </nav>
           <div className='relative group'>
-            <div className='opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none absolute left-full ml-2 top-1/2 -translate-y-1/2 z-50'>
+            <div className={`opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none absolute ${isAr ? "right-full mr-2" : "left-full ml-2"}   top-1/2 -translate-y-1/2 z-50`}>
               <Tooltip title={t('sidebar.logout')}/>
             </div>            
             <button

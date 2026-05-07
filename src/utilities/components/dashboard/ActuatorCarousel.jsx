@@ -22,7 +22,6 @@ export default function ActuatorCarousel({
   actuators,
   onToggleActuatorStatus,
 }) {
-  console.log("Rendering ActuatorCarousel with actuators:", actuators);
   const { t } = useTranslation();
   return (
     <motion.div

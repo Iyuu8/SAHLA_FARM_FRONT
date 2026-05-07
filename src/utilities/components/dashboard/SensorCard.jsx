@@ -12,7 +12,6 @@ const ICON_MAP = {
 export default function SensorCard({ sensor, isSelected, onClick }) {
   const { t } = useTranslation();
   const Icon = ICON_MAP[sensor.id] || Thermometer;
-
   return (
     <motion.button
       onClick={onClick}
@@ -85,7 +84,7 @@ export default function SensorCard({ sensor, isSelected, onClick }) {
           className="text-[11px] sm:text-[12px] mt-1 sm:mt-1.5 leading-snug line-clamp-2"
         >
           {/* Dynamically translates the description, falling back to the prop string */}
-          {t(`dashboard.sensors.${sensor.id}.description`, sensor.description)}
+          {sensor.description}
         </motion.p>
       </div>
     </motion.button>

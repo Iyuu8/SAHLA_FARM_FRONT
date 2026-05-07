@@ -20,39 +20,39 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   
-useEffect(() => {
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user?.email_confirmed_at) {
-        const pending = localStorage.getItem('pendingSetup')
-        if (!pending) return
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user?.email_confirmed_at) {
+          const pending = localStorage.getItem('pendingSetup')
+          if (!pending) return
 
-        // Remove immediately as the lock — prevents any other instance from running
-        localStorage.removeItem('pendingSetup')
+          // Remove immediately as the lock — prevents any other instance from running
+          localStorage.removeItem('pendingSetup')
 
-        const { username, age, address, email, language } = JSON.parse(pending)
+          const { username, age, address, email, language } = JSON.parse(pending)
 
-        try {
-          const res = await fetch('http://localhost:5000/api/auth/signupSetup', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session.access_token}`,
-            },
-            body: JSON.stringify({ username, age, address, email, language }),
-          })
+          try {
+            const res = await fetch('http://localhost:5000/api/auth/signupSetup', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ username, age, address, email, language }),
+            })
 
-          const data = await res.json()
-          console.log('signupSetup response:', data)
-        } catch (err) {
-          console.error('signupSetup failed:', err)
+            const data = await res.json()
+            console.log('signupSetup response:', data)
+          } catch (err) {
+            console.error('signupSetup failed:', err)
+          }
         }
       }
-    }
-  )
+    )
 
-  return () => subscription.unsubscribe()
-}, [])
+    return () => subscription.unsubscribe()
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -87,23 +87,6 @@ useEffect(() => {
           console.error('loginSetup failed:', err)
         }
         navigate('/dashboard');
-        /* const socket = io('http://localhost:3000', {
-          auth: {
-            token: session.access_token
-          },
-          transports: ['websocket']
-        });
-
-        socket.on('connect', () => {
-          console.log('Connected to WebSocket server');
-        });
-
-        socket.emit("sendMessage", "Hello from Frontend");
-        socket.on("recieveMessage", (data) => {
-          console.log("message from Backend", data);
-        })
-        
-        localStorage.setItem('socket_connected', 'true'); */
       }
     } catch (err) {
       setError(err.message);
@@ -201,19 +184,7 @@ useEffect(() => {
             <Link to="/signup" className='font-bold underline text-[#1A3D00]'>{t('login.createAccount')}</Link>
           </div>
         </form>
- 
-        {/* demo mode notice */}
-        <div className='flex justify-center mt-[clamp(6px,1.1vh,18px)] max-w-[84%] self-center flex-[0.85] items-center min-h-[clamp(96px,14vh,220px)] single-short:min-h-[84px] single-tall:min-h-[210px] single-taller:min-h-[250px]'>
-          <div className="bg-[#dcecd0] rounded-xl border-[#D9D9D9] px-[20px] py-[15px] single-short:px-[14px] single-short:py-[10px] single-tall:px-[30px] single-tall:py-[24px] single-taller:px-[36px] single-taller:py-[30px] text-[#3e9322]">
-            <div className="flex items-center gap-2">
-              <FaExclamationCircle className="w-10 text-2xl single-tall:text-[30px] single-taller:text-[34px]" />
-              <span className="font-medium single-tall:text-[28px] single-taller:text-[31px]">{t('login.demoMode')}</span>
-            </div>
-            <p className="mt-1 text-sm single-short:text-[12px] single-tall:text-[20px] single-taller:text-[22px] text-[#3b8622] text-center">
-              {t('login.demoModeDesc')}
-            </p>
-          </div>
-        </div>
+
       </div>
  
       {/* right side */}

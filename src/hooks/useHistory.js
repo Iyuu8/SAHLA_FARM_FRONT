@@ -1,10 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 
 const LIMIT = 20;
 
+// ✅ Add these helper functions back
 const getWeatherIcon = (state) => {
-  // Map weather state to icon — reuse existing icons
   const map = {
     sunny: "sunny",
     cloudy: "cloudy",
@@ -29,12 +29,20 @@ const formatTimestamp = (timestamp) => {
   };
 };
 
-export default function useHistory() {
+export default function useHistory(filters = {}) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [currentFilters, setCurrentFilters] = useState(filters);
+
+  useEffect(() => {
+    setCurrentFilters(filters);
+    setOffset(0);
+    setHistory([]);
+    setHasMore(true);
+  }, [filters]);
 
   const fetchHistory = useCallback(
     async (reset = false) => {
@@ -50,8 +58,22 @@ export default function useHistory() {
 
         const currentOffset = reset ? 0 : offset;
 
+        const queryParams = new URLSearchParams();
+        queryParams.append("offset", currentOffset);
+        queryParams.append("limit", LIMIT);
+        if (currentFilters.date)
+          queryParams.append("date", currentFilters.date);
+        if (currentFilters.time)
+          queryParams.append("time", currentFilters.time);
+        if (currentFilters.crop)
+          queryParams.append("crop", currentFilters.crop);
+        if (currentFilters.growthStage)
+          queryParams.append("growthStage", currentFilters.growthStage);
+        if (currentFilters.weather)
+          queryParams.append("weather", currentFilters.weather);
+
         const res = await fetch(
-          `http://localhost:5000/api/histories?offset=${currentOffset}&limit=${LIMIT}`,
+          `http://localhost:5000/api/histories?${queryParams.toString()}`,
           { headers: { Authorization: `Bearer ${session.access_token}` } },
         );
 
@@ -78,7 +100,6 @@ export default function useHistory() {
           setHistory((prev) => [...prev, ...mapped]);
           setOffset((prev) => prev + LIMIT);
         }
-
         setHasMore(mapped.length === LIMIT);
       } catch (err) {
         setError(err.message);
@@ -86,11 +107,15 @@ export default function useHistory() {
         setLoading(false);
       }
     },
-    [loading, offset],
+    [loading, offset, currentFilters],
   );
 
   const loadMore = () => fetchHistory(false);
   const refresh = () => fetchHistory(true);
+
+  useEffect(() => {
+    refresh();
+  }, [currentFilters]);
 
   return { history, loading, error, hasMore, loadMore, refresh };
 }

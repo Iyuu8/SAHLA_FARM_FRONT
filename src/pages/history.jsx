@@ -1,11 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { profileSettingOptions } from '../utilities/data/profileSettings'
 import { useTranslation } from 'react-i18next'
 import { SunnyIcon, ClearNightIcon, CloudyIcon, HeavyRainIcon, HeavyRainAltIcon, WindyIcon } from '../utilities/data/Icons'
 import HistoryDetailCard from '../utilities/components/history/HistoryDetailCard'
 import useHistory from '../hooks/useHistory'
-import useHistoryDetail from '../hooks/useHistoryDetail'
+import useHistoryDetail from '../hooks/useHistoryDetail'  // ✅ uncommented
 import HACredentialsRequired from './haCredentialsRequired'
+import DynamicTranslator from '../utilities/components/Translation/DynamicTranslator'
+import { translateText } from '../utilities/functions/translateText'
+import useLiveState from '../hooks/useLiveState'
+import { DASHBOARD_SENSOR_OPTIONS } from '../utilities/data/dashboardData'
+
 
 const weatherIconMap = {
   sunny: SunnyIcon,
@@ -15,6 +20,20 @@ const weatherIconMap = {
   windy: WindyIcon,
   night: ClearNightIcon,
 }
+const weatherOptions = [
+  'all',
+  'sunny',
+  'clear',
+  'partly_cloudy',
+  'cloudy',
+  'foggy',
+  'windy',
+  'drizzle',
+  'rainy',
+  'stormy',
+  'snowy',
+  'night'
+];
 
 const CalendarIcon = ({ size = 15, color = "#55BB33" }) => (
   <svg width={size} height={size} viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -29,7 +48,8 @@ const ClockIcon = ({ size = 15, color = "#1A3D00", opacity = 0.73 }) => (
 )
 
 function DatePicker({ value, onChange }) {
-  const { t } = useTranslation()
+  const { t , i18n} = useTranslation();
+  const isAr = i18n.language === 'ar';
   const MONTHS = [t('history.months.january'), t('history.months.february'), t('history.months.march'), t('history.months.april'), t('history.months.may'), t('history.months.june'), t('history.months.july'), t('history.months.august'), t('history.months.september'), t('history.months.october'), t('history.months.november'), t('history.months.december')]
   const DAY_NAMES = [t('history.days.su'), t('history.days.mo'), t('history.days.tu'), t('history.days.we'), t('history.days.th'), t('history.days.fr'), t('history.days.sa')]
   const [isOpen, setIsOpen] = useState(false)
@@ -52,13 +72,13 @@ function DatePicker({ value, onChange }) {
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate()
   const prevMonthDays = new Date(viewYear, viewMonth, 0).getDate()
   return (
-    <div className="relative w-full" ref={ref}>
+    <div className="relative" ref={ref}>
       <div onClick={() => setIsOpen(!isOpen)} className={`bg-white rounded-lg border-2 outline-none cursor-pointer flex justify-between items-center transition-all duration-200 px-2 py-1 text-[10px] md:text-[16px] ${isOpen ? "border-[#55BB33] shadow-[0_0_4px_0_#55BB33]" : "border-[#C0C5D0] hover:border-[#55BB33] hover:shadow-[0_0_4px_0_#55BB33]"}`}>
-        <span className={!displayValue ? "text-gray-400" : "text-gray-700"}>{displayValue || t('history.placeholders.date')}</span>
+        <span>{displayValue || t('history.selectDate')}</span>
         <svg className={`flex-shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""} w-3 h-3 md:w-3.5 md:h-3.5 lg:w-4 lg:h-4`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
       </div>
       {isOpen && (
-        <div className="absolute top-full left-0 w-full mt-1.5 md:mt-2 bg-white rounded-xl shadow-[0_0_8px_#4b53489c] z-50 overflow-hidden">
+        <div className={`absolute ${isAr ? "right-0" : "left-0"} top-full w-[220px] md:w-[260px] mt-1.5 md:mt-2 bg-white rounded-xl shadow-[0_0_8px_#4b53489c] z-50 overflow-hidden`}>
           <div className="flex items-center justify-between border-b border-gray-100 px-1.5 py-1 md:px-2 md:py-1.5 lg:px-3 lg:py-2">
             <button onClick={() => changeMonth(-1)} className="rounded hover:bg-[rgba(176,255,146,0.49)] text-gray-600 leading-none px-1 text-xs md:text-sm lg:text-base">‹</button>
             <div className="flex items-center gap-0.5">
@@ -87,83 +107,238 @@ function DatePicker({ value, onChange }) {
 }
 
 function TimePicker({ value, onChange }) {
-  const { t } = useTranslation()
-  const [isOpen, setIsOpen] = useState(false)
-  const ref = useRef(null)
-  const pad = (n) => String(n).padStart(2, "0")
-  const selHour = value ? +value.split(":")[0] : null
-  const selMin = value ? +value.split(":")[1] : null
+  const { t } = useTranslation();
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef(null);
+  
+  const pad = (n) => String(n).padStart(2, "0");
+  
+  // Local state to hold the time while the user is selecting, before they hit "Set"
+  const [tempHour, setTempHour] = useState(0);
+  const [tempMin, setTempMin] = useState(0);
+
+  // Sync local state with the actual value when the picker opens
   useEffect(() => {
-    const handler = (e) => { if (ref.current && !ref.current.contains(e.target)) setIsOpen(false) }
-    document.addEventListener("mousedown", handler)
-    return () => document.removeEventListener("mousedown", handler)
-  }, [])
-  const pick = (type, val) => { const h = type === "h" ? val : (selHour ?? 0); const m = type === "m" ? val : (selMin ?? 0); onChange(`${pad(h)}:${pad(m)}`); if (type === "m") setIsOpen(false) }
-  const hours = Array.from({ length: 24 }, (_, i) => i)
-  const minutes = Array.from({ length: 12 }, (_, i) => i * 5)
+    if (isOpen) {
+      setTempHour(value ? +value.split(":")[0] : 0);
+      setTempMin(value ? +value.split(":")[1] : 0);
+    }
+  }, [isOpen, value]);
+
+  useEffect(() => {
+    const handler = (e) => { 
+      if (ref.current && !ref.current.contains(e.target)) setIsOpen(false); 
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const handleSetTime = () => {
+    onChange(`${pad(tempHour)}:${pad(tempMin)}`);
+    setIsOpen(false);
+  };
+
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  // Generate 60 minutes (0 to 59)
+  const minutes = Array.from({ length: 60 }, (_, i) => i);
+
   return (
     <div className="relative w-full" ref={ref}>
-      <div onClick={() => setIsOpen(!isOpen)} className={`bg-white rounded-lg text-[10px] md:text-[16px] border-2 outline-none md:px-4 px-2 py-1 cursor-pointer flex justify-between items-center transition-all duration-200 ${isOpen ? "border-[#55BB33] shadow-[0_0_4px_0_#55BB33]" : "border-[#C0C5D0] hover:border-[#55BB33] hover:shadow-[0_0_4px_0_#55BB33]"}`}>
-        <span className={!value ? "text-gray-400" : "text-gray-700"}>{value || t('history.placeholders.time')}</span>
-        <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+      {/* Input Field Display */}
+      <div 
+        onClick={() => setIsOpen(!isOpen)} 
+        className={`bg-white rounded-lg text-[10px] md:text-[16px] border-2 outline-none md:px-4 px-2 py-1 cursor-pointer flex justify-between items-center transition-all duration-200 ${isOpen ? "border-[#55BB33] shadow-[0_0_4px_0_#55BB33]" : "border-[#C0C5D0] hover:border-[#55BB33] hover:shadow-[0_0_4px_0_#55BB33]"}`}
+      >
+        <span className="text-gray-700">
+          {value || t('history.selectTime', 'Select Time')}
+        </span>
+        <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </div>
+
+      {/* Dropdown Card */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-[0_0_8px_#4b53489c] z-50 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-[0_0_8px_#4b53489c] z-50 overflow-hidden flex flex-col">
+          
           <div className="grid grid-cols-2">
+            {/* Hours Column */}
             <div className="border-r border-gray-100">
-              <div className="text-[9px] text-gray-400 font-semibold text-center py-2 bg-gray-50 border-b border-gray-100 tracking-widest">{t('history.timepicker.hour')}</div>
-              <div className="max-h-48 overflow-y-auto hide-scrollbar">{hours.map((h) => (<div key={h} onClick={() => pick("h", h)} className={`px-4 py-2.5 cursor-pointer transition-all duration-150 text-[10px] md:text-[16px] text-center border-b border-gray-100 last:border-b-0 ${selHour === h ? "bg-[#55BB33] text-white font-medium" : "text-gray-700 hover:bg-[rgba(176,255,146,0.49)]"}`}>{pad(h)}</div>))}</div>
+              <div className="text-[9px] text-gray-400 font-semibold text-center py-2 bg-gray-50 border-b border-gray-100 tracking-widest">
+                {t('history.timepicker.hour', 'HOUR')}
+              </div>
+              <div className="max-h-48 overflow-y-auto hide-scrollbar">
+                {hours.map((h) => (
+                  <div 
+                    key={h} 
+                    onClick={() => setTempHour(h)} 
+                    className={`px-4 py-2.5 cursor-pointer transition-all duration-150 text-[10px] md:text-[16px] text-center border-b border-gray-100 last:border-b-0 ${tempHour === h ? "bg-[#55BB33] text-white font-medium" : "text-gray-700 hover:bg-[rgba(176,255,146,0.49)]"}`}
+                  >
+                    {pad(h)}
+                  </div>
+                ))}
+              </div>
             </div>
+
+            {/* Minutes Column */}
             <div>
-              <div className="text-[9px] text-gray-400 font-semibold text-center py-2 bg-gray-50 border-b border-gray-100 tracking-widest">{t('history.timepicker.min')}</div>
-              <div className="max-h-48 overflow-y-auto hide-scrollbar">{minutes.map((m) => (<div key={m} onClick={() => pick("m", m)} className={`px-4 py-2.5 cursor-pointer transition-all duration-150 text-[10px] md:text-[16px] text-center border-b border-gray-100 last:border-b-0 ${selMin === m ? "bg-[#55BB33] text-white font-medium" : "text-gray-700 hover:bg-[rgba(176,255,146,0.49)]"}`}>{pad(m)}</div>))}</div>
+              <div className="text-[9px] text-gray-400 font-semibold text-center py-2 bg-gray-50 border-b border-gray-100 tracking-widest">
+                {t('history.timepicker.min', 'MINUTE')}
+              </div>
+              <div className="max-h-48 overflow-y-auto hide-scrollbar">
+                {minutes.map((m) => (
+                  <div 
+                    key={m} 
+                    onClick={() => setTempMin(m)} 
+                    className={`px-4 py-2.5 cursor-pointer transition-all duration-150 text-[10px] md:text-[16px] text-center border-b border-gray-100 last:border-b-0 ${tempMin === m ? "bg-[#55BB33] text-white font-medium" : "text-gray-700 hover:bg-[rgba(176,255,146,0.49)]"}`}
+                  >
+                    {pad(m)}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
+
+          {/* Set Button Footer */}
+          <div className="p-2 border-t border-gray-200 bg-gray-50 flex justify-center">
+            <button
+              onClick={handleSetTime}
+              className="w-full bg-[#55BB33] hover:bg-[#469e29] text-white text-[12px] md:text-[14px] font-semibold py-1.5 rounded-lg transition-colors shadow-sm"
+            >
+              {t('history.timepicker.set', 'Set')}
+            </button>
+          </div>
+          
         </div>
       )}
     </div>
-  )
+  );
 }
 
-const CustomDropdown = ({ value, onChange, options, placeholder }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const dropdownRef = useRef(null)
+const CustomDropdown = ({ value, onChange, options, placeholder, getLabel = (opt) => opt }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
   useEffect(() => {
-    const handleClickOutside = (event) => { if (dropdownRef.current && !dropdownRef.current.contains(event.target)) setIsOpen(false) }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
-  const selectedOption = options.find(opt => opt === value)
+    const handleClickOutside = (event) => { 
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) setIsOpen(false); 
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find(opt => opt === value);
+
   return (
     <div className="relative w-full" ref={dropdownRef}>
-      <div onClick={() => setIsOpen(!isOpen)} className="bg-white rounded-lg text-[10px] md:text-[16px] hover:border-[#55BB33] border-2 border-[#C0C5D0] outline-none md:px-4 px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33] cursor-pointer flex justify-between items-center transition-all duration-200">
-        <span className={!selectedOption ? 'text-gray-400' : 'text-gray-700'}>{selectedOption || placeholder || 'Select option'}</span>
-        <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+      <div 
+        onClick={() => setIsOpen(!isOpen)} 
+        className="bg-white rounded-lg text-[10px] md:text-[16px] hover:border-[#55BB33] border-2 border-[#C0C5D0] outline-none md:px-4 px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33] cursor-pointer flex justify-between items-center transition-all duration-200"
+      >
+        <span className={!selectedOption ? 'text-gray-400' : 'text-gray-700'}>
+          {selectedOption ? getLabel(selectedOption) : placeholder || 'Select option'}
+        </span>
+        <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </div>
+      
       {isOpen && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-[0_0_8px_#4b53489c] z-50 overflow-hidden">
           <div className="max-h-60 overflow-y-auto hide-scrollbar">
             {options.map((option) => (
-              <div key={option} onClick={() => { onChange(option); setIsOpen(false) }} className={`px-4 py-2.5 cursor-pointer transition-all duration-200 text-[10px] md:text-[16px] ${value === option ? 'bg-[#55BB33] text-white font-medium' : 'text-gray-700 hover:bg-[rgba(176,255,146,0.49)] hover:text-[#000000]'} border-b border-gray-100 last:border-b-0`}>{option}</div>
+              <div 
+                key={option} 
+                onClick={() => { onChange(option); setIsOpen(false); }} 
+                className={`px-4 py-2.5 cursor-pointer transition-all duration-200 text-[10px] md:text-[16px] ${value === option ? 'bg-[#55BB33] text-white font-medium' : 'text-gray-700 hover:bg-[rgba(176,255,146,0.49)] hover:text-[#000000]'} border-b border-gray-100 last:border-b-0`}
+              >
+                {getLabel(option)}
+              </div>
             ))}
           </div>
         </div>
       )}
     </div>
-  )
+  );
+}
+
+const CustomDropdownCrop = ({ value, onChange, options, placeholder, getLabel = (opt) => opt }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => { 
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) setIsOpen(false); 
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find(opt => opt === value);
+
+  return (
+    <div className="relative w-full" ref={dropdownRef}>
+      <div 
+        onClick={() => setIsOpen(!isOpen)} 
+        className="bg-white rounded-lg text-[10px] md:text-[16px] hover:border-[#55BB33] border-2 border-[#C0C5D0] outline-none md:px-4 px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33] cursor-pointer flex justify-between items-center transition-all duration-200"
+      >
+        <span className={!selectedOption ? 'text-gray-400' : 'text-gray-700'}>
+          {selectedOption ? getLabel(selectedOption) : placeholder || 'Select option'}
+        </span>
+        <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+      
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-[0_0_8px_#4b53489c] z-50 overflow-hidden">
+          <div className="max-h-60 overflow-y-auto hide-scrollbar">
+            {options.map((option) => (
+              <div 
+                key={option} 
+                onClick={() => { onChange(option); setIsOpen(false); }} 
+                className={`px-4 py-2.5 cursor-pointer transition-all duration-200 text-[10px] md:text-[16px] ${value === option ? 'bg-[#55BB33] text-white font-medium' : 'text-gray-700 hover:bg-[rgba(176,255,146,0.49)] hover:text-[#000000]'} border-b border-gray-100 last:border-b-0`}
+              >
+                {getLabel(option)}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function History({ temperatureUnit, humidityUnit, soilMoistureUnit, lightIntensityUnit }) {
-  const { t } = useTranslation()
-  const { history, loading, error, hasMore, loadMore, refresh } = useHistory()
-  const { detail, loading: detailLoading, error: detailError, fetchDetail } = useHistoryDetail()
+  const {t,i18n} = useTranslation()
   const [Input, setInput] = useState({
-    date: '', time: '', crop: '',
-    growthStage: t('history.growth_stages.all'),
-    weather: t('history.options.all'),
+    date: '',
+    time: '',
+    crop: '',
+    growthStage: "all",
+    weather: "all",
   })
+  const {
+      liveCrop,
+  } = useLiveState(DASHBOARD_SENSOR_OPTIONS);
+  console.log("Live Crop from useLiveState in History:", liveCrop);
+  const [displayCrop, setDisplayCrop] = useState('');
   const [showModal, setShowModal] = useState(false)
+  const [isFetching, setIsFetching] = useState(false)
   const { growthStageOptions } = profileSettingOptions
+
+  // ✅ Memoize filter parameters for useHistory
+  const filterParams = useMemo(() => ({
+    date: Input.date,
+    time: Input.time,
+    crop: Input.crop,
+    growthStage: Input.growthStage === "all" ? "" : Input.growthStage,
+    weather: Input.weather === "all" ? "" : Input.weather,
+  }), [Input.date, Input.time, Input.crop, Input.growthStage, Input.weather])
+
+  // ✅ Only one useHistory call, with filters
+  const { history, loading, error, hasMore, loadMore, refresh } = useHistory(filterParams)
+  const { detail, loading: detailLoading, error: detailError, fetchDetail } = useHistoryDetail()
 
   function useIsMobile(breakpoint = 768) {
     const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint)
@@ -176,11 +351,15 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
   }
   const isMobile = useIsMobile()
 
-  useEffect(() => { refresh() }, [])
+  // ✅ Refresh is automatically triggered when filterParams change (inside useHistory)
+  // We don't need an explicit refresh() call on mount – the hook handles it.
 
   const handleItemClick = async (item) => {
+    if (isFetching) return
+    setIsFetching(true)
     setShowModal(true)
     await fetchDetail(item.id)
+    setIsFetching(false)
   }
 
   const closeModal = () => setShowModal(false)
@@ -189,18 +368,16 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
     return <HACredentialsRequired />
   }
 
-  const FilteredHistory = history.filter(p => {
-    const dateMatch = Input.date === '' || p.date.includes(Input.date)
-    const timeMatch = Input.time === '' || p.time.includes(Input.time)
-    const cropMatch = Input.crop === '' || p.crop.toLowerCase().includes(Input.crop.toLowerCase())
-    const stageMatch = Input.growthStage === t('history.growth_stages.all') || p.growthStage.toLowerCase() === Input.growthStage.toLowerCase()
-    const weatherMatch = Input.weather === t('history.options.all') || p.weather.toLowerCase() === Input.weather.toLowerCase()
-    return dateMatch && timeMatch && cropMatch && stageMatch && weatherMatch
-  })
+  const formatWithUnderscores = (text) => {
+    if (!text) return "";
+    return text.trim().toLowerCase().split(/\s+/).join('_');
+  };
+
+  const cropOptions = liveCrop?.options || [];
 
   return (
     <div className='flex flex-col h-full max-h-full overflow-hidden md:p-3 p-1 gap-4 w-full'>
-      {/* ── Filters ── */}
+      {/* Filters */}
       <div className='flex flex-wrap justify-between gap-3 flex-none'>
         <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
           <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>{t('history.labels.date')}</label>
@@ -211,24 +388,37 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
           <TimePicker value={Input.time} onChange={(v) => setInput({ ...Input, time: v })} />
         </div>
         <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
-          <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>{t('history.labels.crop')}</label>
-          <input className='bg-white rounded-lg hover:border-[#55BB33] border-[#C0C5D0] text-[10px] md:text-[16px] border-1 border outline-none px-2 py-1 hover:shadow-[0_0_4px_0_#55BB33]' placeholder={t('history.placeholders.crop')} type="text" value={Input.crop} onChange={(e) => setInput({ ...Input, crop: e.target.value })} />
+          <label className='font-newblack font-bold text-black/70 text-[10px] md:text-[16px]'>
+            {t('history.labels.crop')}
+          </label>
+          <CustomDropdown 
+            value={Input.crop} 
+            onChange={(val) => {
+              setInput({ ...Input, crop: val });
+              setDisplayCrop(val); // Update the visible text box
+            }} 
+            options={cropOptions} 
+            placeholder={t('history.placeholders.crop', 'Select crop')} 
+          />
         </div>
         <div className="flex flex-col flex-1 md:min-w-[150px] min-w-[80px]">
           <span className="font-newblack font-bold text-black/70 text-[10px] md:text-[16px]">{t('history.labels.growth_stage')}</span>
-          <CustomDropdown value={Input.growthStage} onChange={(val) => setInput({ ...Input, growthStage: val })} options={[t('history.growth_stages.all'), ...growthStageOptions]} placeholder="Select growth stage" />
+          <CustomDropdown value={Input.growthStage} onChange={(val) => setInput({ ...Input, growthStage: val })} options={["all", ...growthStageOptions]} placeholder={t('history.placeholders.growth_stage', 'Select growth stage')} getLabel={(opt) => t(`history.growth_stages.${formatWithUnderscores(opt.toLowerCase())}`)}/>
         </div>
         <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px]'>
           <span className="font-newblack font-bold text-black/70 text-[10px] md:text-[16px]">{t('history.labels.weather')}</span>
-          <CustomDropdown value={Input.weather} onChange={(val) => setInput({ ...Input, weather: val })} options={[t('history.options.all'), t('history.options.sunny'), t('history.options.cloudy'), t('history.options.night'), t('history.options.windy'), t('history.options.stormy'), t('history.options.rainy')]} placeholder="Select weather" />
+          <CustomDropdown value={Input.weather} onChange={(val) => setInput({ ...Input, weather: val })} options={weatherOptions} placeholder={t('history.placeholders.weather', 'Select weather')} getLabel={(opt) => t(`history.options.${opt}`)}/>
         </div>
         <div className='flex flex-col flex-1 md:min-w-[150px] min-w-[80px] bg-[#192514] text-[#E8FFE0] text-[10px] md:text-[16px] items-center justify-center self-end h-fit md:py-[5px] py-[6px] rounded-lg cursor-pointer'
-          onClick={() => setInput({ date: '', time: '', crop: '', growthStage: t('history.growth_stages.all'), weather: t('history.options.all') })}>
+          onClick={() => {
+            setInput({ date: '', time: '', crop: '', growthStage: "all", weather: "all" });
+            setDisplayCrop(''); // Clear the visible text box
+          }}>
           {t('history.buttons.reset')}
         </div>
       </div>
 
-      {/* ── Table ── */}
+      {/* Table */}
       <div className="flex-1 flex flex-col min-h-0 w-full rounded-xl overflow-hidden bg-white">
         <div className="grid grid-cols-5 bg-[#192514] border-b-2 border-[#57BD36] sticky top-0 z-10">
           {[t('history.labels.date'), t('history.labels.time'), t('history.labels.crop'), t('history.labels.growth_stage'), t('history.labels.weather')].map((header) => (
@@ -239,24 +429,27 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
         <div className="flex-1 overflow-y-auto min-h-0 bg-white custom-scrollbar">
           {loading && history.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full py-16">
-              <p className="text-[#192514] font-bold text-[14px] md:text-[18px] opacity-50">Loading history...</p>
+              <p className="text-[#192514] font-bold text-[14px] md:text-[18px] opacity-50">{t('history.loading')}</p>
             </div>
           )}
 
-          {!loading && FilteredHistory.length === 0 && (
+          {!loading && history.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full py-16 gap-3">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#55BB33" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.5">
                 <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="8" y1="11" x2="14" y2="11" />
               </svg>
               <p className="text-[#192514] font-bold text-[14px] md:text-[18px] opacity-50">{t('history.empty_state.no_records')}</p>
               <p className="text-[#192514] text-[11px] md:text-[16px] opacity-40">{t('history.empty_state.adjust_filters')}</p>
-              <button onClick={() => setInput({ date: '', time: '', crop: '', growthStage: t('history.growth_stages.all'), weather: t('history.options.all') })} className="mt-2 px-4 py-2 bg-[#192514] text-[#E8FFE0] text-[10px] md:text-[16px] rounded-lg cursor-pointer hover:bg-[#55BB33] transition-colors duration-200">
+              <button onClick={() => {
+                setInput({ date: '', time: '', crop: '', growthStage: "all", weather: "all" });
+                setDisplayCrop(''); // Clear the visible text box
+              }} className="mt-2 px-4 py-2 bg-[#192514] text-[#E8FFE0] text-[10px] md:text-[16px] rounded-lg cursor-pointer hover:bg-[#55BB33] transition-colors duration-200">
                 {t('history.buttons.clear_filters')}
               </button>
             </div>
           )}
 
-          {FilteredHistory.map((item) => {
+          {history.map((item) => {
             const WeatherIcon = weatherIconMap[item.weather] || SunnyIcon
             return (
               <div key={item.id} className="grid grid-cols-5 items-center border-b border-[#bdbdbd7c] transition-colors duration-200 hover:bg-[#B0FF92] hover:bg-opacity-40 cursor-pointer" onClick={() => handleItemClick(item)}>
@@ -268,31 +461,32 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
                   <div className='md:mb-1 mb-[2px]'><ClockIcon size={isMobile ? 10 : undefined} /></div>
                   {item.time}
                 </div>
-                <div className="py-4 text-center font-bold text-[#192514] text-[10px] md:text-[16px]">{item.crop}</div>
-                <div className="py-4 text-center text-[#2E6900] font-semibold capitalize text-[10px] md:text-[16px]">{item.growthStage}</div>
+                <div className="py-4 text-center font-bold text-[#192514] text-[10px] md:text-[16px]"> <DynamicTranslator text={item.crop} language={i18n.language} className="py-4 text-center font-bold text-[#192514] text-[10px] md:text-[16px]"/></div>
+                <div className="py-4 text-center text-[#2E6900] font-semibold capitalize text-[10px] md:text-[16px]">{t(`history.growth_stages.${formatWithUnderscores(item.growthStage)}`)}</div>
                 <div className="py-4 mx-auto"><WeatherIcon color={"#192514"} size={isMobile ? 15 : undefined} /></div>
               </div>
             )
           })}
 
           {hasMore && !loading && (
-            <div className="py-4 text-center text-[#1A3D00] font-bold bg-white text-sm cursor-pointer hover:text-[#55BB33]" onClick={loadMore}>
-              {t('history.loading')}
+            <div className="py-4 text-center text-[#1A3D00] font-bold bg-white text-sm" onClick={loadMore}>
+              <span className='cursor-pointer hover:text-[#55BB33]'>{t('history.loading_trigger')}</span>
+
             </div>
           )}
           {loading && history.length > 0 && (
-            <div className="py-4 text-center text-[#1A3D00] font-bold bg-white text-sm">Loading...</div>
+            <div className="py-4 text-center text-[#1A3D00] font-bold bg-white text-sm">{t('history.loading_active')}</div>
           )}
         </div>
       </div>
 
-      {/* ── Modal ── */}
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={closeModal}>
           <div className="relative max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             {detailLoading && (
               <div className="bg-white rounded-3xl p-8 text-center">
-                <p className="text-[#192514] font-semibold">Loading details...</p>
+                <p className="text-[#192514] font-semibold">{t('history.loadingDetails')}</p>
               </div>
             )}
             {detailError && (

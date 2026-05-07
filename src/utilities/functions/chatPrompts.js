@@ -1,24 +1,43 @@
 // src/utilities/functions/chatPrompts.js
 
-import { FARM_LOCATION, FARM_WEATHER } from '../data/chatConstants';
+import { FARM_LOCATION, FARM_WEATHER } from "../data/chatConstants";
 import {
   DASHBOARD_ACTUATORS,
   DASHBOARD_CROP_DEFAULTS,
   DASHBOARD_SENSOR_OPTIONS,
   DASHBOARD_WARNINGS,
-} from '../data/dashboardData';
-import { NORMALIZED_USER } from '../data/profileSettings';
+} from "../data/dashboardData";
+import { NORMALIZED_USER } from "../data/profileSettings";
 import {
   convertSensorValueById,
   formatConvertedValue,
-} from './conversionFunctions';
+} from "./conversionFunctions";
 
 export function getCurrentTime() {
-  return new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  return new Date().toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
-export function buildSystemPrompt() {
-  return `You are SAHLA, an intelligent agricultural assistant for SAHLA Farm — a smart IoT farm management system.
+// ─── Prompt 3: Strip region suffix so 'ar-DZ' → 'ar', 'fr-FR' → 'fr' ────────
+export function normalizeLanguage(lang) {
+  if (!lang) return "en";
+  return lang.split("-")[0].toLowerCase();
+}
+
+// ─── Language instruction injected at the TOP of every prompt ─────────────────
+export function buildLanguageInstruction(lang) {
+  const normalized = normalizeLanguage(lang);
+  return `[LANGUAGE DIRECTIVE — HIGHEST PRIORITY]: Your ENTIRE response MUST be written in the language with ISO code '${normalized}'. Translate ALL text including headers, sensor names, labels, and introductory phrases. Do NOT use English except for technical units like °C, %, lux, and proper nouns (e.g. "SAHLA").`;
+}
+
+export function buildSystemPrompt(lang) {
+  const languageInstruction = buildLanguageInstruction(lang);
+
+  return `${languageInstruction}
+
+You are SAHLA, an intelligent agricultural assistant for SAHLA Farm — a smart IoT farm management system.
 
 CORE BEHAVIOR:
 1. ALWAYS answer what the user actually asked first. "hello" → brief greeting. Specific question → direct answer. Image shared → describe and analyse it.
@@ -54,54 +73,132 @@ export function buildFarmContext(farmProps) {
     growthStage,
     mode,
     actuators,
+    sensors,
+    warnings,
     recommendedAction,
     displayUnits = {},
   } = farmProps;
+  
   const time = getCurrentTime();
-
   const units = {
-    // Fallback to normalized profile units derived from new USER_INFO.preferences.displayUnits.
-    temperatureUnit: displayUnits.temperatureUnit || NORMALIZED_USER.displayUnits.temp,
+    temperatureUnit:
+      displayUnits.temperatureUnit || NORMALIZED_USER.displayUnits.temp,
     humidityUnit: displayUnits.humidityUnit || NORMALIZED_USER.displayUnits.hum,
-    soilMoistureUnit: displayUnits.soilMoistureUnit || NORMALIZED_USER.displayUnits.soil,
-    lightIntensityUnit: displayUnits.lightIntensityUnit || NORMALIZED_USER.displayUnits.light,
+    soilMoistureUnit:
+      displayUnits.soilMoistureUnit || NORMALIZED_USER.displayUnits.soil,
+    lightIntensityUnit:
+      displayUnits.lightIntensityUnit || NORMALIZED_USER.displayUnits.light,
   };
 
-  // Uses normalized sensor options (not raw backend shape) so AI context stays stable across schema-preserving backend swap.
-  const baseTemperature = Number(DASHBOARD_SENSOR_OPTIONS.find((s) => s.id === 'temperature')?.currentValue ?? 25);
+  const tempSensor = (sensors || []).find((s) => s.type === "temperature");
+  const baseTemperature = tempSensor?.value ?? 25;
 
-  const sensorLines = DASHBOARD_SENSOR_OPTIONS.map(
-    (s) => {
-      const converted = convertSensorValueById(s.id, s.currentValue, units, baseTemperature);
-      const valueWithUnit = formatConvertedValue(converted.value, converted.unit, 1);
+  let sensorLines = "";
+  if (sensors && sensors.length) {
+    sensorLines = sensors
+      .map((s) => {
+        const converted = convertSensorValueById(
+          s.type,
+          s.value,
+          units,
+          baseTemperature,
+        );
+        const valueWithUnit = formatConvertedValue(
+          converted.value,
+          converted.unit,
+          1,
+        );
+        const label =
+          s.type.charAt(0).toUpperCase() +
+          s.type.slice(1).replace(/([A-Z])/g, " $1");
+        return `  • ${label}: ${valueWithUnit} — ${s.description || "No description"}`;
+      })
+      .join("\n");
+  } else {
+    sensorLines = DASHBOARD_SENSOR_OPTIONS.map((s) => {
+      const converted = convertSensorValueById(
+        s.id,
+        s.currentValue,
+        units,
+        baseTemperature,
+      );
+      const valueWithUnit = formatConvertedValue(
+        converted.value,
+        converted.unit,
+        1,
+      );
       return `  • ${s.label}: ${valueWithUnit} — ${s.description}`;
-    }
-  ).join('\n');
+    }).join("\n");
+  }
 
-  const actuatorList = actuators || DASHBOARD_ACTUATORS;
-  const actuatorLines = actuatorList.map(
-    (a) => `  • ${a.name}: ${a.status.toUpperCase()}, mode=${a.mode}, schedule: ${a.schedule}`
-  ).join('\n');
+  let actuatorLines = "";
+  if (actuators && actuators.length) {
+    actuatorLines = actuators
+      .map((a) => {
+        const status = a.status?.toUpperCase() || "OFF";
+        const modeVal =
+          a.control_mode === "semi_auto"
+            ? "semi-auto"
+            : a.control_mode || "auto";
+        const schedule =
+          a.run_at && a.run_until
+            ? `${a.run_at.slice(11, 16)} → ${a.run_until.slice(11, 16)}`
+            : a.run_at
+              ? `Exec at ${a.run_at.slice(11, 16)}`
+              : "No schedule";
+        const name =
+          a.type === "pump" ? "Pump" : a.type === "fan" ? "Fan" : a.type;
+        return `  • ${name}: ${status}, mode=${modeVal}, schedule: ${schedule}`;
+      })
+      .join("\n");
+  } else {
+    const fallbackActuators = [
+      { name: "Pump", status: "OFF", mode: "auto", schedule: "No schedule" },
+      { name: "Fan", status: "OFF", mode: "auto", schedule: "No schedule" },
+    ];
+    actuatorLines = fallbackActuators
+      .map(
+        (a) =>
+          `  • ${a.name}: ${a.status}, mode=${a.mode}, schedule: ${a.schedule}`,
+      )
+      .join("\n");
+  }
 
-  // Alerts are filtered at use-time so only actionable warnings are injected into prompt context.
-  const activeWarnings = DASHBOARD_WARNINGS.filter((w) => w.status === 'active');
-  const warningLines = activeWarnings.length
-    ? activeWarnings.map((w) => `  • ${w.title.replace(/_/g, ' ')} (severity ${w.severity}%): ${w.description}`).join('\n')
-    : '  None';
+  let warningLines = "";
+  if (warnings && warnings.length) {
+    warningLines = warnings
+      .map((w) => {
+        const severity = w.severity ?? 0;
+        return `  • ${w.title.replace(/_/g, " ")} (severity ${severity}%): ${w.description || "No description"}`;
+      })
+      .join("\n");
+  } else {
+    warningLines = "  None";
+  }
+
+  const cropName =
+    crop || DASHBOARD_CROP_DEFAULTS.crop || NORMALIZED_USER.farmSettings.crop;
+  const cropStage =
+    growthStage ||
+    DASHBOARD_CROP_DEFAULTS.growthStage ||
+    NORMALIZED_USER.farmSettings.growth;
+  const systemMode =
+    mode || DASHBOARD_CROP_DEFAULTS.mode || NORMALIZED_USER.farmSettings.mode;
+  const recAction = recommendedAction || "None.";
 
   return `[SILENT FARM CONTEXT — USE ONLY WHEN RELEVANT, DO NOT RECITE IN FULL]
 Time: ${time}
 Location: ${FARM_LOCATION}
 Weather: ${FARM_WEATHER}
-Crop: ${crop || DASHBOARD_CROP_DEFAULTS.crop || NORMALIZED_USER.farmSettings.crop}
-Growth stage: ${growthStage || DASHBOARD_CROP_DEFAULTS.growthStage || NORMALIZED_USER.farmSettings.growth}
-System mode: ${mode || DASHBOARD_CROP_DEFAULTS.mode || NORMALIZED_USER.farmSettings.mode}
+Crop: ${cropName}
+Growth stage: ${cropStage}
+System mode: ${systemMode}
 Sensors:
 ${sensorLines}
 Actuators:
 ${actuatorLines}
 Active alerts:
 ${warningLines}
-Recommended actions: ${recommendedAction || 'None.'}
+Recommended actions: ${recommendedAction || "None."}
 [END CONTEXT]`;
 }

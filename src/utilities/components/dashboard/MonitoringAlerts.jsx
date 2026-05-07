@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { TriangleAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import AlertModal from './AlertModal';
+import { formatWarningsToUI } from '../../functions/transformWarningsDashboard';
 
 // Optional: map warning title to an icon URL (if you have custom SVG icons)
 // For simplicity, we'll use a default alert icon – you can extend.
@@ -11,7 +12,8 @@ const getIconUrl = (title) => {
   // Return a data URL or a path; here we just return a placeholder.
   // You can replace with your own mapping, e.g.:
   // if (title === 'high_temperature_detected') return '/icons/high-temp.svg';
-  return '/icons/alert-triangle.svg';
+  if(title === "frost_risk") return "/frost.svg";
+  if(title === "heavy_rainfall") return "/rain.svg";
 };
 
 // Map severity (0‑100) to a color (hex) for the icon background
@@ -25,6 +27,9 @@ const getSeverityColor = (severity = 50) => {
 export default function MonitoringAlerts({ warnings = [] }) {
   const { t } = useTranslation();
   const [selectedAlert, setSelectedAlert] = useState(null);
+
+  const warningsUI = formatWarningsToUI(warnings);
+  const warningsUIById = new Map(warningsUI.map((warning) => [warning.id, warning]));
 
   // Filter only active warnings (status === "active")
   const activeWarnings = (warnings || []).filter(w => w.status === 'active');
@@ -65,8 +70,9 @@ export default function MonitoringAlerts({ warnings = [] }) {
             </p>
           ) : (
             activeWarnings.map((warning, index) => {
-              const severityColor = getSeverityColor(warning.severity);
-              const iconUrl = getIconUrl(warning.title);
+              const warningUI = warningsUIById.get(warning.id);
+              const iconUrl = warningUI?.icon;
+              const warningColor = warningUI?.color;
 
               return (
                 <motion.button
@@ -95,7 +101,7 @@ export default function MonitoringAlerts({ warnings = [] }) {
                   <div
                     className="shrink-0 w-5 h-5"
                     style={{
-                      backgroundColor: severityColor,
+                      backgroundColor: warningColor,
                       WebkitMaskImage: `url(${iconUrl})`,
                       maskImage: `url(${iconUrl})`,
                       WebkitMaskSize: 'contain',
@@ -118,7 +124,10 @@ export default function MonitoringAlerts({ warnings = [] }) {
         {selectedAlert && (
           <AlertModal
             alert={selectedAlert}
-            config={{ color: getSeverityColor(selectedAlert.severity), Icon: TriangleAlert }}
+            config={{
+              color: warningsUIById.get(selectedAlert.id)?.color,
+              icon: warningsUIById.get(selectedAlert.id)?.icon,
+            }}
             onClose={() => setSelectedAlert(null)}
           />
         )}

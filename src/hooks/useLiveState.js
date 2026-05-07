@@ -32,11 +32,8 @@ export default function useLiveState(initialSensorOptions) {
   // Seed all state from the initial HA snapshot (received via auth_success)
   useEffect(() => {
     if (!liveState) {
-      console.log("[useLiveState] liveState is null");
       return;
     };
-    console.log("[useLiveState] liveState received:", liveState);
-    console.log("[useLiveState] liveState.actuators:", liveState?.actuators);
 
     if (liveState.recommendation)
       setLiveRecommendation(liveState.recommendation);
@@ -78,13 +75,13 @@ export default function useLiveState(initialSensorOptions) {
           return {
             ...sensor,
             currentValue: backendSensor.value ?? sensor.currentValue,
+            description: backendSensor.description ?? sensor.description,
           };
         });
       });
     };
 
     const onActuator = ({ value }) => {
-      console.log("[useLiveState] actuator_changed event received:", value);
       setLiveActuators(value);
     };
     const onCrop = ({ value }) => setLiveCrop(value);
@@ -111,15 +108,6 @@ export default function useLiveState(initialSensorOptions) {
       socket.off("notifications_changed", onNotifications);
     };
   }, [socket, initialSensorOptions]);
-  console.log("[useLiveState] Returning live state:", {
-    liveSensors,
-    liveActuators,
-    liveCrop,
-    liveWarnings,
-    liveRecommendation,
-    liveWeather,
-    liveNotifications,
-  });
   return {
     liveSensors,
     liveActuators,

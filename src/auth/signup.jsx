@@ -266,18 +266,6 @@ export default function SignUp() {
           </div>
         </form>
 
-        {/* demo mode notice */}
-        <div className='flex justify-center mt-[clamp(6px,1.1vh,18px)] max-w-[84%] self-center flex-[0.85] items-center min-h-[clamp(96px,14vh,220px)] single-short:min-h-[84px] single-tall:min-h-[210px] single-taller:min-h-[250px]'>
-          <div className='bg-[#dcecd0] rounded-xl border-[#D9D9D9] px-[20px] py-[15px] single-short:px-[14px] single-short:py-[10px] single-tall:px-[30px] single-tall:py-[24px] single-taller:px-[36px] single-taller:py-[30px] text-[#3e9322]'>
-            <div className='flex items-center gap-2'>
-              <FaExclamationCircle className='w-10 text-2xl single-tall:text-[30px] single-taller:text-[34px]' />
-              <span className='font-medium single-tall:text-[28px] single-taller:text-[31px]'>{t('signUp.demoModeTitle')}</span>
-            </div>
-            <p className='mt-1 text-sm single-short:text-[12px] single-tall:text-[20px] single-taller:text-[22px] text-[#3b8622] text-center'>
-              {t('signUp.demoModeDesc')}
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* right side */}

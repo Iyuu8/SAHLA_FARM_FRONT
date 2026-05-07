@@ -12,14 +12,15 @@ import { clearProfileCache } from '../../../hooks/useProfileData.js'
 
 export default function MobileSidebar({profileInfo, isOpen, setIsOpen, LogOutIcon , NotificationIcon , HistoryIcon , HomeIcon , CameraIcon , ChatIcon , LogoIcon ,ProfileIcon}) { 
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t , i18n} = useTranslation();
+  const isAr = i18n.language === 'ar';
   const navigate = useNavigate();
   const navItems = [
-  { name: "Home",          path: "/",              icon: HomeIcon         },
-  { name: "Chat AI",       path: "/chat",          icon: ChatIcon         },
-  { name: "Camera",        path: "/stream",        icon: CameraIcon       },
-  { name: "History",       path: "/history",       icon: HistoryIcon      },
-  { name: "Notifications", path: "/notifications", icon: NotificationIcon },
+  { name: t('sidebar.home'),          path: "/",              icon: HomeIcon         },
+  { name: t('sidebar.chat'),       path: "/chat",          icon: ChatIcon         },
+  { name: t('sidebar.camera'),        path: "/stream",        icon: CameraIcon       },
+  { name: t('sidebar.history'),       path: "/history",       icon: HistoryIcon      },
+  { name: t('sidebar.notifications'), path: "/notifications", icon: NotificationIcon },
   ];
   const handleLogout = async () => {
     // Clear profile cache on logout
@@ -37,10 +38,10 @@ export default function MobileSidebar({profileInfo, isOpen, setIsOpen, LogOutIco
           className="fixed inset-0 z-40"
         />
       )}
-      <aside className={`fixed top-0 left-0 h-screen z-50 flex flex-col gap-2 py-3
+      <aside className={`fixed top-0 ${isAr ? "right-0" : "left-0"} h-screen z-50 flex flex-col gap-2 py-3
         transition-transform duration-300 ease-in-out
-        ${isOpen ? "translate-x-0" : "-translate-x-full"}`}  
-            style={{background: "linear-gradient(180deg, rgba(43, 32, 51, 1) 0%, rgba(28, 35, 42, 1) 100%)",maxWidth:"160px"}}>
+        ${isOpen ? "translate-x-0" : (isAr ? "translate-x-full" : "-translate-x-full")} bg-sidebar-gradient`}
+            style={{maxWidth:"200px"}}>
           <div className='flex items-center justify-between mb-3 px-2'>
             <div className="w-14 h-14 flex items-center justify-center">
               <LogoIcon />

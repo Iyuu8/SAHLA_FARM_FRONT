@@ -1,9 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaCaretDown } from 'react-icons/fa6';
+import { useTranslation } from 'react-i18next';
+import DynamicTranslator from '../Translation/DynamicTranslator';
 
-export default function FarmDropdown({ label, value, options, onChange, color }) {
+export default function FarmDropdown({ label, value, options, onChange, color, isDynamicCrop = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language || 'en';
 
   useEffect(() => {
     const closeOnOutsideClick = (event) => {
@@ -11,13 +15,36 @@ export default function FarmDropdown({ label, value, options, onChange, color })
         setIsOpen(false);
       }
     };
-
     document.addEventListener('mousedown', closeOnOutsideClick);
     return () => document.removeEventListener('mousedown', closeOnOutsideClick);
   }, []);
 
-  const base = 'max-w-full flex items-center gap-1 px-2 sm:px-3 py-2 rounded-[10px] text-xs sm:text-[1.6ch] font-semibold cursor-pointer select-none';
+  const getDisplayValue = (val) => {
+    if (!val) return '';
+    const lookupKey = String(val).toLowerCase();
 
+    const translationMap = {
+      // modeOptions
+      'balanced': 'dashboard.cropInfo.modes.balanced',
+      'water saving': 'dashboard.cropInfo.modes.waterSaving',
+      'energy saving': 'dashboard.cropInfo.modes.energySaving',
+      'growth priority': 'dashboard.cropInfo.modes.growthPriority',
+      // manualControlOptions
+      'on': 'dashboard.manualModeCard.on',
+      'off': 'dashboard.manualModeCard.off',
+      // growthStageOptions
+      'germination': 'dashboard.cropInfo.stages.germination',
+      'seedling': 'dashboard.cropInfo.stages.seedling',
+      'vegetative growth': 'dashboard.cropInfo.stages.vegetativeGrowth',
+      'flowering': 'dashboard.cropInfo.stages.flowering',
+      'fruiting': 'dashboard.cropInfo.stages.fruiting',
+      'maturity': 'dashboard.cropInfo.stages.maturity',
+    };
+
+    return translationMap[lookupKey] ? t(translationMap[lookupKey]) : val;
+  };
+
+  const base = 'max-w-full flex items-center gap-1 px-2 sm:px-3 py-2 rounded-[10px] text-xs sm:text-[1.6ch] font-semibold cursor-pointer select-none';
   return (
     <div className='relative' ref={containerRef}>
       <button
@@ -26,8 +53,17 @@ export default function FarmDropdown({ label, value, options, onChange, color })
         style={{ backgroundColor: color.bg, color: color.text }}
         onClick={() => setIsOpen((prev) => !prev)}
       >
-        <span className='capitalize'>{label}: {value}</span>
-        <span className={`text-xs transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} style={{ color: color.text }}><FaCaretDown /></span>
+        <span className='capitalize'>
+          {label}: {' '}
+          {isDynamicCrop ? (
+            <DynamicTranslator text={value} language={currentLang} />
+          ) : (
+            getDisplayValue(value)
+          )}
+        </span>
+        <span className={`text-xs transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} style={{ color: color.text }}>
+          <FaCaretDown />
+        </span>
       </button>
 
       {isOpen && (
@@ -49,7 +85,11 @@ export default function FarmDropdown({ label, value, options, onChange, color })
                 setIsOpen(false);
               }}
             >
-              {option}
+              {isDynamicCrop ? (
+                <DynamicTranslator text={option} language={currentLang} />
+              ) : (
+                getDisplayValue(option)
+              )}
             </button>
           ))}
         </div>

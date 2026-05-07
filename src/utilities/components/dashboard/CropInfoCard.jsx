@@ -18,7 +18,6 @@ export default function CropInfoCard({
   liveCropOptions,       
 }) {
   const { t } = useTranslation();
-  const hasSemiAuto = actuators.some((a) => a.mode === 'semi-auto');
 
   // Use live HA options if available, otherwise fallback to local cropOptions
   const displayOptions = (liveCropOptions && liveCropOptions.length) ? liveCropOptions : cropOptions;
@@ -32,7 +31,6 @@ export default function CropInfoCard({
     if (socket) {
       socket.emit('add_crop', { newCropName: trimmed });
       // Optional: show a temporary "Adding…" indicator; we rely on liveCropOptions to update later
-      console.log(`[UI] Requesting to add crop: ${trimmed}`);
     } else {
       // Fallback: only local update (original behaviour)
       onAddCropOption?.(trimmed);
@@ -67,12 +65,12 @@ export default function CropInfoCard({
             <CropInfoDropdown
               value={growthStage}
               options={[
-                t('dashboard.cropInfo.stages.germination'),
-                t('dashboard.cropInfo.stages.seedling'),
-                t('dashboard.cropInfo.stages.vegetativeGrowth'),
-                t('dashboard.cropInfo.stages.flowering'),
-                t('dashboard.cropInfo.stages.fruiting'),
-                t('dashboard.cropInfo.stages.maturity')
+                'Germination',
+                'Seedling',
+                'Vegetative Growth',
+                'Flowering',
+                'Fruiting',
+                'Maturity'
               ]}
               onChange={setGrowthStage}
               placeholder={t('dashboard.cropInfo.selectStage')}
@@ -85,10 +83,10 @@ export default function CropInfoCard({
             <CropInfoDropdown
               value={mode}
               options={[
-                t('dashboard.cropInfo.modes.balanced'),
-                t('dashboard.cropInfo.modes.waterSaving'),
-                t('dashboard.cropInfo.modes.energySaving'),
-                t('dashboard.cropInfo.modes.growthPriority')
+                'Balanced',
+                'Water saving',
+                'Energy saving',
+                'Growth priority'
               ]}
               onChange={setMode}
               placeholder={t('dashboard.cropInfo.selectMode')}
@@ -110,7 +108,7 @@ export default function CropInfoCard({
               className="text-xs sm:text-sm font-bold"
               style={{ color: 'rgba(236,243,234,1)' }}
             >
-              {hasSemiAuto ? t('dashboard.cropInfo.recommendedActions') : t('dashboard.cropInfo.explanationOfActions')}
+              {t('dashboard.cropInfo.general', { defaultValue: 'General' })}
             </span>
             <ClipboardCheck
               size={14}
@@ -119,7 +117,7 @@ export default function CropInfoCard({
             />
           </div>
           <p className="text-xs leading-relaxed" style={{ color: 'rgba(255,255,255,0.80)' }}>
-            {hasSemiAuto ? recommendation : t('dashboard.cropInfo.explanationText')}
+            {recommendation}
           </p>
         </div>
       </div>

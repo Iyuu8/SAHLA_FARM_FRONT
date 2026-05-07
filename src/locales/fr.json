@@ -1,5 +1,6 @@
 {
   "profile": {
+    "loading": "Chargement du profil...",
     "edit": "Modifier",
     "farm_settings_title": "Paramètres et Préférences de la Ferme",
     "farm_settings_subtitle": "Paramètres de la Ferme",
@@ -32,20 +33,23 @@
       "save": "Enregistrer"
     },
     "editProfileModal": {
-      "title": "Modifier le Profil",
-      "userNameLabel": "Nom d'Utilisateur",
-      "emailLabel": "Email",
-      "addressLabel": "Adresse",
-      "ageLabel": "Âge",
-      "passwordLabel": "Mot de Passe",
-      "passwordPlaceholder": "Le changement de mot de passe nécessite le backend et est désactivé dans cette version",
-      "newPasswordLabel": "Nouveau Mot de Passe",
-      "newPasswordPlaceholder": "Désactivé jusqu'à ce que le hachage/l'authentification backend soit implémenté",
-      "passwordInfoText": "Les mises à jour de mot de passe sont intentionnellement désactivées dans la simulation frontend car la validation actuelle du mot de passe/jeton doit être gérée par le hachage/l'authentification backend.",
-      "errorInvalidAge": "L'âge doit être un entier valide.",
-      "cancel": "Annuler",
-      "save": "Enregistrer"
-    },
+  "title": "Modifier le profil",
+  "userNameLabel": "Nom d'utilisateur",
+  "emailLabel": "E-mail",
+  "addressLabel": "Adresse",
+  "ageLabel": "Âge",
+  "passwordLabel": "Mot de passe actuel",
+  "passwordPlaceholder": "Entrez le mot de passe actuel",
+  "newPasswordLabel": "Nouveau mot de passe",
+  "newPasswordPlaceholder": "Entrez le nouveau mot de passe",
+  "passwordInfoText": "Les mises à jour du mot de passe sont désactivées dans cette simulation car la validation doit être gérée par le backend.",
+  "errorInvalidAge": "L'âge doit être un nombre entier valide.",
+  "errorPasswordBoth": "Le mot de passe actuel et le nouveau sont requis pour effectuer le changement.",
+  "errorPasswordLength": "Le nouveau mot de passe doit comporter plus de 8 caractères.",
+  "cancel": "Annuler",
+  "save": "Enregistrer",
+  "saving": "Enregistrement..."
+},
     "pfpEditorModal": {
       "title": "Changer la Photo de Profil",
       "dropImage": "Déposez l'image ici",
@@ -59,9 +63,55 @@
       "errorLoad": "Impossible de charger cette image. Veuillez essayer un autre fichier.",
       "errorNoImage": "Veuillez d'abord ajouter une image.",
       "errorProcess": "Impossible de traiter l'image. Veuillez réessayer."
+    },
+    "options": {
+      "mode": {
+        "balanced": "Équilibré",
+        "waterSaving": "Économie d'eau",
+        "energySaving": "Économie d'énergie",
+        "growthPriority": "Priorité à la croissance"
+      },
+      "manualControl": {
+        "on": "Activé",
+        "off": "Désactivé"
+      },
+      "growthStage": {
+        "germination": "Germination",
+        "seedling": "Semis",
+        "vegetative": "Croissance végétative",
+        "flowering": "Floraison",
+        "fruiting": "Fructification",
+        "maturity": "Maturité"
+      },
+      "crops": {
+        "tomatoes": "Tomates",
+        "lettuce": "Laitue",
+        "cucumber": "Concombre",
+        "strawberries": "Fraises",
+        "basil": "Basilic",
+        "spinach": "Épinards",
+        "peppers": "Poivrons"
+      },
+      "languages": {
+        "english": "Anglais",
+        "arabic": "Arabe",
+        "french": "Français"
+      },
+      "units": {
+        "celsius": "Celsius °C",
+        "fahrenheit": "Fahrenheit °F",
+        "kelvin": "Kelvin K",
+        "humidityPct": "Humidité %",
+        "absHumidity": "Humidité abs. g/m³",
+        "soilMoisture": "Humidité du sol %",
+        "lux": "Lux (lux)",
+        "footCandle": "Foot-candle (fc)",
+        "lumen": "Lumen (lm)"
+      }
     }
   },
   "notifications": {
+    "loading": "Chargement des notifications...",
     "title": "Notifications",
     "all": "TOUTES",
     "unread": "NON LUES",
@@ -72,6 +122,11 @@
     "earlier": "PLUS TÔT"
   },
   "history": {
+    "selectDate": "Sélectionner la Date",
+    "selectTime": "Sélectionner l'Heure",
+    "selectCrop": "Sélectionner la Culture",
+    "loading": "Chargement de l'historique...",
+    "loadingDetails": "Chargement des détails...",
     "months": {
       "january": "Janvier",
       "february": "Février",
@@ -112,7 +167,8 @@
     },
     "timepicker": {
       "hour": "HEURE",
-      "min": "MIN"
+      "min": "MIN",
+      "set": "DÉFINIR"
     },
     "buttons": {
       "reset": "RÉINITIALISER",
@@ -122,15 +178,21 @@
       "no_records": "Aucun enregistrement trouvé",
       "adjust_filters": "Essayez d'ajuster vos filtres"
     },
-    "loading": "chargement de plus d'enregistrements...",
+    "loading_trigger": "Cliquer pour charger plus d'enregistrements",
+    "loading_active": "Chargement de plus d'enregistrements...",
     "options": {
       "all": "Tous",
       "sunny": "Ensoleillé",
+      "clear": "Dégagé",
+      "partly_cloudy": "Partiellement nuageux",
       "cloudy": "Nuageux",
-      "night": "Nuit",
+      "foggy": "Brumeux",
       "windy": "Venteux",
+      "drizzle": "Bruine",
+      "rainy": "Pluvieux",
       "stormy": "Orageux",
-      "rainy": "Pluvieux"
+      "snowy": "Neigeux",
+      "night": "Nuit"
     },
     "growth_stages": {
       "all": "Tous",
@@ -172,6 +234,7 @@
   },
   "camStream": {
     "status": {
+      "connecting": "Connexion au flux...",
       "live": "EN DIRECT",
       "off": "DÉSACTIVÉ",
       "streamOffline": "flux hors ligne",
@@ -233,6 +296,7 @@
       "enterCrop": "Entrer la culture",
       "growthStage": "Stade de Croissance",
       "selectStage": "Sélectionner le stade",
+      "addCropHover": "Cliquez ici pour ajouter une nouvelle culture",
       "stages": {
         "germination": "Germination",
         "seedling": "Semis",
@@ -438,5 +502,19 @@
     "feature1Desc": "surveillez et automatisez instantanément",
     "feature2Title": "Plateforme Unifiée",
     "feature2Desc": "tout en un seul endroit"
+  },
+  "setup": {
+    "required": "CONFIGURATION REQUISE",
+    "title": "URL/Jeton Home Assistant Manquant",
+    "description": "Veuillez ajouter votre URL Home Assistant et votre jeton d'accès longue durée dans les paramètres avant d'utiliser cette page.",
+    "button": "Aller aux paramètres"
+  },
+  "notFound": {
+    "error": "ERREUR 404",
+    "title": "Page Non Trouvée",
+    "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "goDashboard": "Tableau de bord",
+    "openSettings": "Paramètres"
   }
+
 }

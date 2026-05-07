@@ -1,5 +1,6 @@
 {
   "profile": {
+    "loading": "جاري تحميل الملف الشخصي...",
     "edit": "تعديل",
     "farm_settings_title": "إعدادات المزرعة والتفضيلات",
     "farm_settings_subtitle": "إعدادات المزرعة",
@@ -32,20 +33,23 @@
         "save": "حفظ"
       },
     "editProfileModal": {
-      "title": "تعديل الملف الشخصي",
-      "userNameLabel": "اسم المستخدم",
-      "emailLabel": "البريد الإلكتروني",
-      "addressLabel": "العنوان",
-      "ageLabel": "العمر",
-      "passwordLabel": "كلمة المرور",
-      "passwordPlaceholder": "تغيير كلمة المرور يتطلب خادمًا وهو معطل في هذه النسخة",
-      "newPasswordLabel": "كلمة المرور الجديدة",
-      "newPasswordPlaceholder": "معطل حتى يتم تنفيذ مصادقة الخادم",
-      "passwordInfoText": "تم تعطيل تحديثات كلمة المرور عمدًا في الواجهة الأمامية لأن التحقق من كلمة المرور يجب أن يتم التعامل معه بواسطة الخادم.",
-      "errorInvalidAge": "يجب أن يكون العمر رقمًا صحيحًا.",
-      "cancel": "إلغاء",
-      "save": "حفظ"
-    },
+  "title": "تعديل الملف الشخصي",
+  "userNameLabel": "اسم المستخدم",
+  "emailLabel": "البريد الإلكتروني",
+  "addressLabel": "العنوان",
+  "ageLabel": "العمر",
+  "passwordLabel": "كلمة المرور الحالية",
+  "passwordPlaceholder": "أدخل كلمة المرور الحالية",
+  "newPasswordLabel": "كلمة المرور الجديدة",
+  "newPasswordPlaceholder": "أدخل كلمة المرور الجديدة",
+  "passwordInfoText": "تم تعطيل تحديثات كلمة المرور مؤقتاً في هذه النسخة التجريبية لأن التحقق يجب أن يتم عبر النظام الخلفي.",
+  "errorInvalidAge": "يجب أن يكون العمر عدداً صحيحاً صالحاً.",
+  "errorPasswordBoth": "يجب إدخال كل من كلمة المرور الحالية والجديدة معاً.",
+  "errorPasswordLength": "يجب أن تكون كلمة المرور الجديدة أكثر من 8 أحرف.",
+  "cancel": "إلغاء",
+  "save": "حفظ",
+  "saving": "جاري الحفظ..."
+},
     "pfpEditorModal": {
       "title": "تغيير الصورة الشخصية",
       "dropImage": "أسقط الصورة هنا",
@@ -59,9 +63,55 @@
       "errorLoad": "تعذر تحميل هذه الصورة. يرجى تجربة ملف آخر.",
       "errorNoImage": "يرجى إضافة صورة أولاً.",
       "errorProcess": "تعذر معالجة الصورة. يرجى المحاولة مرة أخرى."
+    },
+    "options": {
+      "mode": {
+        "balanced": "متوازن",
+        "waterSaving": "توفير المياه",
+        "energySaving": "توفير الطاقة",
+        "growthPriority": "أولوية النمو"
+      },
+      "manualControl": {
+        "on": "تشغيل",
+        "off": "إيقاف"
+      },
+      "growthStage": {
+        "germination": "إنبات",
+        "seedling": "شتلة",
+        "vegetative": "نمو خضري",
+        "flowering": "تزهير",
+        "fruiting": "إثمار",
+        "maturity": "نضج"
+      },
+      "crops": {
+        "tomatoes": "طماطم",
+        "lettuce": "خس",
+        "cucumber": "خيار",
+        "strawberries": "فراولة",
+        "basil": "ريحان",
+        "spinach": "سبانخ",
+        "peppers": "فلفل"
+      },
+      "languages": {
+        "english": "الإنجليزية",
+        "arabic": "العربية",
+        "french": "الفرنسية"
+      },
+      "units": {
+        "celsius": "درجة مئوية °C",
+        "fahrenheit": "فهرنهايت °F",
+        "kelvin": "كلفن K",
+        "humidityPct": "الرطوبة %",
+        "absHumidity": "الرطوبة المطلقة g/m³",
+        "soilMoisture": "رطوبة التربة %",
+        "lux": "لوكس (lux)",
+        "footCandle": "شمعة قدم (fc)",
+        "lumen": "لومن (lm)"
+      }
     }
   },
   "notifications": {
+    "loading": "جاري تحميل الإشعارات...",
     "title": "الإشعارات",
     "all": "الكل",
     "unread": "غير مقروء",
@@ -72,6 +122,11 @@
     "earlier": "سابقاً"
   },
   "history": {
+    "selectDate": "اختر التاريخ",
+    "selectTime": "اختر الوقت",
+    "selectCrop": "اختر المحصول",
+    "loading": "جاري تحميل السجل...",
+    "loadingDetails": "جاري تحميل التفاصيل...",
     "months": {
       "january": "يناير", "february": "فبراير", "march": "مارس", "april": "أبريل", "may": "مايو", "june": "يونيو", "july": "يوليو", "august": "أغسطس", "september": "سبتمبر", "october": "أكتوبر", "november": "نوفمبر", "december": "ديسمبر"
     },
@@ -95,7 +150,8 @@
     },
     "timepicker": {
       "hour": "ساعة",
-      "min": "دقيقة"
+      "min": "دقيقة",
+      "set": "تعيين"
     },
     "buttons": {
       "reset": "إعادة ضبط",
@@ -105,15 +161,21 @@
       "no_records": "لم يتم العثور على سجلات",
       "adjust_filters": "حاول تعديل الفلاتر"
     },
-    "loading": "جاري تحميل المزيد من السجلات...",
+    "loading_trigger": "انقر لتحميل المزيد من السجلات",
+    "loading_active": "جاري تحميل المزيد من السجلات...",    
     "options": {
       "all": "الكل",
       "sunny": "مشمس",
+      "clear": "صافٍ",
+      "partly_cloudy": "غائم جزئياً",
       "cloudy": "غائم",
-      "night": "ليل",
-      "windy": "عاصف",
-      "stormy": "عاصف (رعديد)",
-      "rainy": "ممطر"
+      "foggy": "ضبابي",
+      "windy": "شديد الرياح",
+      "drizzle": "رذاذ",
+      "rainy": "ممطر",
+      "stormy": "عاصف",
+      "snowy": "مثلج",
+      "night": "ليل"
     },
     "growth_stages": {
       "all": "الكل",
@@ -155,6 +217,7 @@
   },
   "camStream": {
     "status": {
+      "connecting": "جاري الاتصال بالبث...",
       "live": "مباشر",
       "off": "متوقف",
       "streamOffline": "البث متوقف",
@@ -216,6 +279,7 @@
       "enterCrop": "أدخل المحصول",
       "growthStage": "مرحلة النمو",
       "selectStage": "حدد المرحلة",
+      "addCropHover":"انقر هنا لإضافة محصول جديد",
       "stages": {
         "germination": "الإنبات",
         "seedling": "الشتلة",
@@ -422,5 +486,18 @@
     "feature1Desc": "مراقبة وأتمتة على الفور",
     "feature2Title": "منصة موحدة",
     "feature2Desc": "كل شيء في مكان واحد"
+  },
+  "setup": {
+    "required": "الإعداد مطلوب",
+    "title": "رابط أو رمز Home Assistant مفقود",
+    "description": "يرجى إضافة رابط Home Assistant ورمز الوصول طويل المدى في الإعدادات قبل استخدام هذه الصفحة.",
+    "button": "الذهاب إلى الإعدادات"
+  },
+  "notFound": {
+    "error": "خطأ 404",
+    "title": "الصفحة غير موجودة",
+    "description": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+    "goDashboard": "الذهاب إلى لوحة التحكم",
+    "openSettings": "فتح الإعدادات"
   }
 }

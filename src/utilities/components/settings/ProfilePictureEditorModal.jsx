@@ -91,7 +91,7 @@ export default function ProfilePictureEditorModal({ isOpen, onClose, onConfirm }
       return;
     }
     if (file.size > 5 * 1024 * 1024) { // from doc 12
-      setError('Image size must be less than 5MB');
+      setError(t('profile.pfpEditorModal.errorFileSize'));
       return;
     }
     const objectUrl = URL.createObjectURL(file);
@@ -163,7 +163,7 @@ export default function ProfilePictureEditorModal({ isOpen, onClose, onConfirm }
       await onConfirm(canvas.toDataURL('image/png'));
       onClose();
     } catch (err) {
-      setError('Failed to upload image');
+      setError(t('profile.pfpEditorModal.errorUpload'));
     } finally {
       setLoading(false);
     }

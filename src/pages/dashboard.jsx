@@ -21,11 +21,12 @@ import {
 import useFarmPreferences from '../hooks/useFarmPreferences';
 import useActuatorsState from '../hooks/useActuatorsState';
 import usePersistentState from '../hooks/usePersistentState';
+import { useSensorHistory } from '../hooks/useSensorHistory';
 import useLiveState, { ID_TO_ACTUATOR_TYPE, ACTUATOR_TYPE_TO_ID } from '../hooks/useLiveState';
 import { useSocket } from '../context/SocketContext';
+import { buildRangeSeries } from '../utilities/data/dashboardData';
 
 export default function Dashboard() {
-
   const [isEditActuatorsOpen, setIsEditActuatorsOpen] = useState(false);
   const [selectedSensorId, setSelectedSensorId] = usePersistentState(
     `${STORAGE_KEYS.dashboardView}:selectedSensorId`,
@@ -45,7 +46,6 @@ export default function Dashboard() {
   } = useFarmPreferences();
 
   const [actuators, setActuators] = useActuatorsState();
-
   const { socket } = useSocket();
   const {
     liveSensors,
@@ -53,12 +53,84 @@ export default function Dashboard() {
     liveCrop,
     liveRecommendation,
     liveWarnings,
-  } = useLiveState(DASHBOARD_SENSOR_OPTIONS); // ← fixed: pass argument
+  } = useLiveState(DASHBOARD_SENSOR_OPTIONS);
+  const { chartData: historicalPoints, isLoading: isChartLoading, error: chartError } = useSensorHistory(selectedSensorId, activeRange);
+
+  // 1. MOVED UP: Initialize base dependencies first
+  const displayUnits = useMemo(
+    () => ({
+      temperatureUnit:    temperatureUnit    ?? NORMALIZED_USER.displayUnits.temp,
+      humidityUnit:       humidityUnit       ?? NORMALIZED_USER.displayUnits.hum,
+      soilMoistureUnit:   soilMoistureUnit   ?? NORMALIZED_USER.displayUnits.soil,
+      lightIntensityUnit: lightIntensityUnit ?? NORMALIZED_USER.displayUnits.light,
+    }),
+    [temperatureUnit, humidityUnit, soilMoistureUnit, lightIntensityUnit]
+  );
+
+  const baseTemperature = Number(
+    (liveSensors ?? DASHBOARD_SENSOR_OPTIONS).find((s) => s.id === 'temperature')?.currentValue ?? 25
+  );
+
+  const convertedSensors = useMemo(
+    () => (liveSensors ?? DASHBOARD_SENSOR_OPTIONS).map((sensor) => {
+      const converted = convertSensorValueById(sensor.id, sensor.currentValue, displayUnits, baseTemperature);
+      return {
+        ...sensor,
+        unit: converted.unit,
+        currentValue: Number.isFinite(converted.value)
+          ? formatConvertedValue(converted.value, '', 1)
+          : sensor.currentValue,
+      };
+    }),
+    [liveSensors, displayUnits, baseTemperature]
+  );
+
+  // 2. NOW sequence the chart data correctly
+  const dynamicSeries = useMemo(() => {
+    if (!historicalPoints || historicalPoints.length === 0) return { today: [], threeDays: [], week: [] };
+    const points = historicalPoints.map(p => ({ timestamp: p.timestamp, value: p.value }));
+    return buildRangeSeries(points);
+  }, [historicalPoints]);
+
+  const rawSeriesForRange = useMemo(() => {
+    switch (activeRange) {
+      case 'today': return dynamicSeries.today;
+      case 'threeDays': return dynamicSeries.threeDays;
+      case 'week': return dynamicSeries.week;
+      default: return dynamicSeries.week;
+    }
+  }, [dynamicSeries, activeRange]);
+  
+  const convertedSeriesForRange = useMemo(() => {
+    if (!rawSeriesForRange.length) return [];
+    const convertValue = (value) => {
+      const converted = convertSensorValueById(selectedSensorId, value, displayUnits, baseTemperature);
+      return converted.value;
+    };
+    return rawSeriesForRange.map(point => ({
+      ...point,
+      value: convertValue(point.value),
+    }));
+  }, [rawSeriesForRange, selectedSensorId, displayUnits, baseTemperature]);
+
+  const chartDataForRange = useMemo(() => {
+    if (convertedSeriesForRange.length) return convertedSeriesForRange;
+    return DASHBOARD_SENSOR_SERIES[selectedSensorId]?.[activeRange] || [];
+  }, [convertedSeriesForRange, selectedSensorId, activeRange]);
+
+  const selectedSensor = useMemo(
+    () => convertedSensors.find((s) => s.id === selectedSensorId) || convertedSensors[0],
+    [selectedSensorId, convertedSensors]
+  );
+
+  const globalMode = useMemo(() => {
+    const allAuto = actuators.every((a) => a.mode === 'auto');
+    return allAuto ? 'auto' : 'semi-auto';
+  }, [actuators]);
 
   // Merge live actuators into local state
   useEffect(() => {
     if (!liveActuators) return;
-
     const normalizedLive = Array.isArray(liveActuators) ? liveActuators : [liveActuators];
     if (normalizedLive.length === 0) return;
 
@@ -117,65 +189,6 @@ export default function Dashboard() {
     const exists = DASHBOARD_SENSOR_OPTIONS.some((sensor) => sensor.id === selectedSensorId);
     if (!exists) setSelectedSensorId(DEFAULT_SELECTED_SENSOR_ID);
   }, [selectedSensorId]);
-
-  const displayUnits = useMemo(
-    () => ({
-      temperatureUnit:    temperatureUnit    ?? NORMALIZED_USER.displayUnits.temp,
-      humidityUnit:       humidityUnit       ?? NORMALIZED_USER.displayUnits.hum,
-      soilMoistureUnit:   soilMoistureUnit   ?? NORMALIZED_USER.displayUnits.soil,
-      lightIntensityUnit: lightIntensityUnit ?? NORMALIZED_USER.displayUnits.light,
-    }),
-    [temperatureUnit, humidityUnit, soilMoistureUnit, lightIntensityUnit]
-  );
-
-  const baseTemperature = Number(
-    (liveSensors ?? DASHBOARD_SENSOR_OPTIONS).find((s) => s.id === 'temperature')?.currentValue ?? 25
-  );
-
-  const convertedSensors = useMemo(
-    () => (liveSensors ?? DASHBOARD_SENSOR_OPTIONS).map((sensor) => {
-      const converted = convertSensorValueById(sensor.id, sensor.currentValue, displayUnits, baseTemperature);
-      return {
-        ...sensor,
-        unit: converted.unit,
-        currentValue: Number.isFinite(converted.value)
-          ? formatConvertedValue(converted.value, '', 1)
-          : sensor.currentValue,
-      };
-    }),
-    [liveSensors, displayUnits, baseTemperature]
-  );
-
-  const convertedSeriesBySensor = useMemo(
-    () => Object.fromEntries(
-      Object.entries(DASHBOARD_SENSOR_SERIES).map(([sensorId, seriesByRange]) => {
-        const convertedSeries = Object.fromEntries(
-          Object.entries(seriesByRange).map(([rangeKey, points]) => [
-            rangeKey,
-            points.map((point) => {
-              const converted = convertSensorValueById(sensorId, point.value, displayUnits, baseTemperature);
-              return {
-                ...point,
-                value: Number.isFinite(converted.value) ? converted.value : point.value,
-              };
-            }),
-          ])
-        );
-        return [sensorId, convertedSeries];
-      })
-    ),
-    [displayUnits, baseTemperature]
-  );
-
-  const selectedSensor = useMemo(
-    () => convertedSensors.find((s) => s.id === selectedSensorId) || convertedSensors[0],
-    [selectedSensorId, convertedSensors]
-  );
-
-  const globalMode = useMemo(() => {
-    const allAuto = actuators.every((a) => a.mode === 'auto');
-    return allAuto ? 'auto' : 'semi-auto';
-  }, [actuators]);
 
   const handleToggleActuatorStatus = (actuatorId) => {
     setActuators((prev) =>
@@ -238,7 +251,7 @@ export default function Dashboard() {
     >
       <ChartCard
         selectedSensor={selectedSensor}
-        seriesByRange={convertedSeriesBySensor[selectedSensor.id]}
+        seriesByRange={chartDataForRange}
         activeRange={activeRange}
         onChangeRange={setActiveRange}
         className="h-full"

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Check, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import DynamicTranslator from '../Translation/DynamicTranslator'; // <-- Adjust this path to wherever you saved it
 
 /**
  * CropInfoDropdown
@@ -22,21 +23,38 @@ export default function CropInfoDropdown({
   placeholder,
   isCropInput = false,
 }) {
-  const { t } = useTranslation();
+  // Grab i18n to get the current language for the DynamicTranslator
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language || 'en'; 
+
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState(value || '');
   const containerRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Fallback placeholder in case the parent doesn't provide one
   const safePlaceholder = placeholder || t('dashboard.cropInfo.selectStage', 'Select');
 
-  // Keep input text in sync when parent changes value
+  const getDisplayValue = (val) => {
+    if (!val) return '';
+    const translationMap = {
+      'Germination': 'dashboard.cropInfo.stages.germination',
+      'Seedling': 'dashboard.cropInfo.stages.seedling',
+      'Vegetative Growth': 'dashboard.cropInfo.stages.vegetativeGrowth',
+      'Flowering': 'dashboard.cropInfo.stages.flowering',
+      'Fruiting': 'dashboard.cropInfo.stages.fruiting',
+      'Maturity': 'dashboard.cropInfo.stages.maturity',
+      'Balanced': 'dashboard.cropInfo.modes.balanced',
+      'Water saving': 'dashboard.cropInfo.modes.waterSaving',
+      'Energy saving': 'dashboard.cropInfo.modes.energySaving',
+      'Growth priority': 'dashboard.cropInfo.modes.growthPriority',
+    };
+    return translationMap[val] ? t(translationMap[val]) : val;
+  };
+
   useEffect(() => {
     setInputVal(value || '');
   }, [value]);
 
-  // Close on outside click; also reset input if crop field
   useEffect(() => {
     const handler = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -47,6 +65,13 @@ export default function CropInfoDropdown({
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [value, isCropInput]);
+
+  // Focus the input automatically if the menu is opened by clicking the text
+  useEffect(() => {
+    if (isOpen && isCropInput && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen, isCropInput]);
 
   const handleSelect = (option) => {
     onChange?.(option);
@@ -64,7 +89,7 @@ export default function CropInfoDropdown({
         onChange?.(match);
         setInputVal(match);
       } else {
-        onAddOption?.(trimmed); // add to shared list
+        onAddOption?.(trimmed); 
         onChange?.(trimmed);
         setInputVal(trimmed);
       }
@@ -90,25 +115,54 @@ export default function CropInfoDropdown({
   return (
     <div ref={containerRef} className="relative inline-flex items-center gap-1">
 
-      {/* ── Value display: text input for crop, button for others ── */}
+      {/* ── Value display ── */}
       {isCropInput ? (
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputVal}
-          placeholder={safePlaceholder}
-          onChange={(e) => {
-            setInputVal(e.target.value);
-            setIsOpen(true);
-          }}
-          onFocus={() => setIsOpen(true)}
-          onKeyDown={handleKeyDown}
-          dir="auto" /* <-- Added: Helps browser detect RTL vs LTR typed text */
-          className="bg-transparent border-none outline-none text-sm font-semibold leading-none w-24 placeholder:text-white/40"
-          style={{ color: 'rgba(248,255,246,1)' }}
-          autoComplete="off"
-          spellCheck={false}
-        />
+        isOpen ? (
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputVal}
+            placeholder={safePlaceholder}
+            onChange={(e) => setInputVal(e.target.value)}
+            onKeyDown={handleKeyDown}
+            dir="auto" 
+            className="bg-transparent border-none outline-none text-sm font-semibold leading-none w-24 placeholder:text-white/40"
+            style={{ color: 'rgba(248,255,246,1)' }}
+            autoComplete="off"
+            spellCheck={false}
+          />
+        ) : (
+          // Tooltip only wraps the crop value, not the caret
+          <div className="relative group">
+            <div 
+              className="text-sm font-semibold leading-none w-24 cursor-text flex items-center"
+              style={{ color: 'rgba(248,255,246,1)', minHeight: '14px' }}
+              onClick={() => setIsOpen(true)}
+            >
+              {value ? (
+                <DynamicTranslator text={value} language={currentLang} />
+              ) : (
+                <span className="text-white/40">{safePlaceholder}</span>
+              )}
+            </div>
+
+            {/* Tooltip — only visible on hover of the crop value */}
+            <span
+              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white rounded-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-20"
+              style={{
+                background: 'rgba(20, 40, 15, 0.96)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+              }}
+            >
+                {t('dashboard.cropInfo.addCropHover', 'Click here to add new crop')}
+              <span
+                className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent"
+                style={{ borderTopColor: 'rgba(20, 40, 15, 0.96)' }}
+              />
+            </span>
+          </div>
+        )
       ) : (
         <button
           type="button"
@@ -116,12 +170,12 @@ export default function CropInfoDropdown({
           className="flex items-center gap-0.5 focus:outline-none"
         >
           <span className="text-sm font-semibold leading-none" style={{ color: 'rgba(248,255,246,1)' }}>
-            {value || safePlaceholder}
+            {value ? getDisplayValue(value) : safePlaceholder}
           </span>
         </button>
       )}
 
-      {/* Caret — always toggles the dropdown */}
+      {/* Caret — separate, no tooltip */}
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
@@ -142,7 +196,6 @@ export default function CropInfoDropdown({
             exit={{ opacity: 0, y: -6, scaleY: 0.92 }}
             transition={{ duration: 0.18, ease: 'easeOut' }}
             style={{ transformOrigin: 'top center', ...dropdownStyle }}
-            // Changed left-0 to start-0 so the dropdown anchors correctly in Arabic (RTL)
             className="absolute start-0 top-full mt-1 z-50 min-w-[160px] overflow-hidden"
           >
             {options.map((option, idx) => {
@@ -154,7 +207,6 @@ export default function CropInfoDropdown({
                   key={option}
                   type="button"
                   onClick={() => handleSelect(option)}
-                  // Changed text-left to text-start for RTL support
                   className="w-full flex items-center justify-between px-3 text-start transition-colors"
                   style={{
                     paddingTop: isFirst ? '9px' : '6px',
@@ -171,7 +223,13 @@ export default function CropInfoDropdown({
                     if (!isSelected) e.currentTarget.style.background = 'transparent';
                   }}
                 >
-                  <span className="capitalize">{option}</span>
+                  <span className="capitalize">
+                    {isCropInput ? (
+                      <DynamicTranslator text={option} language={currentLang} />
+                    ) : (
+                      getDisplayValue(option)
+                    )}
+                  </span>
                   {isSelected && (
                     <Check size={13} color="rgba(248,255,246,0.80)" strokeWidth={2.5} />
                   )}

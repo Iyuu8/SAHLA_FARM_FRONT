@@ -47,9 +47,7 @@ const BellIcon = () => (
 export default function Header() {
   const { t } = useTranslation();
   const [time, setTime] = useState("");
-  const { notifications = [] } = useContext(NotificationsContext);
-  const numberOfNotifications =
-  notifications.filter(n => !n.isRead).length;
+  const { notificationCount = 0 } = useContext(NotificationsContext) || {};
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
@@ -69,7 +67,7 @@ export default function Header() {
       <div className='flex items-center  w-full gap-2'>
          
         <div className='md:hidden'><LogoIcon/></div>
-        <span className='text-[#192514] text-[15px] lg:text-[32px] md:text-[26px] font-normal font-newblack'>{t("header.farmName")}</span>
+        <span className='text-[#192514] text-[15px] lg:text-[32px] md:text-[26px] font-normal font-newblack'>SAHLA Farm</span>
       </div>
       
       <div className='flex justify-end  gap-1 w-full'>
@@ -92,20 +90,20 @@ export default function Header() {
   <span className='hidden font-newblack md:block text-[#192514] opacity-80 text-[15px] '>
     {t("header.notifications")}
   </span>
-  <div className={`${numberOfNotifications > 0 ? "" : "hidden"}
+  <div className={`${notificationCount > 0 ? "" : "hidden"}
       absolute -top-[3px] -right-[0.5px]
       md:static md:top-auto md:right-auto
       bg-[#E22A49] w-[18px] h-[18px] md:w-[23px] md:h-[23px]
       flex justify-center items-center rounded-full
       text-white text-[10px] md:text-xs font-bold`}
       >
-      {numberOfNotifications}
+      {notificationCount}
     </div>
 
   {/* Text — hidden on mobile */}
   
 
-</Link>
+      </Link>
       </div>
     </div>
   )

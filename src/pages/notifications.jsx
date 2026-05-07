@@ -1,12 +1,15 @@
 import React from 'react'
 import { useState, useContext, useMemo } from 'react';
 import { NotificationsContext } from '../layout';
+import useNotifications from '../hooks/useNotifications';
 import { useTranslation } from 'react-i18next';
 import HACredentialsRequired from './haCredentialsRequired'
+import DynamicTranslator from '../utilities/components/Translation/DynamicTranslator';
 
 export default function Notifications() {
-  const { t } = useTranslation();
-  const { notifications = [], loading, error, markAsRead, markAllAsRead } = useContext(NotificationsContext);
+  const { t , i18n} = useTranslation();
+  const { notifications = [], loading, error, markAsRead, markAllAsRead } = useNotifications();
+  const { refetchNotificationCount } = useContext(NotificationsContext) || {};
 
   const { unreadCount, totalCount } = useMemo(() => ({
     unreadCount: notifications?.filter(n => !n.isRead).length || 0,
@@ -14,6 +17,16 @@ export default function Notifications() {
   }), [notifications]);
 
   const [filter, setFilter] = useState("all");
+
+  const handleMarkAsRead = async (id) => {
+    await markAsRead(id);
+    await refetchNotificationCount?.();
+  };
+
+  const handleMarkAllAsRead = async () => {
+    await markAllAsRead();
+    await refetchNotificationCount?.();
+  };
 
   const filtered = filter === "unread"
     ? notifications.filter(n => !n.isRead)
@@ -27,7 +40,7 @@ export default function Notifications() {
 
   if (loading) return (
     <div className='flex flex-1 items-center justify-center font-newblack'>
-      <p className='text-[#192514] font-semibold text-lg'>Loading notifications...</p>
+      <p className='text-[#192514] font-semibold text-lg'>{t('notifications.loading')}</p>
     </div>
   )
 
@@ -42,16 +55,16 @@ export default function Notifications() {
   )
 }
 
-  const NotificationItem = ({ item }) => (
+ const NotificationItem = ({ item }) => (
     <div
       className='md:px-5 px-2 md:py-[10px] py-[5px] flex w-full justify-between items-center gap-1
         hover:bg-[#DDEADB75] cursor-pointer transition-colors duration-200 rounded-[20px]'
-      onClick={() => markAsRead(item.id)}
+      onClick={() => handleMarkAsRead(item.id)}
     >
       <div className='flex flex-col flex-shrink'>
-        <h1 className={`${item.isRead ? "text-[rgba(0,0,0,0.65)]" : "text-[#192514]"} font-bold text-[16px] md:text-[24px]`}>{item.title}</h1>
-        <p className={`${item.isRead ? "text-[#9F9D9D]" : ""} font-normal text-[12px] md:text-[20px]`}>{item.description}</p>
-        <h2 className={`${item.isRead ? "text-[#919190]" : "text-[#55BB33]"} font-bold text-[12px] md:text-[20px]`}>{item.time}</h2>
+        <DynamicTranslator text={item.title} language={i18n.language} className={`${item.isRead ? "text-[rgba(0,0,0,0.65)]" : "text-[#192514]"} font-bold text-[16px] md:text-[24px]`} />
+        <DynamicTranslator text={item.description} language={i18n.language} className={`${item.isRead ? "text-[#9F9D9D]" : ""} font-normal text-[12px] md:text-[20px]`} />
+        <DynamicTranslator text={item.time} language={i18n.language} className={`${item.isRead ? "text-[#919190]" : "text-[#55BB33]"} font-bold text-[12px] md:text-[20px]`} />
       </div>
       {!item.isRead && (
         <div className='md:w-[19px] md:h-[19px] w-[11px] h-[11px] bg-[#55BB33] rounded-[50%] flex-shrink-0'
@@ -80,7 +93,7 @@ export default function Notifications() {
             {t('notifications.unread')} ({unreadCount})
           </button>
         </div>
-        <button className='text-[#55BB33] text-[14px] md:text-[20px] font-bold' onClick={markAllAsRead}>
+        <button className='text-[#55BB33] text-[14px] md:text-[20px] font-bold' onClick={handleMarkAllAsRead}>
           {t('notifications.mark_all_read')}
         </button>
       </div>

@@ -1,5 +1,6 @@
 {
   "profile": {
+    "loading": "Loading profile...",
     "edit": "Edit",
     "farm_settings_title": "Farm Settings & Preferences",
     "farm_settings_subtitle": "Farm Settings",
@@ -37,14 +38,17 @@
       "emailLabel": "Email",
       "addressLabel": "Address",
       "ageLabel": "Age",
-      "passwordLabel": "Password",
-      "passwordPlaceholder": "Password change requires backend and is disabled in this build",
+      "passwordLabel": "Current Password",
+      "passwordPlaceholder": "Enter current password",
       "newPasswordLabel": "New Password",
-      "newPasswordPlaceholder": "Disabled until backend hashing/auth is implemented",
+      "newPasswordPlaceholder": "Enter new password",
       "passwordInfoText": "Password updates are intentionally disabled in frontend simulation because current password/token validation must be handled by backend hashing/auth.",
       "errorInvalidAge": "Age must be a valid integer.",
+      "errorPasswordBoth": "Both current and new passwords are required to change your password.",
+      "errorPasswordLength": "New password must be more than 8 characters.",
       "cancel": "Cancel",
-      "save": "Save"
+      "save": "Save",
+      "saving": "Saving..."
     },
     "pfpEditorModal": {
       "title": "Change Profile Picture",
@@ -59,9 +63,55 @@
       "errorLoad": "Could not load this image. Please try another file.",
       "errorNoImage": "Please add an image first.",
       "errorProcess": "Could not process image. Please try again."
+    },
+    "options": {
+      "mode": {
+        "balanced": "Balanced",
+        "waterSaving": "Water Saving",
+        "energySaving": "Energy Saving",
+        "growthPriority": "Growth Priority"
+      },
+      "manualControl": {
+        "on": "On",
+        "off": "Off"
+      },
+      "growthStage": {
+        "germination": "Germination",
+        "seedling": "Seedling",
+        "vegetative": "Vegetative Growth",
+        "flowering": "Flowering",
+        "fruiting": "Fruiting",
+        "maturity": "Maturity"
+      },
+      "crops": {
+        "tomatoes": "Tomatoes",
+        "lettuce": "Lettuce",
+        "cucumber": "Cucumber",
+        "strawberries": "Strawberries",
+        "basil": "Basil",
+        "spinach": "Spinach",
+        "peppers": "Peppers"
+      },
+      "languages": {
+        "english": "English",
+        "arabic": "العربية",
+        "french": "French"
+      },
+      "units": {
+        "celsius": "Celsius °C",
+        "fahrenheit": "Fahrenheit °F",
+        "kelvin": "Kelvin K",
+        "humidityPct": "Humidity %",
+        "absHumidity": "Abs. Humidity g/m³",
+        "soilMoisture": "Soil Moisture %",
+        "lux": "Lux (lux)",
+        "footCandle": "Foot-candle (fc)",
+        "lumen": "Lumen (lm)"
+      }
     }
   },
   "notifications": {
+    "loading": "Loading notifications...",
     "title": "Notifications",
     "all": "ALL",
     "unread": "UNREAD",
@@ -72,6 +122,11 @@
     "earlier": "EARLIER"
   },
   "history": {
+    "selectDate": "Select Date",
+    "selectTime": "Select Time",
+    "selectCrop": "Select Crop",
+    "loading": "Loading history...",
+    "loadingDetails": "Loading details...",
     "months": {
       "january": "January", "february": "February", "march": "March", "april": "April", "may": "May", "june": "June", "july": "July", "august": "August", "september": "September", "october": "October", "november": "November", "december": "December"
     },
@@ -95,7 +150,8 @@
     },
     "timepicker": {
       "hour": "HOUR",
-      "min": "MIN"
+      "min": "MIN",
+      "set": "SET"
     },
     "buttons": {
       "reset": "RESET",
@@ -105,15 +161,21 @@
       "no_records": "No records found",
       "adjust_filters": "Try adjusting your filters"
     },
-    "loading": "loading more records...",
+    "loading_trigger": "Click to load more records",
+    "loading_active": "Loading more records...",
     "options": {
       "all": "All",
       "sunny": "Sunny",
+      "clear": "Clear",
+      "partly_cloudy": "Partly Cloudy",
       "cloudy": "Cloudy",
-      "night": "Night",
+      "foggy": "Foggy",
       "windy": "Windy",
+      "drizzle": "Drizzle",
+      "rainy": "Rainy",
       "stormy": "Stormy",
-      "rainy": "Rainy"
+      "snowy": "Snowy",
+      "night": "Night"
     },
     "growth_stages": {
       "all": "All",
@@ -155,6 +217,7 @@
   },
   "camStream": {
     "status": {
+      "connecting": "Connecting to stream...",
       "live": "LIVE",
       "off": "OFF",
       "streamOffline": "stream offline",
@@ -216,6 +279,7 @@
       "enterCrop": "Enter crop",
       "growthStage": "Growth Stage",
       "selectStage": "Select stage",
+      "addCropHover":"Click here to add new crop",
       "stages": {
         "germination": "Germination",
         "seedling": "Seedling",
@@ -254,8 +318,8 @@
     "manualModeCard": {
       "toggleAriaLabel": "Toggle manual mode",
       "editAriaLabel": "Edit actuator modes",
-      "on": "ON",
-      "off": "OFF",
+      "on": "on",
+      "off": "off",
       "modes": {
         "auto": "auto",
         "semi-auto": "semi-auto",
@@ -422,6 +486,19 @@
     "feature1Desc": "monitor & automate instantly",
     "feature2Title": "Unified Platform",
     "feature2Desc": "everything in one single place"
+  },
+  "setup": {
+    "required": "SETUP REQUIRED",
+    "title": "Home Assistant URL/Token Missing",
+    "description": "Please add your Home Assistant URL and Long-Lived Access Token in Settings before using this page.",
+    "button": "Go To Settings"
+  },
+  "notFound": {
+    "error": "ERROR 404",
+    "title": "Page Not Found",
+    "description": "The page you are looking for does not exist or was moved.",
+    "goDashboard": "Go To Dashboard",
+    "openSettings": "Open Settings"
   }
 
 }
