@@ -510,7 +510,7 @@ function About() {
         <div className="reveal relative w-full max-w-[400px] mx-auto md:max-w-none" style={{ animationDelay:"0.2s" }}>
           <div className="w-full pb-[100%] bg-gradient-to-br from-[#55BB33]/10 to-[#55BB33]/5 rounded-[32px] border border-[#55BB33]/20"/>
           <div className="absolute inset-5 bg-[#192514] rounded-3xl flex items-center justify-center overflow-hidden shadow-[0_20px_40px_rgba(25,37,20,0.2)]">
-            <div className="absolute inset-0 opacity-50 bg-[url('data:image/svg+xml,%3Csvg_viewBox=%220_0_256_256%22_xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter_id=%22noise%22%3E%3CfeTurbulence_type=%22fractalNoise%22_baseFrequency=%220.9%22_numOctaves=%224%22_stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect_width=%22100%25%22_height=%22100%25%22_filter=%22url(%23noise)%22_opacity=%220.08%22/%3E%3C/svg%3E')]"/>
+            <div className="absolute inset-0 opacity-50 bg-noise-pattern" />
             <Logo />
           </div>
         </div>
