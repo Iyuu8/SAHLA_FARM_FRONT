@@ -2,10 +2,8 @@
 
 import { FARM_LOCATION, FARM_WEATHER } from "../data/chatConstants";
 import {
-  DASHBOARD_ACTUATORS,
   DASHBOARD_CROP_DEFAULTS,
   DASHBOARD_SENSOR_OPTIONS,
-  DASHBOARD_WARNINGS,
 } from "../data/dashboardData";
 import { NORMALIZED_USER } from "../data/profileSettings";
 import {
@@ -184,7 +182,6 @@ export function buildFarmContext(farmProps) {
     NORMALIZED_USER.farmSettings.growth;
   const systemMode =
     mode || DASHBOARD_CROP_DEFAULTS.mode || NORMALIZED_USER.farmSettings.mode;
-  const recAction = recommendedAction || "None.";
 
   return `[SILENT FARM CONTEXT — USE ONLY WHEN RELEVANT, DO NOT RECITE IN FULL]
 Time: ${time}
