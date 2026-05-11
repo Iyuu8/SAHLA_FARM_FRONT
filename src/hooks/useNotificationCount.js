@@ -1,4 +1,3 @@
-// hooks/useNotificationCount.js
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../supabaseClient";
 
@@ -20,7 +19,7 @@ export function useNotificationCount() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "Failed to fetch count");
-        setCount(json.count);
+      setCount(json.count);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -28,13 +27,17 @@ export function useNotificationCount() {
     }
   }, []);
 
+  // Optimistic decrement — floors at 0
+  const decrement = useCallback((by = 1) => {
+    setCount((prev) => Math.max(0, prev - by));
+  }, []);
+
   useEffect(() => {
     fetchCount();
-    // Optional: refetch when window gains focus (e.g., after returning from notifications page)
     const onFocus = () => fetchCount();
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, [fetchCount]);
-  console.log("-*-*-*-*-*-*-**Current notification count in hook state:", count); // Debug log to verify count updates 
-  return { count, loading, error, refetch: fetchCount };
+
+  return { count, loading, error, refetch: fetchCount, decrement };
 }

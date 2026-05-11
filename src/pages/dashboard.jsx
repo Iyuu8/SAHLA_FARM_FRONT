@@ -10,21 +10,24 @@ import {
   DASHBOARD_SENSOR_OPTIONS,
   DASHBOARD_SENSOR_SERIES,
   DEFAULT_SELECTED_SENSOR_ID,
+  buildRangeSeries
 } from '../utilities/data/dashboardData';
-import { NORMALIZED_USER, profileSettingOptions } from '../utilities/data/profileSettings';
+import { NORMALIZED_USER } from '../utilities/data/profileSettings';
 import { STORAGE_KEYS } from '../utilities/data/storageKeys';
 import MonitoringAlerts from '../utilities/components/dashboard/MonitoringAlerts';
 import {
   convertSensorValueById,
   formatConvertedValue,
 } from '../utilities/functions/conversionFunctions';
-import useFarmPreferences from '../hooks/useFarmPreferences';
-import useActuatorsState from '../hooks/useActuatorsState';
+
+// --- NEW GLOBAL HOOKS ---
+import useFarmPreferences from '../context/FarmContext';
+import { useGlobalActuators } from '../context/ActuatorContext';
+import { useSocket } from '../context/SocketContext';
+
 import usePersistentState from '../hooks/usePersistentState';
 import { useSensorHistory } from '../hooks/useSensorHistory';
-import useLiveState, { ID_TO_ACTUATOR_TYPE, ACTUATOR_TYPE_TO_ID } from '../hooks/useLiveState';
-import { useSocket } from '../context/SocketContext';
-import { buildRangeSeries } from '../utilities/data/dashboardData';
+import useLiveState from '../hooks/useLiveState';
 
 export default function Dashboard() {
   const [isEditActuatorsOpen, setIsEditActuatorsOpen] = useState(false);
@@ -38,6 +41,7 @@ export default function Dashboard() {
   );
   const [isDesktop, setIsDesktop] = useState(true);
 
+  // 1. Global Farm Preferences
   const {
     crop, setCrop, cropOptions, addCropOption,
     growthStage, setGrowthStage,
@@ -45,18 +49,26 @@ export default function Dashboard() {
     temperatureUnit, humidityUnit, soilMoistureUnit, lightIntensityUnit,
   } = useFarmPreferences();
 
-  const [actuators, setActuators] = useActuatorsState();
+  // 2. Global Actuator State & Actions
+  const { 
+    actuators, 
+    globalMode, 
+    handleToggleGlobalMode, 
+    handleToggleActuatorStatus, 
+    handleToggleActuatorMode 
+  } = useGlobalActuators();
+
   const { socket } = useSocket();
   const {
     liveSensors,
-    liveActuators,
     liveCrop,
     liveRecommendation,
     liveWarnings,
   } = useLiveState(DASHBOARD_SENSOR_OPTIONS);
-  const { chartData: historicalPoints, isLoading: isChartLoading, error: chartError } = useSensorHistory(selectedSensorId, activeRange);
+  
+  // Cleaned up unused loading/error variables
+  const { chartData: historicalPoints } = useSensorHistory(selectedSensorId, activeRange);
 
-  // 1. MOVED UP: Initialize base dependencies first
   const displayUnits = useMemo(
     () => ({
       temperatureUnit:    temperatureUnit    ?? NORMALIZED_USER.displayUnits.temp,
@@ -85,7 +97,6 @@ export default function Dashboard() {
     [liveSensors, displayUnits, baseTemperature]
   );
 
-  // 2. NOW sequence the chart data correctly
   const dynamicSeries = useMemo(() => {
     if (!historicalPoints || historicalPoints.length === 0) return { today: [], threeDays: [], week: [] };
     const points = historicalPoints.map(p => ({ timestamp: p.timestamp, value: p.value }));
@@ -123,60 +134,6 @@ export default function Dashboard() {
     [selectedSensorId, convertedSensors]
   );
 
-  const globalMode = useMemo(() => {
-    const allAuto = actuators.every((a) => a.mode === 'auto');
-    return allAuto ? 'auto' : 'semi-auto';
-  }, [actuators]);
-
-  // Merge live actuators into local state
-  useEffect(() => {
-    if (!liveActuators) return;
-    const normalizedLive = Array.isArray(liveActuators) ? liveActuators : [liveActuators];
-    if (normalizedLive.length === 0) return;
-
-    setActuators((prev) =>
-      prev.map((actuator) => {
-        const expectedBackendType = ID_TO_ACTUATOR_TYPE[actuator.id] || actuator.id;
-        const live = normalizedLive.find((a) => a?.type === expectedBackendType);
-        if (!live) return actuator;
-
-        const runAt = live.run_at ?? null;
-        const runUntil = live.run_until ?? null;
-
-        let updatedSchedule = '';
-        if (live.control_mode === 'auto') {
-          if (runAt && runUntil) {
-            updatedSchedule = `${runAt.slice(11, 16)} - ${runUntil.slice(11, 16)}`;
-          } else if (runUntil) {
-            updatedSchedule = `Exec at ${runAt.slice(11, 16)}`;
-          } else {
-            updatedSchedule = 'Not Scheduled';
-          }
-        } else {
-          updatedSchedule = 'Manual';
-        }
-
-        return {
-          ...actuator,
-          status: live.status ?? actuator.status,
-          mode: live.control_mode === 'semi_auto' ? 'semi-auto' : live.control_mode === 'auto' ? 'auto' : actuator.mode,
-          schedule: updatedSchedule,
-          run_at: runAt,
-          run_until: runUntil,
-          duration_minutes: live.duration_minutes ?? null,
-          raw: { ...actuator.raw, ...live },
-        };
-      })
-    );
-  }, [liveActuators]);
-
-  // Merge live crop into farm preferences
-  useEffect(() => {
-    if (!liveCrop) return;
-    if (liveCrop.type)         setCrop(liveCrop.type);
-    if (liveCrop.growth_stage) setGrowthStage(liveCrop.growth_stage);
-    if (liveCrop.mode)         setMode(liveCrop.mode);
-  }, [liveCrop]);
 
   useEffect(() => {
     const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
@@ -189,57 +146,6 @@ export default function Dashboard() {
     const exists = DASHBOARD_SENSOR_OPTIONS.some((sensor) => sensor.id === selectedSensorId);
     if (!exists) setSelectedSensorId(DEFAULT_SELECTED_SENSOR_ID);
   }, [selectedSensorId]);
-
-  const handleToggleActuatorStatus = (actuatorId) => {
-    setActuators((prev) =>
-      prev.map((actuator) => {
-        if (actuator.id !== actuatorId) return actuator;
-        if (actuator.mode !== 'semi-auto') return actuator;
-        const nextStatus = actuator.status === 'on' ? 'off' : 'on';
-        socket?.emit('set_entity', {
-          type: 'actuator_status',
-          payload: {
-            actuatorType: ID_TO_ACTUATOR_TYPE[actuatorId] ?? actuatorId,
-            value: nextStatus,
-          },
-        });
-        return { ...actuator, status: nextStatus };
-      })
-    );
-  };
-
-  const handleToggleGlobalMode = (nextSemiAutoState) => {
-    setActuators((prev) =>
-      prev.map((actuator) => {
-        const nextMode = nextSemiAutoState ? 'semi-auto' : 'auto';
-        socket?.emit('set_entity', {
-          type: 'actuator_control_mode',
-          payload: {
-            actuatorType: ID_TO_ACTUATOR_TYPE[actuator.id] ?? actuator.id,
-            value: nextSemiAutoState ? 'semi_auto' : 'auto',
-          },
-        });
-        return { ...actuator, mode: nextMode };
-      })
-    );
-  };
-
-  const handleToggleActuatorMode = (actuatorId) => {
-    setActuators((prev) =>
-      prev.map((actuator) => {
-        if (actuator.id !== actuatorId) return actuator;
-        const nextMode = actuator.mode === 'semi-auto' ? 'auto' : 'semi-auto';
-        socket?.emit('set_entity', {
-          type: 'actuator_control_mode',
-          payload: {
-            actuatorType: ID_TO_ACTUATOR_TYPE[actuatorId] ?? actuatorId,
-            value: nextMode === 'semi-auto' ? 'semi_auto' : 'auto',
-          },
-        });
-        return { ...actuator, mode: nextMode };
-      })
-    );
-  };
 
   const chartSection = (
     <motion.div

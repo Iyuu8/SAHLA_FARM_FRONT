@@ -62,6 +62,11 @@ export default function Header() {
     const interval = setInterval(updateTime, 60000); // update every minute
     return () => clearInterval(interval);            // cleanup on unmount
   }, [t]);
+  
+const getBadgeText = () => {
+    if (notificationCount > 99) return "+99";
+    return notificationCount.toString();
+  };
   return (
     <div className='flex w-full justify-between items-center'>
       <div className='flex items-center  w-full gap-2'>
@@ -97,7 +102,7 @@ export default function Header() {
       flex justify-center items-center rounded-full
       text-white text-[10px] md:text-xs font-bold`}
       >
-      {notificationCount}
+      {getBadgeText()}
     </div>
 
   {/* Text — hidden on mobile */}

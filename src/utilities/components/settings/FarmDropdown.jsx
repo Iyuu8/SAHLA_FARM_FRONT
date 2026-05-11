@@ -3,7 +3,7 @@ import { FaCaretDown } from 'react-icons/fa6';
 import { useTranslation } from 'react-i18next';
 import DynamicTranslator from '../Translation/DynamicTranslator';
 
-export default function FarmDropdown({ label, value, options, onChange, color, isDynamicCrop = false }) {
+export default function FarmDropdown({ label, value, options, onChange, color, isDynamicCrop = false,disabled = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   const { t, i18n } = useTranslation();
@@ -46,12 +46,13 @@ export default function FarmDropdown({ label, value, options, onChange, color, i
 
   const base = 'max-w-full flex items-center gap-1 px-2 sm:px-3 py-2 rounded-[10px] text-xs sm:text-[1.6ch] font-semibold cursor-pointer select-none';
   return (
-    <div className='relative' ref={containerRef}>
+    <div className={`relative ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`} ref={containerRef}>
       <button
         type='button'
-        className={base}
+        disabled={disabled}
+        className={`${base} ${disabled ? 'pointer-events-none' : ''}`}
         style={{ backgroundColor: color.bg, color: color.text }}
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => !disabled && setIsOpen((prev) => !prev)}
       >
         <span className='capitalize'>
           {label}: {' '}

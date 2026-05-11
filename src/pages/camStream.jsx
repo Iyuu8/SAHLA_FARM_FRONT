@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from 'react-i18next';
+import useHaCredentials from '../hooks/useHaCredentials';
 
 // ── Configuration (REPLACE TOKEN HERE) ────────────────────────────────────────
-const HA_HOST = "raspberrypi.local:8123";
 const ENTITY_ID = "camera.farm_camera_farm_camera_feed";
-const HA_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI2YjIyMDA4ZjAxNDM0MjEyYTk3YzM5ZTA1ZDc2ZTA4OSIsImlhdCI6MTc3NzQ5MTcxNCwiZXhwIjoyMDkyODUxNzE0fQ.JdNnageCDHSDeBS7YoCo_hjdn1JsTlZD43JqRQ03W9s"; 
 
 // ── Live clock ────────────────────────────────────────────────────────────────
 function useClock() {
@@ -119,6 +118,7 @@ const Corner = ({ pos, isMobile }) => {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function CamStream() {
+ const { haUrl, haToken, isHaOnline, loading } = useHaCredentials();
   const isMobile = useIsMobile();
   const time     = useClock();
   const { t } = useTranslation();
@@ -167,8 +167,10 @@ export default function CamStream() {
   const timerRef   = useRef(null);
 
   // ── Secure HTTP Fetching (Poller) ───────────────────────────────────────────
+  // ── Secure HTTP Fetching (Poller) ───────────────────────────────────────────
   useEffect(() => {
-    if (!streaming) {
+    // GUARD: Don't fetch if stopped, loading, or HA is offline
+    if (!streaming || loading || !isHaOnline || !haUrl || !haToken) {
       if (timerRef.current) clearInterval(timerRef.current);
       setImgSrc(null);
       return;
@@ -178,9 +180,9 @@ export default function CamStream() {
 
     const fetchFrame = async () => {
       try {
-        const response = await fetch(`http://${HA_HOST}/api/camera_proxy/${ENTITY_ID}`, {
+        const response = await fetch(`${haUrl}/api/camera_proxy/${ENTITY_ID}`, {
           headers: {
-            "Authorization": `Bearer ${HA_TOKEN}`
+            "Authorization": `Bearer ${haToken}`
           }
         });
 
@@ -207,7 +209,7 @@ export default function CamStream() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [streaming, t]);
+  }, [streaming, loading, isHaOnline, haUrl, haToken, t]); // <-- Added new dependencies
 
   // ── Camera ──
   const startCam = () => {

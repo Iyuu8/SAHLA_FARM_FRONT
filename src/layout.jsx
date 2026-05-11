@@ -17,6 +17,7 @@ export default function Layout() {
     loading: notificationCountLoading,
     error: notificationCountError,
     refetch: refetchNotificationCount,
+    decrement: decrementCount,
   } = useNotificationCount();
 
   const location = useLocation();
@@ -29,21 +30,22 @@ export default function Layout() {
         notificationCountLoading,
         notificationCountError,
         refetchNotificationCount,
+        decrementCount,
       }}
     >
       <div
-              className={`flex font-newblack ${location.pathname === "/notifications" || "/history" ? "h-screen overflow-hidden" : "min-h-screen"}`}
-            >
-              <div className="">
-                <Sidebar isOpen={isMobileOpen} setIsOpen={setIsMobileOpen} />
-              </div>
-              <div
-                className={`${isAr ? "mr-[var(--sidebar-width)]" : "ml-[var(--sidebar-width)]"} flex flex-col flex-1 min-w-0 p-2 h-screen bg-[#F5F7F6] bg-opacity-95 ${
-                  location.pathname === "/notifications" || location.pathname === "/history"
-                    ? "overflow-hidden"
-                    : ""
-                }}`}
-              >
+        className={`flex font-newblack ${location.pathname === "/notifications" || "/history" ? "h-screen overflow-hidden" : "min-h-screen"}`}
+      >
+        <div className="">
+          <Sidebar isOpen={isMobileOpen} setIsOpen={setIsMobileOpen} />
+        </div>
+        <div
+          className={`${isAr ? "mr-[var(--sidebar-width)]" : "ml-[var(--sidebar-width)]"} flex flex-col flex-1 min-w-0 p-2 h-screen bg-[#F5F7F6] bg-opacity-95 ${
+            location.pathname === "/notifications" || location.pathname === "/history"
+              ? "overflow-hidden"
+              : ""
+          }}`}
+        >
           <header className="w-full h-16 text-white flex items-center justify-start md:px-[2px] gap-1">
             <button
               onClick={() => setIsMobileOpen(true)}

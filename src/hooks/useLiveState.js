@@ -17,8 +17,9 @@ export const ID_TO_ACTUATOR_TYPE = {
   "act-pmp-01": "pump",
   "act-fan-01": "fan",
 };
+const EMPTY_ARRAY = [];
 
-export default function useLiveState(initialSensorOptions) {
+export default function useLiveState(initialSensorOptions = EMPTY_ARRAY) {
   const { socket, liveState } = useSocket();
 
   const [liveSensors, setLiveSensors] = useState(null);
@@ -29,14 +30,11 @@ export default function useLiveState(initialSensorOptions) {
   const [liveWeather, setLiveWeather] = useState(null);
   const [liveNotifications, setLiveNotifications] = useState(null);
 
-  // Seed all state from the initial HA snapshot (received via auth_success)
+  // Seed all state from the initial HA snapshot
   useEffect(() => {
-    if (!liveState) {
-      return;
-    };
+    if (!liveState) return;
 
-    if (liveState.recommendation)
-      setLiveRecommendation(liveState.recommendation);
+    if (liveState.recommendation) setLiveRecommendation(liveState.recommendation);
     if (liveState.crop) setLiveCrop(liveState.crop);
     if (liveState.actuators) setLiveActuators(liveState.actuators);
     if (liveState.warnings) setLiveWarnings(liveState.warnings);
@@ -45,10 +43,14 @@ export default function useLiveState(initialSensorOptions) {
 
     if (Array.isArray(liveState.sensors)) {
       setLiveSensors((prev) => {
-        const base = prev ?? initialSensorOptions;
+        // Safe fallback: guarantee we are mapping over an array
+        const base = Array.isArray(prev) && prev.length > 0 
+          ? prev 
+          : (Array.isArray(initialSensorOptions) ? initialSensorOptions : []);
+          
         return base.map((sensor) => {
           const backendSensor = liveState.sensors.find(
-            (s) => SENSOR_TYPE_TO_ID[s.type] === sensor.id,
+            (s) => SENSOR_TYPE_TO_ID[s.type] === sensor.id
           );
           if (!backendSensor) return sensor;
           return {
@@ -58,18 +60,24 @@ export default function useLiveState(initialSensorOptions) {
         });
       });
     }
-  }, [liveState, initialSensorOptions]);
+  }, [liveState]);
 
   // Live socket updates
   useEffect(() => {
     if (!socket) return;
 
     const onSensor = ({ value }) => {
+      if (!Array.isArray(value)) return; // Safety check: Ignore bad socket payloads
+
       setLiveSensors((prev) => {
-        const base = prev ?? initialSensorOptions;
+        // Safe fallback: guarantee we are mapping over an array
+        const base = Array.isArray(prev) && prev.length > 0 
+          ? prev 
+          : (Array.isArray(initialSensorOptions) ? initialSensorOptions : []);
+
         return base.map((sensor) => {
           const backendSensor = value.find(
-            (s) => SENSOR_TYPE_TO_ID[s.type] === sensor.id,
+            (s) => SENSOR_TYPE_TO_ID[s.type] === sensor.id
           );
           if (!backendSensor) return sensor;
           return {
@@ -81,9 +89,7 @@ export default function useLiveState(initialSensorOptions) {
       });
     };
 
-    const onActuator = ({ value }) => {
-      setLiveActuators(value);
-    };
+    const onActuator = ({ value }) => setLiveActuators(value);
     const onCrop = ({ value }) => setLiveCrop(value);
     const onWarning = ({ value }) => setLiveWarnings(value);
     const onRecommendation = ({ value }) => setLiveRecommendation(value);
@@ -107,7 +113,8 @@ export default function useLiveState(initialSensorOptions) {
       socket.off("weather_changed", onWeather);
       socket.off("notifications_changed", onNotifications);
     };
-  }, [socket, initialSensorOptions]);
+  }, [socket]);
+
   return {
     liveSensors,
     liveActuators,

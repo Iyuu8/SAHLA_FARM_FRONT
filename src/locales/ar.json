@@ -112,6 +112,7 @@
     }
   },
   "notifications": {
+    "load_more": "تحميل المزيد من الإشعارات",    
     "loading": "جاري تحميل الإشعارات...",
     "title": "الإشعارات",
     "all": "الكل",
@@ -185,7 +186,7 @@
       "all": "الكل",
       "germination": "إنبات",
       "seedling": "شتلة",
-      "vegetative_growth": "نمو خضري",
+      "vegetative": "نمو خضري",
       "flowering": "تزهير",
       "fruiting": "إثمار",
       "maturity": "نضج"
@@ -288,7 +289,7 @@
       "stages": {
         "germination": "الإنبات",
         "seedling": "الشتلة",
-        "vegetativeGrowth": "النمو الخضري",
+        "vegetative": "النمو الخضري",
         "flowering": "الإزهار",
         "fruiting": "الإثمار",
         "maturity": "النضج"

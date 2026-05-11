@@ -79,7 +79,7 @@
       "growthStage": {
         "germination": "Germination",
         "seedling": "Semis",
-        "vegetative": "Croissance végétative",
+        "vegetative": "Végétative",
         "flowering": "Floraison",
         "fruiting": "Fructification",
         "maturity": "Maturité"
@@ -112,6 +112,7 @@
     }
   },
   "notifications": {
+    "load_more": "Charger plus de notifications",
     "loading": "Chargement des notifications...",
     "title": "Notifications",
     "all": "TOUTES",
@@ -208,7 +209,7 @@
       "all": "Tous",
       "germination": "Germination",
       "seedling": "Semis",
-      "vegetative_growth": "Croissance Végétative",
+      "vegetative": "Végétative",
       "flowering": "Floraison",
       "fruiting": "Fructification",
       "maturity": "Maturité"
@@ -311,7 +312,7 @@
       "stages": {
         "germination": "Germination",
         "seedling": "Semis",
-        "vegetativeGrowth": "Croissance Végétative",
+        "vegetative": "Végétative",
         "flowering": "Floraison",
         "fruiting": "Fructification",
         "maturity": "Maturité"

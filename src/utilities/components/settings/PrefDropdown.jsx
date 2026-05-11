@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FaCaretDown } from 'react-icons/fa6';
 import { useTranslation } from 'react-i18next';
 
-export default function PrefDropdown({ label, value, options, onChange }) {
+export default function PrefDropdown({ label, value, options, onChange,disabled = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   const { t } = useTranslation();
@@ -68,11 +68,12 @@ export default function PrefDropdown({ label, value, options, onChange }) {
   const base = 'max-w-full flex items-center gap-1 px-3 sm:px-4 py-1.5 rounded-full text-xs sm:text-[1.5ch] font-semibold cursor-pointer select-none bg-[#DEDEDE] text-[#192514]';
 
   return (
-    <div className='relative' ref={containerRef}>
+    <div className={`relative ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`} ref={containerRef}>
       <button
         type='button'
-        className={base}
-        onClick={() => setIsOpen((prev) => !prev)}
+        disabled={disabled}
+        className={`${base} ${disabled ? 'pointer-events-none' : ''}`}
+        onClick={() => !disabled && setIsOpen((prev) => !prev)}
       >
         <span className='capitalize'>{label}: {getDisplayValue(value)}</span>
         <span className={`text-xs transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}><FaCaretDown /></span>

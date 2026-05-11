@@ -23,17 +23,15 @@ import {
   CHAT_COPY,
 } from '../utilities/data/chatConstants';
 import { STORAGE_KEYS } from '../utilities/data/storageKeys';
-import useFarmPreferences from '../hooks/useFarmPreferences';
+import useFarmPreferences from '../context/FarmContext';
 import useActuatorsState from '../hooks/useActuatorsState';
 import usePersistentState from '../hooks/usePersistentState';
 import useLiveState from '../hooks/useLiveState';
 import { DASHBOARD_SENSOR_OPTIONS } from '../utilities/data/dashboardData';
+import useHaCredentials from '../hooks/useHaCredentials';
 
-// ─── Home Assistant camera config ────────────────────────────────────────────
-const HA_HOST     = 'raspberrypi.local:8123';
+
 const HA_ENTITY   = 'camera.farm_camera_farm_camera_feed';
-const HA_TOKEN    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI2YjIyMDA4ZjAxNDM0MjEyYTk3YzM5ZTA1ZDc2ZTA4OSIsImlhdCI6MTc3NzQ5MTcxNCwiZXhwIjoyMDkyODUxNzE0fQ.JdNnageCDHSDeBS7YoCo_hjdn1JsTlZD43JqRQ03W9s';
-const CAM_PROXY_URL = `http://${HA_HOST}/api/camera_proxy/${HA_ENTITY}`;
 
 // ─── Language helpers ─────────────────────────────────────────────────────────
 function normalizeLanguage(lang) {
@@ -227,20 +225,40 @@ function containsCameraKeyword(text) {
 }
 
 // ─── Grab snapshot from HA camera proxy ──────────────────────────────────────
-async function tryGrabStreamSnapshot() {
+async function tryGrabStreamSnapshot(haUrl, haToken) {
+  console.log('[Snapshot] haUrl:', haUrl, '| haToken exists:', !!haToken);
+  if (!haUrl || !haToken) {
+    console.warn('[Snapshot] ABORTED — missing haUrl or haToken');
+    return null;
+  }
+  const proxyUrl = `${haUrl.replace(/\/+$/, '')}/api/camera_proxy/${HA_ENTITY}`;
+  console.log('[Snapshot] Fetching:', proxyUrl);
   try {
-    const res = await fetch(CAM_PROXY_URL, {
-      headers: { Authorization: `Bearer ${HA_TOKEN}` },
+    const res = await fetch(proxyUrl, {
+      headers: { Authorization: `Bearer ${haToken}` },
     });
-    if (!res.ok) return null;
+    console.log('[Snapshot] Response status:', res.status, res.statusText);
+    if (!res.ok) {
+      console.warn('[Snapshot] FAILED — HTTP', res.status);
+      return null;
+    }
     const blob = await res.blob();
+    console.log('[Snapshot] Blob size:', blob.size, 'type:', blob.type);
     return await new Promise((resolve) => {
       const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result?.split(',')[1] ?? null);
-      reader.onerror = () => resolve(null);
+      reader.onloadend = () => {
+        const base64 = reader.result?.split(',')[1] ?? null;
+        console.log('[Snapshot] Base64 length:', base64?.length ?? 0);
+        resolve(base64);
+      };
+      reader.onerror = () => {
+        console.warn('[Snapshot] FileReader error');
+        resolve(null);
+      };
       reader.readAsDataURL(blob);
     });
-  } catch {
+  } catch (err) {
+    console.error('[Snapshot] EXCEPTION:', err);
     return null;
   }
 }
@@ -343,6 +361,7 @@ Farmer's message: ${userText || 'Describe the farm.'}`,
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function AIchat({ recommendedAction }) {
+  const { haUrl, haToken, isHaOnline, loading } = useHaCredentials();
   const { t, i18n } = useTranslation();
   const { haStatus, haLoading } = useHAStatus();
   const lang = normalizeLanguage(i18n.language);
@@ -666,7 +685,7 @@ Your rules:
         const wantsCameraView = !userAttachedImages && containsCameraKeyword(text);
 
         if (wantsCameraView) {
-          const snapshotBase64 = await tryGrabStreamSnapshot();
+          const snapshotBase64 = await tryGrabStreamSnapshot(haUrl, haToken);
 
           if (snapshotBase64) {
             const snapshotMessages = buildSnapshotMessages(

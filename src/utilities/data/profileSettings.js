@@ -86,7 +86,7 @@ export const user = NORMALIZED_USER;
 export const profileSettingOptions = {
     modeOptions: ['Balanced', 'Water saving', 'Energy saving', 'Growth priority'],
     manualControlOptions: ['on', 'off'],
-    growthStageOptions: ['Germination', 'Seedling', 'Vegetative Growth', 'Flowering', 'Fruiting', 'Maturity'],
+    growthStageOptions: ['Germination', 'Seedling', 'Vegetative', 'Flowering', 'Fruiting', 'Maturity'],
     cropOptions: ['Tomatoes', 'Lettuce', 'Cucumber', 'Strawberries', 'Basil', 'Spinach', 'Peppers'],
     languageOptions: ['English', 'العربية', 'french'],
     temperatureOptions: [

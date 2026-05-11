@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect ,useMemo} from 'react'
 import { FiEdit2 } from 'react-icons/fi';
 import { NORMALIZED_USER, profileSettingOptions } from "./../utilities/data/profileSettings"
 import EditProfileModal from './../utilities/components/settings/EditProfileModal';
@@ -7,7 +7,6 @@ import FarmDropdown from './../utilities/components/settings/FarmDropdown';
 import PrefDropdown from './../utilities/components/settings/PrefDropdown';
 import ProfilePictureEditorModal from './../utilities/components/settings/ProfilePictureEditorModal';
 import useProfileInfo from './../hooks/useProfileInfo';
-import useFarmPreferences from '../hooks/useFarmPreferences';
 import useActuatorsState from '../hooks/useActuatorsState';
 import { useTranslation } from 'react-i18next';
 import useProfileData from '../hooks/useProfileData';
@@ -15,6 +14,7 @@ import { supabase } from '../supabaseClient';
 import { useHAStatus } from '../context/HAStatusContext';
 import { useSocket } from '../context/SocketContext';
 import useLiveState from '../hooks/useLiveState';
+import useFarmPreferences from '../context/FarmContext';
 import {
   DASHBOARD_SENSOR_OPTIONS,
 } from '../utilities/data/dashboardData'; 
@@ -25,10 +25,18 @@ export default function ProfilePage() {
   const [authEmail, setAuthEmail] = useState('');
   const [localHaStatus, setLocalHaStatus] = useState(null);
   const { refetchHaStatus } = useHAStatus();
-  const {liveCrop,liveActuators} = useLiveState(DASHBOARD_SENSOR_OPTIONS);
-  console.log('Live crop from useLiveState:', liveCrop);
-  console.log('Live actuators from useLiveState:', liveActuators);
+  const {liveActuators,liveCrop} = useLiveState(DASHBOARD_SENSOR_OPTIONS);
   // Get actual auth email from Supabase
+  const {
+      crop, setCrop, cropOptions, addCropOption,
+      growthStage, setGrowthStage,
+      mode, setMode,
+      temperatureUnit, setTemperatureUnit,       // Added setter
+      humidityUnit, setHumidityUnit,             // Added setter
+      soilMoistureUnit, setSoilMoistureUnit,     // Added setter
+      lightIntensityUnit, setLightIntensityUnit, // Added setter
+      language, setLanguage                      // Added language & setter
+  } = useFarmPreferences();
   useEffect(() => {
     const getAuthEmail = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -42,7 +50,8 @@ export default function ProfilePage() {
   // Fetch real profile from backend
   const { data: backendUser, loading, error, invalidateCache } = useProfileData();
 
-  const normalizedUser = backendUser ? {
+  const normalizedUser = useMemo(() => {
+   return backendUser ? {
     id: backendUser.id,
     userName: backendUser.username,
     email: authEmail || backendUser.email,
@@ -58,22 +67,22 @@ export default function ProfilePage() {
       language: backendUser.preferences?.language || 'English',
     },
     farmSettings: {
-      crop: liveCrop?.type,
-      mode: liveCrop?.mode,
-      // Both keys are exposed because some components still read "growth".
-      growth: liveCrop?.growthStage,
-      growthStage: liveCrop?.growthStage,
-      // New backend model does not include manualControl, so we keep a safe UI default.
+      crop: crop,
+      mode: mode,
+      growth: growthStage,
+      growthStage: growthStage,
       manualControl: "" ,
     },
-  } : NORMALIZED_USER;
+  } : NORMALIZED_USER
+  }, [
+    backendUser, 
+    authEmail, 
+    crop,         // Changed from liveCrop?.type
+    mode,         // Changed from liveCrop?.mode
+    growthStage,
+    liveCrop  // Changed from liveCrop?.growthStage
+  ]);
 
-  const {
-    mode, setMode, growthStage, setGrowthStage, crop, setCrop, cropOptions,
-    addCropOption, temperatureUnit, setTemperatureUnit, humidityUnit, setHumidityUnit,
-    soilMoistureUnit, setSoilMoistureUnit, lightIntensityUnit, setLightIntensityUnit,
-    language, setLanguage,
-  } = useFarmPreferences();
   
   const [actuators, setActuators] = useActuatorsState();
   const { socket, isAuthenticated } = useSocket();
@@ -116,6 +125,8 @@ export default function ProfilePage() {
   const globalControlMode = allAuto ? 'auto' : 'semi-auto';
   const manualControlFromActuators = allAuto ? 'off' : 'on';
 
+  // Determine if HA is online
+  const isHaOnline = (localHaStatus ?? backendUser?.haStatus) === 'online';
   // Handle manual control mode changes with socket emit
   const handleManualControlChange = (next) => {
     setActuators((prev) =>
@@ -242,10 +253,11 @@ export default function ProfilePage() {
               <div className='flex flex-wrap gap-2 sm:gap-3'>
                 <FarmDropdown
                   label={t('profile.labels.mode')}
-                  value={liveCrop?.mode ?? farmSettings.mode}
+                  value={farmSettings.mode}
                   options={modeOptions}
                   onChange={setMode}
                   color={{ bg: '#192514', text: '#F8FFF6' }}
+                  disabled={!isHaOnline}
                 />
                 <FarmDropdown 
                   label={t('profile.labels.manual_control')} 
@@ -253,21 +265,31 @@ export default function ProfilePage() {
                   options={manualControlOptions} 
                   onChange={handleManualControlChange} 
                   color={{ bg: '#192514', text: '#F8FFF6' }} 
+                  disabled={!isHaOnline}
                 />
                 <FarmDropdown
                   label={t('profile.labels.growth')}
-                  value={liveCrop?.growth_stage ?? farmSettings.growth}
+                  value={farmSettings.growthStage}
                   options={growthStageOptions}
                   onChange={setGrowthStage}
                   color={{ bg: '#D6F7CB', text: '#000000' }}
+                  disabled={!isHaOnline}
                 />
                 <FarmDropdown 
                   label={t('profile.labels.crop')} 
-                  value={liveCrop?.type ?? farmSettings.crop} 
-                  options={liveCrop?.options} 
-                  onChange={(next) => { setCrop(next); addCropOption(next); }} 
+                  value={farmSettings.crop} 
+                  options={cropOptions} 
+                  onChange={(nextCrop) => {
+                    socket?.emit('set_entity', {
+                      type: 'crop_type',
+                      payload: { value: nextCrop }
+                    });
+                    setCrop(nextCrop); 
+                    addCropOption(nextCrop); 
+                  }} 
                   color={{ bg: '#D6F7CB', text: '#000000' }} 
-                  isDynamicCrop={true} // <--- ADD THIS
+                  isDynamicCrop={true} 
+                  disabled={!isHaOnline}
                 />
               </div>
               <div className='text-xs sm:text-sm text-[rgba(25,37,20,0.65)]'>
@@ -279,10 +301,10 @@ export default function ProfilePage() {
             <div className='flex flex-col gap-2'>
               <span className='text-[1.5ch] font-semibold text-[rgba(25,37,20,0.9)] border-b border-[#192514] pb-1 w-fit'>{t('profile.display_units')}</span>
               <div className='flex flex-wrap gap-2 sm:gap-3 mt-1'>
-                <PrefDropdown label={t('profile.labels.temperature')} value={temperatureUnit ?? displayUnits.temp} options={temperatureOptions} onChange={setTemperatureUnit} />
-                <PrefDropdown label={t('profile.labels.humidity')} value={humidityUnit ?? displayUnits.hum} options={humidityOptions} onChange={setHumidityUnit} />
-                <PrefDropdown label={t('profile.labels.soil_moisture')} value={soilMoistureUnit ?? displayUnits.soil} options={soilMoistureOptions} onChange={setSoilMoistureUnit} />
-                <PrefDropdown label={t('profile.labels.light_intensity')} value={lightIntensityUnit ?? displayUnits.light} options={lightIntensityOptions} onChange={setLightIntensityUnit} />
+                <PrefDropdown label={t('profile.labels.temperature')} value={temperatureUnit ?? displayUnits.temp} options={temperatureOptions} onChange={setTemperatureUnit} disabled={!isHaOnline} />
+                <PrefDropdown label={t('profile.labels.humidity')} value={humidityUnit ?? displayUnits.hum} options={humidityOptions} onChange={setHumidityUnit} disabled={!isHaOnline} />
+                <PrefDropdown label={t('profile.labels.soil_moisture')} value={soilMoistureUnit ?? displayUnits.soil} options={soilMoistureOptions} onChange={setSoilMoistureUnit} disabled={!isHaOnline} />
+                <PrefDropdown label={t('profile.labels.light_intensity')} value={lightIntensityUnit ?? displayUnits.light} options={lightIntensityOptions} onChange={setLightIntensityUnit} disabled={!isHaOnline} />
                 <PrefDropdown label={t('profile.labels.language')} value={language ?? displayUnits.language} options={languageOptions} onChange={setLanguage} />
               </div>
             </div>

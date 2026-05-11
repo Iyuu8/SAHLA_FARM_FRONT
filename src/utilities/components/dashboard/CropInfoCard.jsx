@@ -70,7 +70,7 @@ export default function CropInfoCard({
               options={[
                 'Germination',
                 'Seedling',
-                'Vegetative Growth',
+                'Vegetative',
                 'Flowering',
                 'Fruiting',
                 'Maturity'

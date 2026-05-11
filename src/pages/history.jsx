@@ -9,7 +9,7 @@ import HACredentialsRequired from './haCredentialsRequired'
 import DynamicTranslator from '../utilities/components/Translation/DynamicTranslator'
 import useLiveState from '../hooks/useLiveState'
 import { DASHBOARD_SENSOR_OPTIONS } from '../utilities/data/dashboardData'
-
+import useFarmPreferences from '../context/FarmContext'
 
 const weatherIconMap = {
   sunny: SunnyIcon,
@@ -363,7 +363,7 @@ const CustomDropdownCrop = ({ value, onChange, options, placeholder, getLabel = 
   );
 }
 
-export default function History({ temperatureUnit, humidityUnit, soilMoistureUnit, lightIntensityUnit }) {
+export default function History() {
   const {t,i18n} = useTranslation()
   const [Input, setInput] = useState({
     date: '',
@@ -372,6 +372,12 @@ export default function History({ temperatureUnit, humidityUnit, soilMoistureUni
     growthStage: "all",
     weather: "all",
   })
+  const {
+    temperatureUnit,
+    humidityUnit,
+    soilMoistureUnit,
+    lightIntensityUnit,
+  } = useFarmPreferences();
   const {
       liveCrop,
   } = useLiveState(DASHBOARD_SENSOR_OPTIONS);
