@@ -8,7 +8,6 @@ import {
   FaUser,
 } from 'react-icons/fa6'
 import { Link } from 'react-router-dom'
-import { FaExclamationCircle } from 'react-icons/fa'
 import { Bot, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import LoginFeatureContainer from '../utilities/components/login/loginFeature'

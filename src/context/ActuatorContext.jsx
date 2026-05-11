@@ -7,7 +7,7 @@ const ActuatorContext = createContext();
 
 export function ActuatorProvider({ children }) {
   const [actuators, setActuators] = useActuatorsState();
-  const { socket, isAuthenticated } = useSocket();
+  const { socket } = useSocket();
   const { liveActuators } = useLiveState();
 
   // 1. Sync live data

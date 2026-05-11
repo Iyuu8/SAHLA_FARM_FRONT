@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { FaEye, FaLock } from 'react-icons/fa6'
 import { FaCheckCircle } from 'react-icons/fa' // Import from 'react-icons/fa' instead
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabaseClient'
 import { Bot, Phone } from 'lucide-react'
 import { useTranslation } from 'react-i18next'

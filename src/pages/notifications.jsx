@@ -1,6 +1,5 @@
 import React from 'react'
-import { useState, useContext, useMemo } from 'react';
-import { NotificationsContext } from '../layout';
+import { useState, useMemo } from 'react';
 import useNotifications from '../hooks/useNotifications';
 import { useTranslation } from 'react-i18next';
 import HACredentialsRequired from './haCredentialsRequired'

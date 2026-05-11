@@ -387,7 +387,7 @@ export default function History() {
   const [isFetching, setIsFetching] = useState(false)
   const { growthStageOptions } = profileSettingOptions
 
-  // ✅ Memoize filter parameters for useHistory
+  //Memoize filter parameters for useHistory
   const filterParams = useMemo(() => ({
     date: Input.date,
     time: Input.time,
@@ -396,7 +396,7 @@ export default function History() {
     weather: Input.weather === "all" ? "" : Input.weather,
   }), [Input.date, Input.time, Input.crop, Input.growthStage, Input.weather])
 
-  // ✅ Only one useHistory call, with filters
+  // Only one useHistory call, with filters
   const { history, loading, error, hasMore, loadMore, refresh } = useHistory(filterParams)
   const { detail, loading: detailLoading, error: detailError, fetchDetail } = useHistoryDetail()
 
@@ -411,7 +411,7 @@ export default function History() {
   }
   const isMobile = useIsMobile()
 
-  // ✅ Refresh is automatically triggered when filterParams change (inside useHistory)
+  // Only one useHistory call, with filters
   // We don't need an explicit refresh() call on mount – the hook handles it.
 
   const handleItemClick = async (item) => {

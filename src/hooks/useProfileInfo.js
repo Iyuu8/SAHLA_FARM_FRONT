@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from "react";
-import { STORAGE_KEYS } from "../utilities/data/storageKeys";
 
-const PROFILE_STORAGE_KEY = STORAGE_KEYS.profile;
 
 export default function useProfileInfo(initialUser = {}) {
   const safeUser = initialUser || {}; // ← guard against null/undefined

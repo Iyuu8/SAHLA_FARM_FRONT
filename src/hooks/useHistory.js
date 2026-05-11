@@ -3,7 +3,7 @@ import { supabase } from "../supabaseClient";
 
 const LIMIT = 20;
 
-// ✅ Add these helper functions back
+// Add these helper functions back
 const getWeatherIcon = (state) => {
   const map = {
     sunny: "sunny",
