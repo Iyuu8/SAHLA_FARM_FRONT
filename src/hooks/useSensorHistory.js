@@ -1,22 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient"; // Adjust this path if needed
 
-function formatChartLabel(isoString, range) {
-  const date = new Date(isoString);
-  if (range === "today") {
-    return new Intl.DateTimeFormat("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    }).format(date);
-  }
-  return new Intl.DateTimeFormat("en-US", {
-    weekday: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(date);
-}
+
 
 export function useSensorHistory(sensorId, range) {
   const [chartData, setChartData] = useState([]);

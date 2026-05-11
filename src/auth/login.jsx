@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FaEye, FaLock, FaRegEnvelope } from 'react-icons/fa6'
 import { Link } from 'react-router'
-import { FaExclamationCircle } from 'react-icons/fa'
 import { Bot, Phone } from 'lucide-react'
 import LoginFeatureContainer from '../utilities/components/login/loginFeature'
 import { useNavigate } from 'react-router'
 import { supabase } from '../supabaseClient';
 import { useTranslation } from 'react-i18next';
-import { io } from 'socket.io-client'
 import LanguageSwitcher from '../utilities/components/login/LanguageSwitcher' 
 
 export default function Login() {

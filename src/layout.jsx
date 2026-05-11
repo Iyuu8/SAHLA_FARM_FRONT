@@ -10,7 +10,7 @@ import { useTranslation } from "react-i18next";
 export const NotificationsContext = createContext(null);
 
 export default function Layout() {
-  const { t, i18n } = useTranslation();
+  const {i18n } = useTranslation();
   const isAr = i18n.language === 'ar';
   const {
     count: notificationCount,
