@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router";
 
 // ── CSS injected globally ──────────────────────────────────────────────────
 const globalStyles = `
@@ -192,12 +193,12 @@ function Nav() {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <a href="#contact" className="px-6 py-2.5 rounded-full font-semibold text-sm border border-[rgba(25,37,20,0.25)] transition-all duration-200 hover:border-[#192514] hover:bg-[rgba(25,37,20,0.05)] hover:-translate-y-0.5 no-underline" style={{ color: "var(--green-dark)" }}>
+            <Link to="/login" className="px-6 py-2.5 rounded-full font-semibold text-sm border border-[rgba(25,37,20,0.25)] transition-all duration-200 hover:border-[#192514] hover:bg-[rgba(25,37,20,0.05)] hover:-translate-y-0.5 no-underline" style={{ color: "var(--green-dark)" }}>
               Log in
-            </a>
-            <a href="#contact" className="px-6 py-2.5 rounded-full font-semibold text-sm text-[#F5F7F2] transition-all duration-200 hover:-translate-y-0.5 no-underline" style={{ background: "var(--green-dark)" }}>
+            </Link>
+            <Link to="/signup" className="px-6 py-2.5 rounded-full font-semibold text-sm text-[#F5F7F2] transition-all duration-200 hover:-translate-y-0.5 no-underline" style={{ background: "var(--green-dark)" }}>
               Get Started →
-            </a>
+            </Link>
           </div>
 
           {/* Hamburger */}
@@ -215,9 +216,9 @@ function Nav() {
           {links.map((l) => (
             <a key={l.href} href={l.href} className="text-lg font-medium no-underline" style={{ color: "var(--green-dark)" }} onClick={() => setMenuOpen(false)}>{l.label}</a>
           ))}
-          <a href="#contact" className="mt-2 text-center py-3 px-6 rounded-full font-semibold text-sm text-[#F5F7F2] no-underline" style={{ background: "var(--green-dark)" }} onClick={() => setMenuOpen(false)}>
+          <Link to="/signup" className="mt-2 text-center py-3 px-6 rounded-full font-semibold text-sm text-[#F5F7F2] no-underline" style={{ background: "var(--green-dark)" }} onClick={() => setMenuOpen(false)}>
             Get Started →
-          </a>
+          </Link>
         </div>
       )}
     </>
@@ -252,11 +253,11 @@ function Hero() {
             </p>
 
             <div className="animate-slide-up flex gap-3 flex-wrap" style={{ animationDelay: "0.5s" }}>
-              <a href="#contact" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-[#F5F7F2] no-underline transition-all duration-200 hover:-translate-y-0.5" style={{ background: "var(--green-dark)", boxShadow: "0 0 0 0 transparent" }}
+              <Link to="/signup" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-[#F5F7F2] no-underline transition-all duration-200 hover:-translate-y-0.5" style={{ background: "var(--green-dark)", boxShadow: "0 0 0 0 transparent" }}
                 onMouseOver={(e) => { e.currentTarget.style.boxShadow = "0 8px 24px rgba(25,37,20,0.25)"; e.currentTarget.style.background = "#2a3d20"; }}
                 onMouseOut={(e) => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.background = "var(--green-dark)"; }}>
                 Start farming smarter →
-              </a>
+              </Link>
               <a href="#dashboard" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm no-underline transition-all duration-200 hover:-translate-y-0.5 hover:bg-[rgba(25,37,20,0.05)]" style={{ color: "var(--green-dark)", border: "1.5px solid rgba(25,37,20,0.25)" }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>
                 See it in action
@@ -555,9 +556,9 @@ function DashboardPreview() {
       </Reveal>
 
       <div className="text-center mt-10">
-        <a href="#contact" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-[#F5F7F2] no-underline transition-all duration-200 hover:-translate-y-0.5" style={{ background: "var(--green-dark)" }}>
+        <Link to="/signup" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-[#F5F7F2] no-underline transition-all duration-200 hover:-translate-y-0.5" style={{ background: "var(--green-dark)" }}>
           Get dashboard access →
-        </a>
+        </Link>
       </div>
     </section>
   );
@@ -661,7 +662,7 @@ function CTA() {
             Join farmers already using Sahla Farm to reduce waste, increase yields, and farm with confidence.
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
-            <a href="#contact" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-white no-underline transition-all duration-200 hover:-translate-y-0.5" style={{ background: "#55BB33" }}>Get started for free →</a>
+            <Link to="/signup" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-white no-underline transition-all duration-200 hover:-translate-y-0.5" style={{ background: "#55BB33" }}>Get started for free →</Link>
             <a href="#dashboard" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-white no-underline transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10" style={{ border: "1.5px solid rgba(255,255,255,0.25)" }}>View demo</a>
           </div>
         </div>
@@ -806,7 +807,7 @@ function Footer() {
 }
 
 // ── App ───────────────────────────────────────────────────────────────────
-export default function App() {
+export default function LandingPage() {
   return (
     <div style={{ fontFamily: "Poppins, sans-serif" }}>
       <Nav />
