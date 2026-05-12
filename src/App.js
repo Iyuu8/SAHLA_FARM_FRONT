@@ -13,7 +13,8 @@ import HACredentialsRequired from "./pages/haCredentialsRequired.jsx";
 import ProtectedRoute from "./pages/ProtectedRoute .jsx";
 import ForgotPassword from './auth/ForgotPassword';
 import ResetPassword from './auth/ResetPassword';
-import LandingPage from "./pages/LandingPage.jsx"; 
+import LandingPage from "./pages/LandingPage.jsx";
+import HelpPage from "./pages/Helppage.jsx";
 import { FarmProvider } from "./context/FarmContext.jsx";
 import { ActuatorProvider } from "./context/ActuatorContext.jsx";
 import { HAStatusProvider, useHAStatus, INVALID_STATUSES } from "./context/HAStatusContext";
@@ -38,6 +39,7 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/help" element={<HelpPage />} />
         
         {/* --- PROTECTED ROUTES --- */}
         <Route element={<ProtectedRoute />}>

@@ -391,6 +391,8 @@
     "attachedImageAlt": "Attached image"
   },
   "forgotPassword": {
+    "error": "Something went wrong. Please try again later.",
+    "userNotFound": "No account found with that email address. check and try again.",
     "rateLimitError": "Too many requests. Please wait 60 seconds before trying again.",
     "checkEmail": "Check Your Email",
     "sentLink": "We've sent a password reset link to",
@@ -443,6 +445,9 @@
     }
   },
   "resetPassword": {
+    "verifyingMessage": "Verifying reset link...",
+    "missingTokenError": "Invalid or missing reset token. Please request a new password reset.",
+    "expiredTokenError": "This reset link has expired. Please request a new password reset.",
     "passwordLengthError": "Password must be at least 8 characters long",
     "invalidPasswordError": "Please enter a valid password",
     "passwordsMatchError": "Passwords do not match",

@@ -108,7 +108,7 @@ export default function Login() {
     <div className='flex min-h-screen bg-[#F8FFF6] font-newblack'>
       <LanguageSwitcher />
       {/* left side */}
-      <div className='flex flex-col w-full laptop:w-1/2 justify-start items-center h-screen min-h-screen pt-[12vh] pb-[clamp(10px,1.8vh,24px)] single-short:pt-[8vh] single-tall:pt-[15vh] single-taller:pt-[18vh]'>
+      <div className='relative flex flex-col w-full laptop:w-1/2 justify-start items-center h-screen min-h-screen pt-[12vh] pb-[clamp(10px,1.8vh,24px)] single-short:pt-[8vh] single-tall:pt-[15vh] single-taller:pt-[18vh]'>
         
         {/* Title Section */}
         <div className='flex flex-col items-center justify-center w-full gap-[clamp(6px,1.1vh,14px)] mb-6 single-short:mb-4 single-tall:mb-10 single-taller:mb-12'>
@@ -189,6 +189,19 @@ export default function Login() {
           </div>
         </form>
 
+        {/* Return to Home */}
+        <Link
+          to="/"
+          className="absolute bottom-5 left-6 flex items-center gap-1.5 text-sm font-medium no-underline"
+          style={{ color: "rgba(25,37,20,0.55)", transition: "color 0.2s" }}
+          onMouseOver={(e) => (e.currentTarget.style.color = "#192514")}
+          onMouseOut={(e) => (e.currentTarget.style.color = "rgba(25,37,20,0.55)")}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Return to Home
+        </Link>
       </div>
  
       {/* right side */}

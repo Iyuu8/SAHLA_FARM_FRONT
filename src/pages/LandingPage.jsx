@@ -154,6 +154,7 @@ function Nav() {
     { href: "#about", label: "About" },
     { href: "#contact", label: "Contact" },
   ];
+  const helpLink = { to: "/help", label: "Help" };
 
   return (
     <>
@@ -190,6 +191,15 @@ function Nav() {
                 {l.label}
               </a>
             ))}
+            <Link
+              to={helpLink.to}
+              className="text-sm font-medium no-underline transition-colors duration-200"
+              style={{ color: "rgba(25,37,20,0.65)" }}
+              onMouseOver={(e) => (e.target.style.color = "#192514")}
+              onMouseOut={(e) => (e.target.style.color = "rgba(25,37,20,0.65)")}
+            >
+              {helpLink.label}
+            </Link>
           </div>
 
           <div className="hidden md:flex items-center gap-3">
@@ -216,6 +226,7 @@ function Nav() {
           {links.map((l) => (
             <a key={l.href} href={l.href} className="text-lg font-medium no-underline" style={{ color: "var(--green-dark)" }} onClick={() => setMenuOpen(false)}>{l.label}</a>
           ))}
+          <Link to={helpLink.to} className="text-lg font-medium no-underline" style={{ color: "var(--green-dark)" }} onClick={() => setMenuOpen(false)}>{helpLink.label}</Link>
           <Link to="/signup" className="mt-2 text-center py-3 px-6 rounded-full font-semibold text-sm text-[#F5F7F2] no-underline" style={{ background: "var(--green-dark)" }} onClick={() => setMenuOpen(false)}>
             Get Started →
           </Link>

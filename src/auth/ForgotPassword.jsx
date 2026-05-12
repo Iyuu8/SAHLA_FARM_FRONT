@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import LoginFeatureContainer from '../utilities/components/login/loginFeature'
 import LanguageSwitcher from '../utilities/components/login/LanguageSwitcher'
 
+const API_URL = process.env.REACT_API_URL || 'http://localhost:5000'
 export default function ForgotPassword() {
   const { t , i18n} = useTranslation()
   const [email, setEmail] = useState('')
@@ -23,37 +24,54 @@ export default function ForgotPassword() {
   }, [])
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
     try {
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        data: {
-            language: i18n.language || "english"  // or "en", "fr"
-        },
-        redirectTo: `${window.location.origin}/reset-password`,
-      })
+      const trimmedEmail = email.trim();
 
-      console.log(' ************ the language:', i18n.language, 'email sent to:', email, 'error:', resetError);
+      // 1. Check if the email exists using your endpoint
+      const checkResponse = await fetch(`${API_URL}/api/auth/checkEmail`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmedEmail }),
+      });
 
-      if (resetError) {
-        // Handle rate limiting
-        if (resetError.message.includes('rate limit')) {
-          setCooldown(60)
-          throw new Error(t('forgotPassword.rateLimitError'))
-        }
-        throw resetError
+      const checkResult = await checkResponse.json();
+
+      if (!checkResponse.ok) {
+        throw new Error(checkResult.error || "Verification failed");
       }
 
-      setSuccess(true)
+      // 2. Handle the "User Not Found" case
+      if (!checkResult.exists) {
+        throw new Error(t('forgotPassword.userNotFound') || "No account found with this email.");
+      }
+
+      // 3. If exists, proceed with Supabase reset email
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(trimmedEmail, {
+        data: {
+          language: i18n.language || "english"
+        },
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+
+      if (resetError) {
+        if (resetError.message.toLowerCase().includes('rate limit')) {
+          setCooldown(60);
+          throw new Error(t('forgotPassword.rateLimitError'));
+        }
+        throw resetError;
+      }
+
+      setSuccess(true);
     } catch (err) {
-      setError(err.message)
-      console.log('Error sending password reset email:', err);
+      setError(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Cooldown timer
   React.useEffect(() => {

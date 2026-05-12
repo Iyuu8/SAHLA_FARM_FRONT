@@ -413,6 +413,8 @@
     "attachedImageAlt": "Image jointe"
   },
   "forgotPassword": {
+    "error": "Une erreur s'est produite. Veuillez réessayer plus tard.",
+    "userNotFound": "Aucun compte trouvé avec cette adresse e-mail. Vérifiez  et réessayez.",
     "rateLimitError": "Trop de requêtes. Veuillez patienter 60 secondes avant de réessayer.",
     "checkEmail": "Vérifiez votre e-mail",
     "sentLink": "Nous avons envoyé un lien de réinitialisation à",
@@ -465,6 +467,9 @@
     }
   },
   "resetPassword": {
+    "verifyingMessage": "Vérification du lien de réinitialisation...",
+    "missingTokenError": "Jeton de réinitialisation invalide ou manquant. Veuillez demander une nouvelle réinitialisation de mot de passe.",
+    "expiredTokenError": "Ce lien de réinitialisation a expiré. Veuillez demander une nouvelle réinitialisation de mot de passe.",
     "passwordLengthError": "Le mot de passe doit comporter au moins 8 caractères",
     "invalidPasswordError": "Veuillez entrer un mot de passe valide",
     "passwordsMatchError": "Les mots de passe ne correspondent pas",
