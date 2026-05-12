@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { supabase } from '../supabaseClient';
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL; // Fallback to localhost if env var is missing
 const SocketContext = createContext(null);
 
 export function SocketProvider({ children }) {

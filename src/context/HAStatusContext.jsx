@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api"; // Fallback to localhost if env var is missing
 const HAStatusContext = createContext(null);
 
 export const INVALID_STATUSES = ['offline', 'error'];

@@ -169,8 +169,8 @@ function Nav() {
           boxShadow: scrolled ? "0 2px 20px rgba(25,37,20,0.08)" : "none",
         }}
       >
-        <div className="max-w-6xl mx-auto px-6 h-18 flex items-center justify-between" style={{ height: 72 }}>
-          <a href="#" className="flex items-center gap-2.5 no-underline">
+        <div className="w-full px-4 sm:px-6 flex items-center justify-between" style={{ height: 72 }}>
+          <a href="#" className="flex items-center gap-2.5 no-underline shrink-0">
             <Logo />
             <span className="font-black text-xl tracking-tight" style={{ color: "var(--green-dark)", fontFamily: "Poppins", letterSpacing: "-0.03em" }}>
               SahlaFarm
@@ -178,12 +178,12 @@ function Nav() {
           </a>
 
           {/* Desktop links */}
-          <div className="hidden md:flex items-center gap-9">
+          <div className="hidden md:flex items-center gap-6 lg:gap-9">
             {links.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
-                className="text-sm font-medium no-underline transition-colors duration-200"
+                className="text-sm font-medium no-underline transition-colors duration-200 whitespace-nowrap"
                 style={{ color: "rgba(25,37,20,0.65)" }}
                 onMouseOver={(e) => (e.target.style.color = "#192514")}
                 onMouseOut={(e) => (e.target.style.color = "rgba(25,37,20,0.65)")}
@@ -193,7 +193,7 @@ function Nav() {
             ))}
             <Link
               to={helpLink.to}
-              className="text-sm font-medium no-underline transition-colors duration-200"
+              className="text-sm font-medium no-underline transition-colors duration-200 whitespace-nowrap"
               style={{ color: "rgba(25,37,20,0.65)" }}
               onMouseOver={(e) => (e.target.style.color = "#192514")}
               onMouseOut={(e) => (e.target.style.color = "rgba(25,37,20,0.65)")}
@@ -202,34 +202,74 @@ function Nav() {
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center gap-3">
-            <Link to="/login" className="px-6 py-2.5 rounded-full font-semibold text-sm border border-[rgba(25,37,20,0.25)] transition-all duration-200 hover:border-[#192514] hover:bg-[rgba(25,37,20,0.05)] hover:-translate-y-0.5 no-underline" style={{ color: "var(--green-dark)" }}>
+          <div className="hidden md:flex items-center gap-3 shrink-0">
+            <Link to="/login" className="px-5 py-2.5 rounded-full font-semibold text-sm border border-[rgba(25,37,20,0.25)] transition-all duration-200 hover:border-[#192514] hover:bg-[rgba(25,37,20,0.05)] hover:-translate-y-0.5 no-underline whitespace-nowrap" style={{ color: "var(--green-dark)" }}>
               Log in
             </Link>
-            <Link to="/signup" className="px-6 py-2.5 rounded-full font-semibold text-sm text-[#F5F7F2] transition-all duration-200 hover:-translate-y-0.5 no-underline" style={{ background: "var(--green-dark)" }}>
+            <Link to="/signup" className="px-5 py-2.5 rounded-full font-semibold text-sm text-[#F5F7F2] transition-all duration-200 hover:-translate-y-0.5 no-underline whitespace-nowrap" style={{ background: "var(--green-dark)" }}>
               Get Started →
             </Link>
           </div>
 
           {/* Hamburger */}
-          <button className="md:hidden flex flex-col gap-1.5 p-1 bg-transparent border-none cursor-pointer" onClick={() => setMenuOpen(!menuOpen)}>
-            {[0, 1, 2].map((i) => (
-              <span key={i} className="block w-5.5 h-0.5 rounded-sm transition-all duration-300" style={{ width: 22, height: 2, background: "var(--green-dark)" }} />
-            ))}
+          <button
+            className="md:hidden flex flex-col justify-center gap-1.5 p-2 bg-transparent border-none cursor-pointer rounded-lg"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle menu"
+          >
+            <span style={{ display: "block", width: 24, height: 2, background: menuOpen ? "var(--green-primary)" : "var(--green-dark)", borderRadius: 2, transition: "all 0.3s", transform: menuOpen ? "rotate(45deg) translate(3px, 3px)" : "none" }} />
+            <span style={{ display: "block", width: 24, height: 2, background: menuOpen ? "var(--green-primary)" : "var(--green-dark)", borderRadius: 2, transition: "all 0.3s", opacity: menuOpen ? 0 : 1 }} />
+            <span style={{ display: "block", width: 24, height: 2, background: menuOpen ? "var(--green-primary)" : "var(--green-dark)", borderRadius: 2, transition: "all 0.3s", transform: menuOpen ? "rotate(-45deg) translate(3px, -3px)" : "none" }} />
           </button>
         </div>
       </nav>
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="fixed top-[72px] left-0 right-0 z-40 flex flex-col gap-4 px-6 py-5 md:hidden" style={{ background: "rgba(245,247,242,0.98)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(25,37,20,0.08)" }}>
+        <div
+          className="fixed top-[72px] left-0 right-0 z-40 flex flex-col md:hidden"
+          style={{ background: "rgba(245,247,242,0.98)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(25,37,20,0.08)", padding: "16px 24px 24px" }}
+        >
+          {/* Nav anchor links */}
           {links.map((l) => (
-            <a key={l.href} href={l.href} className="text-lg font-medium no-underline" style={{ color: "var(--green-dark)" }} onClick={() => setMenuOpen(false)}>{l.label}</a>
+            <a
+              key={l.href}
+              href={l.href}
+              className="no-underline py-3 text-base font-medium"
+              style={{ color: "var(--green-dark)", borderBottom: "1px solid rgba(25,37,20,0.06)" }}
+              onClick={() => setMenuOpen(false)}
+            >
+              {l.label}
+            </a>
           ))}
-          <Link to={helpLink.to} className="text-lg font-medium no-underline" style={{ color: "var(--green-dark)" }} onClick={() => setMenuOpen(false)}>{helpLink.label}</Link>
-          <Link to="/signup" className="mt-2 text-center py-3 px-6 rounded-full font-semibold text-sm text-[#F5F7F2] no-underline" style={{ background: "var(--green-dark)" }} onClick={() => setMenuOpen(false)}>
-            Get Started →
+          {/* Help link */}
+          <Link
+            to={helpLink.to}
+            className="no-underline py-3 text-base font-medium"
+            style={{ color: "var(--green-dark)", borderBottom: "1px solid rgba(25,37,20,0.06)" }}
+            onClick={() => setMenuOpen(false)}
+          >
+            {helpLink.label}
           </Link>
+          {/* Auth buttons */}
+          <div className="flex flex-col gap-3 mt-4">
+            <Link
+              to="/login"
+              className="text-center py-3 px-6 rounded-full font-semibold text-sm no-underline border"
+              style={{ color: "var(--green-dark)", borderColor: "rgba(25,37,20,0.25)" }}
+              onClick={() => setMenuOpen(false)}
+            >
+              Log in
+            </Link>
+            <Link
+              to="/signup"
+              className="text-center py-3 px-6 rounded-full font-semibold text-sm text-[#F5F7F2] no-underline"
+              style={{ background: "var(--green-dark)" }}
+              onClick={() => setMenuOpen(false)}
+            >
+              Get Started →
+            </Link>
+          </div>
         </div>
       )}
     </>

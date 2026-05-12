@@ -12,7 +12,7 @@ import { STORAGE_KEYS } from "../utilities/data/storageKeys";
 import usePersistentState from "./usePersistentState";
 import { useSocket } from "../context/SocketContext";
 import { supabase } from "../supabaseClient";
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 const FARM_PREFERENCES_DEFAULTS = {
   mode:
     DASHBOARD_CROP_DEFAULTS.mode ||

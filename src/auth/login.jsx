@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router'
 import { supabase } from '../supabaseClient';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../utilities/components/login/LanguageSwitcher' 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 export default function Login() {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");

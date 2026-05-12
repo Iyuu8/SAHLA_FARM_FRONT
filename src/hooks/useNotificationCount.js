@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../supabaseClient";
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 export function useNotificationCount() {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
