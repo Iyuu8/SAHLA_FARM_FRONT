@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 
 const LIMIT = 20;
-
+const API_URL = process.env.REACT_APP_API_URL;
 // Add these helper functions back
 const getWeatherIcon = (state) => {
   const map = {
@@ -71,9 +71,8 @@ export default function useHistory(filters = {}) {
           queryParams.append("growthStage", currentFilters.growthStage);
         if (currentFilters.weather)
           queryParams.append("weather", currentFilters.weather);
-        const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
         const res = await fetch(
-          `${baseUrl}/histories?${queryParams.toString()}`,
+          `${API_URL}/histories?${queryParams.toString()}`,
           { headers: { Authorization: `Bearer ${session.access_token}` } },
         );
 

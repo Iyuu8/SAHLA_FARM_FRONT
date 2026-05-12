@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { supabase } from '../supabaseClient';
-
+const API_URL = process.env.REACT_APP_API_URL;
 const SocketContext = createContext(null);
 
 export function SocketProvider({ children }) {
@@ -16,8 +16,8 @@ export function SocketProvider({ children }) {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) return;
-      const socketUrl = process.env.REACT_APP_API_URL 
-        ? process.env.REACT_APP_API_URL.replace(/\/api$/, "") 
+      const socketUrl = API_URL 
+        ? API_URL.replace(/\/api$/, "") 
         : 'http://localhost:5000';
       instance = io(socketUrl, {
         transports: ['websocket'],

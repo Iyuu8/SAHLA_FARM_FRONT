@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../../../supabaseClient';
-
+const API_URL = process.env.REACT_APP_API_URL;
 export default function EditHomeAssistantModal({
   isOpen,
   onClose,
@@ -53,8 +53,7 @@ export default function EditHomeAssistantModal({
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
       
-      const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      const res = await fetch(`${baseUrl}/settings/editHaCredentials`, {
+      const res = await fetch(`${API_URL}/settings/editHaCredentials`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

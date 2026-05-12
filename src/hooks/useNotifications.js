@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useContext } from "react";
 import { supabase } from "../supabaseClient";
 import { NotificationsContext } from "../layout";
-
+const API_URL = process.env.REACT_APP_API_URL;
 const PAGE_SIZE = 15;
 
 const getDateGroup = (timestamp) => {
@@ -63,9 +63,8 @@ export default function useNotifications() {
     setOffset(0);
     try {
       const session = await getSession();
-      const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
       const res = await fetch(
-        `${baseUrl}/notifications?limit=${PAGE_SIZE}&offset=0`,
+        `${API_URL}/notifications?limit=${PAGE_SIZE}&offset=0`,
         { headers: { Authorization: `Bearer ${session.access_token}` } },
       );
       const json = await res.json();
@@ -89,9 +88,8 @@ export default function useNotifications() {
     setLoadingMore(true);
     try {
       const session = await getSession();
-      const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
       const res = await fetch(
-        `${baseUrl}/notifications?limit=${PAGE_SIZE}&offset=${offset}`,
+        `${API_URL}/notifications?limit=${PAGE_SIZE}&offset=${offset}`,
         { headers: { Authorization: `Bearer ${session.access_token}` } },
       );
       const json = await res.json();
@@ -129,8 +127,7 @@ export default function useNotifications() {
 
     try {
       const session = await getSession();
-      const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
-      await fetch(`${baseUrl}/notifications/${id}?status=read`, {
+      await fetch(`${API_URL}/notifications/${id}?status=read`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
@@ -157,8 +154,7 @@ export default function useNotifications() {
 
     try {
       const session = await getSession();
-      const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
-      await fetch(`${baseUrl}/notifications/all?status=read`, {
+      await fetch(`${API_URL}/notifications/all?status=read`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${session.access_token}` },
       });

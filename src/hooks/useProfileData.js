@@ -4,7 +4,7 @@ import { supabase } from "../supabaseClient";
 let profileCache = null;
 let isFetching = false;
 let cachedUserId = null; // ← track which user the cache belongs to
-
+const API_URL = process.env.REACT_APP_API_URL;
 export default function useProfileData() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -43,8 +43,7 @@ export default function useProfileData() {
       isFetching = true;
 
       try {
-        const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
-        const res = await fetch(`${baseUrl}/settings/profile`, {
+        const res = await fetch(`${API_URL}/settings/profile`, {
           headers: {
             Authorization: `Bearer ${session.access_token}`,
           },

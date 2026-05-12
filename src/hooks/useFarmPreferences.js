@@ -12,7 +12,7 @@ import { STORAGE_KEYS } from "../utilities/data/storageKeys";
 import usePersistentState from "./usePersistentState";
 import { useSocket } from "../context/SocketContext";
 import { supabase } from "../supabaseClient";
-
+const API_URL = process.env.REACT_APP_API_URL;
 const FARM_PREFERENCES_DEFAULTS = {
   mode:
     DASHBOARD_CROP_DEFAULTS.mode ||
@@ -86,8 +86,7 @@ const updateUnitOnBackend = async (name, unit) => {
       data: { session },
     } = await supabase.auth.getSession();
     if (!session) return;
-    const apiUrl = process.env.REACT_APP_API_URL;
-    const res = await fetch(`${apiUrl}/settings/editUnit`, {
+    const res = await fetch(`${API_URL}/settings/editUnit`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -113,8 +112,7 @@ const updateLanguageOnBackend = async (language) => {
     } = await supabase.auth.getSession();
     if (!session) return;
 
-    const apiUrl = process.env.REACT_APP_API_URL;
-    const res = await fetch(`${apiUrl}/settings/editLanguage`, {
+    const res = await fetch(`${API_URL}/settings/editLanguage`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

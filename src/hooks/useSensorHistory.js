@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient"; // Adjust this path if needed
-
+const API_URL = process.env.REACT_APP_API_URL;
 
 
 export function useSensorHistory(sensorId, range) {
@@ -30,9 +30,8 @@ export function useSensorHistory(sensorId, range) {
 
         const token = session.access_token; // This is your JWT
 
-        const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
         const response = await fetch(
-          `${baseUrl}/histories/sensors/${sensorId}?range=${range}`,
+          `${API_URL}/histories/sensors/${sensorId}?range=${range}`,
           {
             method: "GET",
             headers: {
@@ -65,7 +64,6 @@ export function useSensorHistory(sensorId, range) {
         }
       } catch (err) {
         if (err.name !== "AbortError") {
-          const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
           console.error("Fetch error:", err);
           setError(err.message);
           setChartData([]); // Clear old data on error

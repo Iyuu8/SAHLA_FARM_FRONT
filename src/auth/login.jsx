@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router'
 import { supabase } from '../supabaseClient';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../utilities/components/login/LanguageSwitcher' 
-
+const API_URL = process.env.REACT_APP_API_URL;
 export default function Login() {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
@@ -31,8 +31,7 @@ export default function Login() {
           const { username, age, address, email, language } = JSON.parse(pending)
 
           try {
-            const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-            const res = await fetch(`${baseUrl}/auth/signupSetup`, {
+            const res = await fetch(`${API_URL}/auth/signupSetup`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -75,8 +74,7 @@ export default function Login() {
       if (data.session) {
         // Call loginSetup
         try {
-          const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-          await fetch(`${baseUrl}/auth/loginSetup`, {
+          await fetch(`${API_URL}/auth/loginSetup`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

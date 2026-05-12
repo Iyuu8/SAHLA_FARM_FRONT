@@ -18,7 +18,7 @@ import useFarmPreferences from '../context/FarmContext';
 import {
   DASHBOARD_SENSOR_OPTIONS,
 } from '../utilities/data/dashboardData'; 
-
+const API_URL = process.env.REACT_APP_API_URL;
 export default function ProfilePage() {
   const { t , i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';
@@ -348,9 +348,8 @@ export default function ProfilePage() {
               onSave={async (nextValues) => {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (!session) throw new Error('Not authenticated');
-                
-                const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-                const res = await fetch(`${baseUrl}/settings/editProfile`, {
+
+                const res = await fetch(`${API_URL}/settings/editProfile`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
                   body: JSON.stringify(nextValues),
@@ -409,8 +408,7 @@ export default function ProfilePage() {
 
                   const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
 
-                  const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-                  const apiRes = await fetch(`${baseUrl}/settings/editAvatarUrl`, {
+                  const apiRes = await fetch(`${API_URL}/settings/editAvatarUrl`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
                     body: JSON.stringify({ avatarUrl: publicUrl }),

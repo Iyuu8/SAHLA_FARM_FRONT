@@ -1,6 +1,3 @@
-import { useState, useEffect } from "react";
-import { supabase } from "../../supabaseClient";
-
 
 export const USER_INFO = {
   id: "550e8400-e29b-41d4-a716-446655440000",

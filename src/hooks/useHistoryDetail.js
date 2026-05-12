@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { supabase } from "../supabaseClient";
+const API_URL = process.env.REACT_APP_API_URL;
 
 export default function useHistoryDetail() {
   const [detail, setDetail] = useState(null);
@@ -16,8 +17,7 @@ export default function useHistoryDetail() {
         data: { session },
       } = await supabase.auth.getSession();
       if (!session) throw new Error("Not authenticated");
-      const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
-      const res = await fetch(`${baseUrl}/histories/${id}`, {
+      const res = await fetch(`${API_URL}/histories/${id}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 

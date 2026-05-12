@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabaseClient';
-
+const API_URL = process.env.REACT_APP_API_URL;
 const HAStatusContext = createContext(null);
 
 export const INVALID_STATUSES = ['offline', 'error'];
@@ -17,8 +17,7 @@ export function HAStatusProvider({ children }) {
         setHaStatus(null);
         return;
       }
-      const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      const res = await fetch(`${baseUrl}/settings/profile`, {
+      const res = await fetch(`${API_URL}/settings/profile`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 

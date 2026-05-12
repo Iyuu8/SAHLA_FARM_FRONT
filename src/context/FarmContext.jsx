@@ -8,7 +8,7 @@ import { supabase } from '../supabaseClient';
 import i18n from "../i18n";
 import { DASHBOARD_SENSOR_OPTIONS, DASHBOARD_CROP_DEFAULTS, DASHBOARD_DEFAULT_UNITS } from '../utilities/data/dashboardData';
 import { NORMALIZED_USER, profileSettingOptions } from "../utilities/data/profileSettings";
-
+const API_URL = process.env.REACT_APP_API_URL;
 // --- Keep your original defaults and helpers ---
 const FARM_PREFERENCES_DEFAULTS = {
   mode: DASHBOARD_CROP_DEFAULTS.mode || NORMALIZED_USER.farmSettings.mode || "Balanced",
@@ -31,8 +31,7 @@ const updateUnitOnBackend = async (name, unit) => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-    await fetch(`${baseUrl}/settings/editUnit`, {
+    await fetch(`${API_URL}/settings/editUnit`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
       body: JSON.stringify({ name, unit }),
@@ -44,8 +43,7 @@ const updateLanguageOnBackend = async (language) => {
   try {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
-    const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-    await fetch(`${baseUrl}/settings/editLanguage`, {
+    await fetch(`${API_URL}/settings/editLanguage`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${session.access_token}` },
       body: JSON.stringify({ language }),

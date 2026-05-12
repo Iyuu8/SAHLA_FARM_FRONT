@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../supabaseClient";
-
+const API_URL = process.env.REACT_APP_API_URL;
 export function useNotificationCount() {
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -13,8 +13,7 @@ export function useNotificationCount() {
         data: { session },
       } = await supabase.auth.getSession();
       if (!session) throw new Error("Not authenticated");
-      const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
-      const res = await fetch(`${baseUrl}/notifications/count`, {
+      const res = await fetch(`${API_URL}/notifications/count`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       const json = await res.json();
