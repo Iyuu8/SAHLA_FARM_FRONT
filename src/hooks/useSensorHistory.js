@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient"; // Adjust this path if needed
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api"; // Fallback to localhost if env var is missing
 
 
 export function useSensorHistory(sensorId, range) {

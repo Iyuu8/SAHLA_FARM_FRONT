@@ -18,7 +18,7 @@ import useFarmPreferences from '../context/FarmContext';
 import {
   DASHBOARD_SENSOR_OPTIONS,
 } from '../utilities/data/dashboardData'; 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api"; // Fallback to localhost if env var is missing
 export default function ProfilePage() {
   const { t , i18n } = useTranslation();
   const isRTL = i18n.language === 'ar';

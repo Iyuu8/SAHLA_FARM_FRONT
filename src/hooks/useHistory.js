@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 
 const LIMIT = 20;
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 // Add these helper functions back
 const getWeatherIcon = (state) => {
   const map = {

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useContext } from "react";
 import { supabase } from "../supabaseClient";
 import { NotificationsContext } from "../layout";
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 const PAGE_SIZE = 15;
 
 const getDateGroup = (timestamp) => {

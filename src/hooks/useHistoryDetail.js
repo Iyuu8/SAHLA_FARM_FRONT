@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { supabase } from "../supabaseClient";
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
 
 export default function useHistoryDetail() {
   const [detail, setDetail] = useState(null);
