@@ -31,7 +31,8 @@ export default function Login() {
           const { username, age, address, email, language } = JSON.parse(pending)
 
           try {
-            const res = await fetch('http://localhost:5000/api/auth/signupSetup', {
+            const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+            const res = await fetch(`${baseUrl}/auth/signupSetup`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -74,7 +75,8 @@ export default function Login() {
       if (data.session) {
         // Call loginSetup
         try {
-          await fetch('http://localhost:5000/api/auth/loginSetup', {
+          const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+          await fetch(`${baseUrl}/auth/loginSetup`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

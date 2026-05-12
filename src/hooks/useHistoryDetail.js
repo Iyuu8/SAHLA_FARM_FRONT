@@ -16,8 +16,8 @@ export default function useHistoryDetail() {
         data: { session },
       } = await supabase.auth.getSession();
       if (!session) throw new Error("Not authenticated");
-
-      const res = await fetch(`http://localhost:5000/api/histories/${id}`, {
+      const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+      const res = await fetch(`${baseUrl}/histories/${id}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
