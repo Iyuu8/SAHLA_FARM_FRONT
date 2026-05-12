@@ -52,8 +52,9 @@ export default function EditHomeAssistantModal({
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error('Not authenticated');
-
-      const res = await fetch('http://localhost:5000/api/settings/editHaCredentials', {
+      
+      const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${baseUrl}/settings/editHaCredentials`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

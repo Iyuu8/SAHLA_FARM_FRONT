@@ -71,9 +71,9 @@ export default function useHistory(filters = {}) {
           queryParams.append("growthStage", currentFilters.growthStage);
         if (currentFilters.weather)
           queryParams.append("weather", currentFilters.weather);
-
+        const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
         const res = await fetch(
-          `http://localhost:5000/api/histories?${queryParams.toString()}`,
+          `${baseUrl}/histories?${queryParams.toString()}`,
           { headers: { Authorization: `Bearer ${session.access_token}` } },
         );
 

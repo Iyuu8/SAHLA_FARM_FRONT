@@ -86,8 +86,8 @@ const updateUnitOnBackend = async (name, unit) => {
       data: { session },
     } = await supabase.auth.getSession();
     if (!session) return;
-
-    const res = await fetch("http://localhost:5000/api/settings/editUnit", {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+    const res = await fetch(`${apiUrl}/settings/editUnit`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -113,7 +113,8 @@ const updateLanguageOnBackend = async (language) => {
     } = await supabase.auth.getSession();
     if (!session) return;
 
-    const res = await fetch("http://localhost:5000/api/settings/editLanguage", {
+    const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+    const res = await fetch(`${apiUrl}/settings/editLanguage`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

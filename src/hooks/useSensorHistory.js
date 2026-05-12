@@ -30,8 +30,9 @@ export function useSensorHistory(sensorId, range) {
 
         const token = session.access_token; // This is your JWT
 
+        const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
         const response = await fetch(
-          `http://localhost:5000/api/histories/sensors/${sensorId}?range=${range}`,
+          `${baseUrl}/histories/sensors/${sensorId}?range=${range}`,
           {
             method: "GET",
             headers: {
@@ -64,6 +65,7 @@ export function useSensorHistory(sensorId, range) {
         }
       } catch (err) {
         if (err.name !== "AbortError") {
+          const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
           console.error("Fetch error:", err);
           setError(err.message);
           setChartData([]); // Clear old data on error

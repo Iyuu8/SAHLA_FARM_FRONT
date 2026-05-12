@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 
 // Set your API Base URL (adjust for production)
-const API_BASE = "http://localhost:5000/api/settings";
+const API_BASE = `${process.env.REACT_APP_API_URL || "http://localhost:5000/api"}/settings`;
 
 export default function useHaCredentials() {
   const [haUrl, setHaUrl] = useState(null);

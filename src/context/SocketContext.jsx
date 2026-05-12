@@ -16,8 +16,10 @@ export function SocketProvider({ children }) {
     const init = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) return;
-
-      instance = io('http://localhost:5000', {
+      const socketUrl = process.env.REACT_APP_API_URL 
+        ? process.env.REACT_APP_API_URL.replace(/\/api$/, "") 
+        : 'http://localhost:5000';
+      instance = io(socketUrl, {
         transports: ['websocket'],
       });
 

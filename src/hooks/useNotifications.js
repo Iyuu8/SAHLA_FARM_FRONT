@@ -63,8 +63,9 @@ export default function useNotifications() {
     setOffset(0);
     try {
       const session = await getSession();
+      const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
       const res = await fetch(
-        `http://localhost:5000/api/notifications?limit=${PAGE_SIZE}&offset=0`,
+        `${baseUrl}/notifications?limit=${PAGE_SIZE}&offset=0`,
         { headers: { Authorization: `Bearer ${session.access_token}` } },
       );
       const json = await res.json();
@@ -88,8 +89,9 @@ export default function useNotifications() {
     setLoadingMore(true);
     try {
       const session = await getSession();
+      const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
       const res = await fetch(
-        `http://localhost:5000/api/notifications?limit=${PAGE_SIZE}&offset=${offset}`,
+        `${baseUrl}/notifications?limit=${PAGE_SIZE}&offset=${offset}`,
         { headers: { Authorization: `Bearer ${session.access_token}` } },
       );
       const json = await res.json();
@@ -127,7 +129,8 @@ export default function useNotifications() {
 
     try {
       const session = await getSession();
-      await fetch(`http://localhost:5000/api/notifications/${id}?status=read`, {
+      const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+      await fetch(`${baseUrl}/notifications/${id}?status=read`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
@@ -154,7 +157,8 @@ export default function useNotifications() {
 
     try {
       const session = await getSession();
-      await fetch(`http://localhost:5000/api/notifications/all?status=read`, {
+      const baseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000/api";
+      await fetch(`${baseUrl}/notifications/all?status=read`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${session.access_token}` },
       });

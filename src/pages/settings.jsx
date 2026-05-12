@@ -348,7 +348,9 @@ export default function ProfilePage() {
               onSave={async (nextValues) => {
                 const { data: { session } } = await supabase.auth.getSession();
                 if (!session) throw new Error('Not authenticated');
-                const res = await fetch('http://localhost:5000/api/settings/editProfile', {
+                
+                const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+                const res = await fetch(`${baseUrl}/settings/editProfile`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
                   body: JSON.stringify(nextValues),
@@ -407,7 +409,8 @@ export default function ProfilePage() {
 
                   const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName);
 
-                  const apiRes = await fetch('http://localhost:5000/api/settings/editAvatarUrl', {
+                  const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+                  const apiRes = await fetch(`${baseUrl}/settings/editAvatarUrl`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
                     body: JSON.stringify({ avatarUrl: publicUrl }),

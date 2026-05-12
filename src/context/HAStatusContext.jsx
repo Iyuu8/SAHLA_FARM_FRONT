@@ -17,8 +17,8 @@ export function HAStatusProvider({ children }) {
         setHaStatus(null);
         return;
       }
-
-      const res = await fetch('http://localhost:5000/api/settings/profile', {
+      const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      const res = await fetch(`${baseUrl}/settings/profile`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
