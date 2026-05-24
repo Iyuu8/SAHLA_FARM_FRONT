@@ -63,7 +63,7 @@ export default function ActuatorCard({
         <div className='min-w-0 font-normal'>
           
           <p className='text-[1.54ch] sm:text-[1.68ch] leading-5 mt-1 font-normal'>
-            {schedule}
+            {t(`dashboard.${schedule.toLowerCase()}`)}
           </p>
         </div>
       </div>

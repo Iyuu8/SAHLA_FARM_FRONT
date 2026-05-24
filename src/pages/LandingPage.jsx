@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router";
-
+import { useTranslation } from 'react-i18next';
 // ── CSS injected globally ──────────────────────────────────────────────────
 const globalStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
@@ -89,7 +89,33 @@ const globalStyles = `
     transform: translateY(0);
   }
 `;
-
+// --- Solid World Icon SVG (Matching the uploaded image) ---
+const WorldIcon = ({ className = "" }) => (
+  <svg
+    viewBox="0 0 24 24"
+    className={`size-6 text-[#39b54a] shrink-0 ${className}`}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <mask id="globe-grid">
+      {/* Base white mask (keeps everything) */}
+      <rect width="24" height="24" fill="white" />
+      {/* Black strokes (cuts these lines out of the circle) */}
+      <g stroke="black" strokeWidth="1.5" fill="none">
+        {/* Horizontal lines */}
+        <path d="M1 8.5H23" />
+        <path d="M1 15.5H23" />
+        {/* Vertical center line */}
+        <path d="M12 1V23" />
+        {/* Curved side lines */}
+        <path d="M12 2C8 2 5.5 6.5 5.5 12C5.5 17.5 8 22 12 22" />
+        <path d="M12 2C16 2 18.5 6.5 18.5 12C18.5 17.5 16 22 12 22" />
+      </g>
+    </mask>
+    
+    {/* Solid green circle with the grid masked out */}
+    <circle cx="12" cy="12" r="10.5" fill="currentColor" mask="url(#globe-grid)" />
+  </svg>
+);
 // ── Logo SVG ──────────────────────────────────────────────────────────────
 const Logo = ({ size = 36 }) => (
   <svg width={size} height={size} viewBox="0 0 44 45" fill="none">
@@ -110,7 +136,94 @@ const Logo = ({ size = 36 }) => (
     <path d="M10.8562 40.9575C10.8562 40.9575 20.3088 26.8613 32.1649 40.8517L34.3115 39.4314C34.3115 39.4314 23.3525 21.5704 8.93283 39.4314L10.8548 40.9575H10.8562Z" fill="#55BB33"/>
   </svg>
 );
+// --- Custom LanguageSwitcher component ---
+function LanguageSwitcher({ className = "" }) {
+  const { i18n } = useTranslation();
+  const currentLang = i18n.language || 'en'; // Default to English
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
+
+  // Map for language display text on the button itself
+  const langText = {
+    'en': 'en',
+    'fr': 'fr',
+    'ar': 'ع',
+  };
+
+  const changeLanguage = (lang) => {
+    i18n.changeLanguage(lang);
+    setDropdownOpen(false);
+  };
+
+  // Helper for active styling matching your image
+  const getListItemClass = (langCode, alignment) => {
+    const isActive = currentLang === langCode;
+    const baseClass = `py-2.5 px-4 cursor-pointer text-base transition-colors ${alignment}`;
+    const colorClass = isActive 
+      ? 'text-[#39b54a] font-semibold bg-[rgba(57,181,74,0.05)]' // Green active state
+      : 'text-[#192514] hover:bg-[rgba(25,37,20,0.04)]'; // Dark default state
+    
+    return `${baseClass} ${colorClass}`;
+  };
+
+  return (
+    <div ref={dropdownRef} className={`relative shrink-0 ${className}`}>
+      {/* Clickable Button - Just icon and text, no box */}
+      <button
+        onClick={() => setDropdownOpen(!dropdownOpen)}
+        className="flex items-center gap-1.5 p-1.5 rounded-full hover:bg-[rgba(25,37,20,0.05)] cursor-pointer bg-transparent border-none focus:outline-none"
+        aria-label="Change language"
+      >
+        <WorldIcon />
+        <span className="text-lg font-medium text-[#4a4a4a] mb-0.5">
+          {langText[currentLang]}
+        </span>
+      </button>
+
+      {/* Modern Dropdown Menu matching the uploaded image */}
+      {dropdownOpen && (
+        <div
+          className="absolute top-full mt-2 right-0 z-50 bg-white border border-[rgba(25,37,20,0.08)] shadow-lg rounded-xl overflow-hidden font-medium"
+          style={{ width: 150 }}
+        >
+          <ul className="list-none flex flex-col p-0 m-0">
+            <li
+              onClick={() => changeLanguage('en')}
+              className={getListItemClass('en', 'text-left')}
+            >
+              English
+            </li>
+            <li
+              onClick={() => changeLanguage('fr')}
+              className={getListItemClass('fr', 'text-left')}
+            >
+              Français
+            </li>
+            <li
+              onClick={() => changeLanguage('ar')}
+              className={getListItemClass('ar', 'text-right font-arabic')}
+            >
+              العربية
+            </li>
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
 // ── Reveal hook ───────────────────────────────────────────────────────────
 function useReveal() {
   const ref = useRef(null);
@@ -136,8 +249,10 @@ function Reveal({ children, delay = 0, className = "" }) {
   );
 }
 
+
 // ── Nav ───────────────────────────────────────────────────────────────────
 function Nav() {
+  const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -148,19 +263,19 @@ function Nav() {
   }, []);
 
   const links = [
-    { href: "#features", label: "Features" },
-    { href: "#how", label: "How it works" },
-    { href: "#dashboard", label: "Dashboard" },
-    { href: "#about", label: "About" },
-    { href: "#contact", label: "Contact" },
+    { href: "#features", label: t('nav_features') },
+    { href: "#how", label: t('nav_how') },
+    { href: "#dashboard", label: t('nav_dashboard') },
+    { href: "#about", label: t('nav_about') },
+    { href: "#contact", label: t('nav_contact') },
   ];
-  const helpLink = { to: "/help", label: "Help" };
+  const helpLink = { to: "/help", label: t('nav_help') };
 
   return (
     <>
       <style>{globalStyles}</style>
       <nav
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        className="font-newblack fixed top-0 left-0 right-0 z-50 transition-all duration-300"
         style={{
           backdropFilter: "blur(20px)",
           WebkitBackdropFilter: "blur(20px)",
@@ -169,16 +284,20 @@ function Nav() {
           boxShadow: scrolled ? "0 2px 20px rgba(25,37,20,0.08)" : "none",
         }}
       >
-        <div className="w-full px-4 sm:px-6 flex items-center justify-between" style={{ height: 72 }}>
+        {/* ADDED gap-4 so elements gracefully push away if they ever get too close */}
+        <div className="w-full px-4 sm:px-6 flex items-center justify-between gap-4" style={{ height: 72 }}>
           <a href="#" className="flex items-center gap-2.5 no-underline shrink-0">
             <Logo />
-            <span className="font-black text-xl tracking-tight" style={{ color: "var(--green-dark)", fontFamily: "Poppins", letterSpacing: "-0.03em" }}>
-              SahlaFarm
+            <span
+              className="font-black text-xl tracking-tight"
+              style={{ color: "var(--green-dark)", fontFamily: "Poppins", letterSpacing: "-0.03em" }}
+            >
+              {t('nav_brand')}
             </span>
           </a>
 
-          {/* Desktop links */}
-          <div className="hidden md:flex items-center gap-6 lg:gap-9">
+          {/* CHANGED lg:flex to xl:flex */}
+          <div className="hidden xl:flex items-center gap-4 2xl:gap-7">
             {links.map((l) => (
               <a
                 key={l.href}
@@ -202,18 +321,28 @@ function Nav() {
             </Link>
           </div>
 
-          <div className="hidden md:flex items-center gap-3 shrink-0">
-            <Link to="/login" className="px-5 py-2.5 rounded-full font-semibold text-sm border border-[rgba(25,37,20,0.25)] transition-all duration-200 hover:border-[#192514] hover:bg-[rgba(25,37,20,0.05)] hover:-translate-y-0.5 no-underline whitespace-nowrap" style={{ color: "var(--green-dark)" }}>
-              Log in
+          {/* CHANGED lg:flex to xl:flex */}
+          <div className="hidden xl:flex items-center gap-3 shrink-0">
+            <LanguageSwitcher compact className="" />
+            <Link
+              to="/login"
+              className="px-5 py-2.5 rounded-full font-semibold text-sm border border-[rgba(25,37,20,0.25)] transition-all duration-200 hover:border-[#192514] hover:bg-[rgba(25,37,20,0.05)] hover:-translate-y-0.5 no-underline whitespace-nowrap"
+              style={{ color: "var(--green-dark)" }}
+            >
+              {t('nav_login')}
             </Link>
-            <Link to="/signup" className="px-5 py-2.5 rounded-full font-semibold text-sm text-[#F5F7F2] transition-all duration-200 hover:-translate-y-0.5 no-underline whitespace-nowrap" style={{ background: "var(--green-dark)" }}>
-              Get Started →
+            <Link
+              to="/signup"
+              className="px-5 py-2.5 rounded-full font-semibold text-sm text-[#F5F7F2] transition-all duration-200 hover:-translate-y-0.5 no-underline whitespace-nowrap"
+              style={{ background: "var(--green-dark)" }}
+            >
+              {t('nav_get_started')}
             </Link>
           </div>
 
-          {/* Hamburger */}
+          {/* CHANGED lg:hidden to xl:hidden */}
           <button
-            className="md:hidden flex flex-col justify-center gap-1.5 p-2 bg-transparent border-none cursor-pointer rounded-lg"
+            className="xl:hidden flex flex-col justify-center gap-1.5 p-2 bg-transparent border-none cursor-pointer rounded-lg"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
           >
@@ -224,13 +353,18 @@ function Nav() {
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {/* CHANGED lg:hidden to xl:hidden */}
       {menuOpen && (
         <div
-          className="fixed top-[72px] left-0 right-0 z-40 flex flex-col md:hidden"
-          style={{ background: "rgba(245,247,242,0.98)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", borderBottom: "1px solid rgba(25,37,20,0.08)", padding: "16px 24px 24px" }}
+          className="font-newblack fixed top-[72px] left-0 right-0 z-40 flex flex-col xl:hidden"
+          style={{
+            background: "rgba(245,247,242,0.98)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            borderBottom: "1px solid rgba(25,37,20,0.08)",
+            padding: "16px 24px 24px",
+          }}
         >
-          {/* Nav anchor links */}
           {links.map((l) => (
             <a
               key={l.href}
@@ -242,7 +376,6 @@ function Nav() {
               {l.label}
             </a>
           ))}
-          {/* Help link */}
           <Link
             to={helpLink.to}
             className="no-underline py-3 text-base font-medium"
@@ -251,15 +384,15 @@ function Nav() {
           >
             {helpLink.label}
           </Link>
-          {/* Auth buttons */}
           <div className="flex flex-col gap-3 mt-4">
+            <LanguageSwitcher compact className="self-start mb-2" />
             <Link
               to="/login"
               className="text-center py-3 px-6 rounded-full font-semibold text-sm no-underline border"
               style={{ color: "var(--green-dark)", borderColor: "rgba(25,37,20,0.25)" }}
               onClick={() => setMenuOpen(false)}
             >
-              Log in
+              {t('nav_login')}
             </Link>
             <Link
               to="/signup"
@@ -267,7 +400,7 @@ function Nav() {
               style={{ background: "var(--green-dark)" }}
               onClick={() => setMenuOpen(false)}
             >
-              Get Started →
+              {t('nav_get_started')}
             </Link>
           </div>
         </div>
@@ -278,8 +411,9 @@ function Nav() {
 
 // ── Hero ──────────────────────────────────────────────────────────────────
 function Hero() {
+  const { t } = useTranslation();
   return (
-    <section className="min-h-screen flex items-center relative overflow-hidden" style={{ paddingTop: 72, background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(85,187,51,0.15) 0%, transparent 70%)" }}>
+    <section className="font-newblack min-h-screen flex items-center relative overflow-hidden" style={{ paddingTop: 72, background: "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(85,187,51,0.15) 0%, transparent 70%)" }}>
       <div className="absolute top-[10%] right-[-5%] w-[600px] h-[600px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(85,187,51,0.08) 0%, transparent 70%)" }} />
       <div className="absolute bottom-[5%] left-[-10%] w-[400px] h-[400px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(189,214,48,0.07) 0%, transparent 70%)" }} />
 
@@ -290,37 +424,37 @@ function Hero() {
             <div className="animate-fade" style={{ animationDelay: "0.1s" }}>
               <span className="inline-flex items-center gap-1.5 text-sm font-semibold px-3.5 py-1.5 rounded-full" style={{ background: "rgba(85,187,51,0.12)", color: "#3a8a1e", border: "1px solid rgba(85,187,51,0.25)", letterSpacing: "0.02em" }}>
                 <span className="pulse-dot w-1.5 h-1.5 rounded-full bg-[#55BB33] inline-block" />
-                IoT · AI · Real-time monitoring
+                {t('hero_badge')}
               </span>
             </div>
 
             <h1 className="animate-slide-up font-black leading-[1.05] tracking-tighter" style={{ fontSize: "clamp(40px,5.5vw,68px)", animationDelay: "0.2s", letterSpacing: "-0.04em", color: "var(--green-dark)" }}>
-              Innovation<br />in the<br />
-              <span style={{ color: "var(--green-primary)" }}>palm</span> of<br />your hands.
+              {t('hero_title_p1')}<br />{t('hero_title_p2')}<br />
+              <span style={{ color: "var(--green-primary)" }}>{t('hero_title_span')}</span> {t('hero_title_p3')}<br />{t('hero_title_p4')}
             </h1>
 
             <p className="animate-slide-up text-base leading-relaxed max-w-[480px]" style={{ animationDelay: "0.35s", color: "rgba(25,37,20,0.65)" }}>
-              Sahla Farm bridges traditional farming knowledge with real-time IoT data, AI-powered insights, and intelligent automation — making smart agriculture accessible to every farmer.
+              {t('hero_desc')}
             </p>
 
             <div className="animate-slide-up flex gap-3 flex-wrap" style={{ animationDelay: "0.5s" }}>
               <Link to="/signup" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-[#F5F7F2] no-underline transition-all duration-200 hover:-translate-y-0.5" style={{ background: "var(--green-dark)", boxShadow: "0 0 0 0 transparent" }}
                 onMouseOver={(e) => { e.currentTarget.style.boxShadow = "0 8px 24px rgba(25,37,20,0.25)"; e.currentTarget.style.background = "#2a3d20"; }}
                 onMouseOut={(e) => { e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.background = "var(--green-dark)"; }}>
-                Start farming smarter →
+                {t('hero_start')}
               </Link>
               <a href="#dashboard" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm no-underline transition-all duration-200 hover:-translate-y-0.5 hover:bg-[rgba(25,37,20,0.05)]" style={{ color: "var(--green-dark)", border: "1.5px solid rgba(25,37,20,0.25)" }}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /></svg>
-                See it in action
+                {t('hero_demo')}
               </a>
             </div>
 
             {/* Stats */}
             <div className="animate-slide-up flex gap-8 pt-4 border-t" style={{ animationDelay: "0.65s", borderColor: "rgba(25,37,20,0.08)" }}>
               {[
-                { value: "40%", label: "Less water used" },
-                { value: "24/7", label: "Real-time monitoring" },
-                { value: "3x", label: "Crop yield increase" },
+                { value: "40%", label: t('hero_stat1') },
+                { value: "24/7", label: t('hero_stat2') },
+                { value: "3x", label: t('hero_stat3') },
               ].map((s, i) => (
                 <div key={i} className="flex items-center gap-8">
                   {i > 0 && <div className="w-px self-stretch" style={{ background: "rgba(25,37,20,0.08)" }} />}
@@ -338,10 +472,10 @@ function Hero() {
             <div className="bg-white rounded-[28px] p-5" style={{ border: "1px solid rgba(25,37,20,0.08)", boxShadow: "0 32px 80px rgba(25,37,20,0.15)" }}>
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <div className="text-xs font-medium uppercase tracking-widest" style={{ color: "rgba(25,37,20,0.45)" }}>Soil Moisture</div>
+                  <div className="text-xs font-medium uppercase tracking-widest" style={{ color: "rgba(25,37,20,0.45)" }}>{t('hero_chart_title')}</div>
                   <div className="font-black text-3xl" style={{ color: "var(--green-dark)", letterSpacing: "-0.03em" }}>45.2<span className="text-sm font-medium ml-0.5">%</span></div>
                 </div>
-                <div className="text-xs font-semibold px-3.5 py-1.5 rounded-full" style={{ background: "rgba(85,187,51,0.12)", color: "#3a8a1e" }}>This week ↓</div>
+                <div className="text-xs font-semibold px-3.5 py-1.5 rounded-full" style={{ background: "rgba(85,187,51,0.12)", color: "#3a8a1e" }}>{t('hero_chart_badge')}</div>
               </div>
               <svg width="100%" height="110" viewBox="0 0 400 110" preserveAspectRatio="none">
                 <defs>
@@ -355,10 +489,10 @@ function Hero() {
               </svg>
               <div className="grid grid-cols-2 gap-2 mt-3">
                 {[
-                  { label: "TEMPERATURE", val: "24.5°C", bg: "#55BB33", dark: true },
-                  { label: "HUMIDITY", val: "65%", bg: "white", dark: false },
-                  { label: "SOIL MOISTURE", val: "45.2%", bg: "white", dark: false },
-                  { label: "LIGHT", val: "1450 lux", bg: "white", dark: false },
+                  { label: t('hero_sensor1'), val: "24.5°C", bg: "#55BB33", dark: true },
+                  { label: t('hero_sensor2'), val: "65%", bg: "white", dark: false },
+                  { label: t('hero_sensor3'), val: "45.2%", bg: "white", dark: false },
+                  { label: t('hero_sensor4'), val: "1450 lux", bg: "white", dark: false },
                 ].map((s) => (
                   <div key={s.label} className="rounded-2xl p-3" style={{ background: s.bg, border: s.dark ? "none" : "1px solid rgba(25,37,20,0.08)" }}>
                     <div className="text-[10px] font-semibold uppercase tracking-widest mb-1" style={{ color: s.dark ? "rgba(255,255,255,0.85)" : "rgba(25,37,20,0.45)" }}>{s.label}</div>
@@ -373,14 +507,14 @@ function Hero() {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ecad20" strokeWidth="2" strokeLinecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
               </div>
               <div>
-                <div className="text-xs font-semibold" style={{ color: "var(--green-dark)" }}>Heavy Rainfall Alert</div>
-                <div className="text-[11px] mt-0.5" style={{ color: "rgba(25,37,20,0.5)" }}>Expected in 12h · High severity</div>
+                <div className="text-xs font-semibold" style={{ color: "var(--green-dark)" }}>{t('hero_alert_title')}</div>
+                <div className="text-[11px] mt-0.5" style={{ color: "rgba(25,37,20,0.5)" }}>{t('hero_alert_desc')}</div>
               </div>
             </div>
             {/* Floating pump */}
             <div className="absolute -top-4 -left-5 rounded-2xl px-4 py-3 flex items-center gap-2.5" style={{ background: "var(--green-dark)", boxShadow: "0 16px 40px rgba(25,37,20,0.25)" }}>
               <div className="w-2 h-2 rounded-full bg-[#55BB33]" />
-              <span className="text-white text-xs font-semibold">Pump · Auto · ON</span>
+              <span className="text-white text-xs font-semibold">{t('hero_pump_status')}</span>
             </div>
           </div>
         </div>
@@ -391,7 +525,11 @@ function Hero() {
 
 // ── Marquee ───────────────────────────────────────────────────────────────
 function Marquee() {
-  const items = ["IoT Sensors", "Real-time Analytics", "AI Recommendations", "Smart Irrigation", "Crop Monitoring", "Plug & Play Setup", "Weather Alerts", "Multi-platform"];
+  const { t } = useTranslation();
+  const items = [
+    t('marquee_1'), t('marquee_2'), t('marquee_3'), t('marquee_4'), 
+    t('marquee_5'), t('marquee_6'), t('marquee_7'), t('marquee_8')
+  ];
   const track = [...items, ...items];
   return (
     <section className="py-8 overflow-hidden bg-white" style={{ borderTop: "1px solid rgba(25,37,20,0.06)", borderBottom: "1px solid rgba(25,37,20,0.06)" }}>
@@ -409,15 +547,16 @@ function Marquee() {
 
 // ── Features ──────────────────────────────────────────────────────────────
 function Features() {
+  const { t } = useTranslation();
   return (
     <section id="features" className="py-28 max-w-6xl mx-auto px-6">
       <Reveal className="text-center mb-16">
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4" style={{ background: "rgba(85,187,51,0.12)", color: "#3a8a1e", border: "1px solid rgba(85,187,51,0.25)" }}>Platform Features</span>
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4" style={{ background: "rgba(85,187,51,0.12)", color: "#3a8a1e", border: "1px solid rgba(85,187,51,0.25)" }}>{t('features_badge')}</span>
         <h2 className="font-black leading-tight mb-4" style={{ fontSize: "clamp(32px,5vw,52px)", letterSpacing: "-0.03em", color: "var(--green-dark)" }}>
-          Everything your farm needs,<br /><span style={{ color: "var(--green-primary)" }}>nothing it doesn't.</span>
+          {t('features_title_p1')}<br /><span style={{ color: "var(--green-primary)" }}>{t('features_title_p2')}</span>
         </h2>
         <p className="text-base mx-auto" style={{ color: "rgba(25,37,20,0.6)", lineHeight: 1.7, maxWidth: 560 }}>
-          Six core capabilities that transform raw environmental data into clear, actionable farm management.
+          {t('features_desc')}
         </p>
       </Reveal>
 
@@ -428,15 +567,15 @@ function Features() {
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(85,187,51,0.2)" }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#55BB33" strokeWidth="2" strokeLinecap="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>
             </div>
-            <h3 className="font-black text-2xl text-white mb-3" style={{ letterSpacing: "-0.02em" }}>Real-time Sensor Monitoring</h3>
-            <p className="text-sm leading-relaxed" style={{ color: "rgba(255,255,255,0.65)" }}>Four environmental sensors track soil moisture, temperature, air humidity, and light intensity — refreshed continuously so you never miss a critical change.</p>
+            <h3 className="font-black text-2xl mb-3" style={{color: "var(--green-dark)", letterSpacing: "-0.02em" }}>{t('features_f1_title')}</h3>
+            <p className="text-sm leading-relaxed" style={{ color: "rgba(25,37,20,0.6)" }}>{t('features_f1_desc')}</p>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
             {[
-              { label: "Soil", val: "45.2%", highlight: false },
-              { label: "Temp", val: "24.5°C", highlight: true },
-              { label: "Humidity", val: "65%", highlight: false },
-              { label: "Light", val: "1450 lux", highlight: false },
+              { label: t('features_f1_s1'), val: "45.2%", highlight: false },
+              { label: t('features_f1_s2'), val: "24.5°C", highlight: true },
+              { label: t('features_f1_s3'), val: "65%", highlight: false },
+              { label: t('features_f1_s4'), val: "1450 lux", highlight: false },
             ].map((s) => (
               <div key={s.label} className="rounded-2xl p-3.5" style={{ background: s.highlight ? "rgba(85,187,51,0.3)" : "rgba(255,255,255,0.08)" }}>
                 <div className="text-[10px] font-semibold uppercase tracking-widest mb-1.5" style={{ color: s.highlight ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.5)" }}>{s.label}</div>
@@ -448,11 +587,11 @@ function Features() {
 
         {/* Feature 2-6 */}
         {[
-          { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#55BB33" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 9h6M9 12h6M9 15h4" /></svg>, iconBg: "rgba(85,187,51,0.1)", title: "AI-Powered Crop Advisor", desc: "Chat with an intelligent assistant that understands your crop type, growth stage, and current conditions to give precise, context-aware recommendations." },
-          { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ecad20" strokeWidth="2" strokeLinecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>, iconBg: "rgba(236,173,32,0.12)", title: "Smart Monitoring Alerts", desc: "Frost risk, heavy rainfall, overwatering — Sahla Farm detects environmental threats before they cause damage and alerts you instantly." },
-          { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8a9e1e" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" /></svg>, iconBg: "rgba(189,214,48,0.12)", title: "Intelligent Actuator Control", desc: "Automate your pump and ventilation systems. Switch between fully automatic, semi-automatic, or manual modes — complete control at every level." },
-          { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#192514" strokeWidth="2" strokeLinecap="round"><path d="M23 7l-7 5 7 5V7z" /><rect x="1" y="5" width="15" height="14" rx="2" /></svg>, iconBg: "rgba(25,37,20,0.06)", title: "Live Camera Stream", desc: "Visual monitoring of your crops from anywhere in the world. Never miss a critical visual change in field conditions or plant health." },
-          { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3a8a1e" strokeWidth="2" strokeLinecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>, iconBg: "rgba(85,187,51,0.15)", title: "Historical Data & Trends", desc: "7-day sensor histories with interactive charts. Understand patterns, compare crop cycles, and make smarter decisions based on your farm's real data.", tint: true },
+          { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#55BB33" strokeWidth="2" strokeLinecap="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M9 9h6M9 12h6M9 15h4" /></svg>, iconBg: "rgba(85,187,51,0.1)", title: t('features_f2_title'), desc: t('features_f2_desc') },
+          { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ecad20" strokeWidth="2" strokeLinecap="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>, iconBg: "rgba(236,173,32,0.12)", title: t('features_f3_title'), desc: t('features_f3_desc') },
+          { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8a9e1e" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" /></svg>, iconBg: "rgba(189,214,48,0.12)", title: t('features_f4_title'), desc: t('features_f4_desc') },
+          { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#192514" strokeWidth="2" strokeLinecap="round"><path d="M23 7l-7 5 7 5V7z" /><rect x="1" y="5" width="15" height="14" rx="2" /></svg>, iconBg: "rgba(25,37,20,0.06)", title: t('features_f5_title'), desc: t('features_f5_desc') },
+          { icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3a8a1e" strokeWidth="2" strokeLinecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>, iconBg: "rgba(85,187,51,0.15)", title: t('features_f6_title'), desc: t('features_f6_desc'), tint: true },
         ].map((f, i) => (
           <Reveal key={f.title} delay={i * 50} className="rounded-3xl p-7 border transition-all duration-300 cursor-default group" style={{ background: f.tint ? "rgba(85,187,51,0.06)" : "white", border: f.tint ? "1px solid rgba(85,187,51,0.2)" : "1px solid rgba(25,37,20,0.07)" }}
             onMouseOver={(e) => { if (!f.tint) { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 20px 48px rgba(25,37,20,0.1)"; e.currentTarget.style.borderColor = "rgba(85,187,51,0.3)"; } }}
@@ -469,22 +608,23 @@ function Features() {
 
 // ── How It Works ──────────────────────────────────────────────────────────
 function HowItWorks() {
+  const { t } = useTranslation();
   const steps = [
-    { n: 1, title: "Plug in the Sahla Box", desc: "Place the Sahla Box in your field. Connect power. That's it — it self-configures using your Wi-Fi or GSM connection." },
-    { n: 2, title: "Configure your crop", desc: "Select your crop type, growth stage, and farming mode. Sahla Farm tailors its monitoring and recommendations to your exact situation." },
-    { n: 3, title: "Monitor in real time", desc: "Your dashboard comes alive with live sensor data, charts, alerts, and actuator status — accessible from any device, anywhere." },
-    { n: 4, title: "Act on AI insights", desc: "Receive personalized recommendations from the AI advisor. Automate irrigation, manage ventilation, and grow with confidence." },
+    { n: 1, title: t('how_s1_title'), desc: t('how_s1_desc') },
+    { n: 2, title: t('how_s2_title'), desc: t('how_s2_desc') },
+    { n: 3, title: t('how_s3_title'), desc: t('how_s3_desc') },
+    { n: 4, title: t('how_s4_title'), desc: t('how_s4_desc') },
   ];
   return (
     <section id="how" className="py-28 relative overflow-hidden" style={{ background: "var(--green-dark)" }}>
       <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(85,187,51,0.08) 0%, transparent 70%)" }} />
       <div className="max-w-6xl mx-auto px-6 relative z-10">
         <Reveal className="text-center mb-16">
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4" style={{ background: "rgba(85,187,51,0.15)", color: "#7edd55", border: "1px solid rgba(85,187,51,0.3)" }}>Simple setup</span>
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4" style={{ background: "rgba(85,187,51,0.15)", color: "#7edd55", border: "1px solid rgba(85,187,51,0.3)" }}>{t('how_badge')}</span>
           <h2 className="font-black leading-tight text-white mb-4" style={{ fontSize: "clamp(32px,5vw,52px)", letterSpacing: "-0.03em" }}>
-            Up and running<br /><span style={{ color: "var(--green-primary)" }}>in four steps.</span>
+            {t('how_title_p1')}<br /><span style={{ color: "var(--green-primary)" }}>{t('how_title_p2')}</span>
           </h2>
-          <p className="text-base mx-auto" style={{ color: "rgba(255,255,255,0.55)", lineHeight: 1.7, maxWidth: 480 }}>No technical expertise required. The Sahla Box does the heavy lifting.</p>
+          <p className="text-base mx-auto" style={{ color: "rgba(255,255,255,0.55)", lineHeight: 1.7, maxWidth: 480 }}>{t('how_desc')}</p>
         </Reveal>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -508,14 +648,15 @@ function HowItWorks() {
 
 // ── Dashboard Preview ─────────────────────────────────────────────────────
 function DashboardPreview() {
+  const { t } = useTranslation();
   return (
     <section id="dashboard" className="py-28 max-w-6xl mx-auto px-6">
       <Reveal className="text-center mb-16">
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4" style={{ background: "rgba(85,187,51,0.12)", color: "#3a8a1e", border: "1px solid rgba(85,187,51,0.25)" }}>Live dashboard</span>
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4" style={{ background: "rgba(85,187,51,0.12)", color: "#3a8a1e", border: "1px solid rgba(85,187,51,0.25)" }}>{t('dash_badge')}</span>
         <h2 className="font-black leading-tight mb-4" style={{ fontSize: "clamp(32px,5vw,52px)", letterSpacing: "-0.03em", color: "var(--green-dark)" }}>
-          Your farm,<br /><span style={{ color: "var(--green-primary)" }}>at a glance.</span>
+          {t('dash_title_p1')}<br /><span style={{ color: "var(--green-primary)" }}>{t('dash_title_p2')}</span>
         </h2>
-        <p className="text-base mx-auto" style={{ color: "rgba(25,37,20,0.6)", lineHeight: 1.7, maxWidth: 560 }}>A command center designed to surface exactly what matters — clean, fast, and actionable.</p>
+        <p className="text-base mx-auto" style={{ color: "rgba(25,37,20,0.6)", lineHeight: 1.7, maxWidth: 560 }}>{t('dash_desc')}</p>
       </Reveal>
 
       <Reveal className="bg-white rounded-[28px] overflow-hidden" style={{ border: "1px solid rgba(25,37,20,0.08)", boxShadow: "0 40px 100px rgba(25,37,20,0.12)" }}>
@@ -553,10 +694,10 @@ function DashboardPreview() {
             <div className="bg-white rounded-2xl p-4" style={{ border: "1px solid rgba(25,37,20,0.07)" }}>
               <div className="flex justify-between items-center mb-3">
                 <div>
-                  <div className="text-[11px] font-medium uppercase tracking-widest" style={{ color: "rgba(25,37,20,0.4)" }}>Soil Moisture · %</div>
-                  <div className="font-black text-lg" style={{ color: "var(--green-dark)", letterSpacing: "-0.02em" }}>This week ↓</div>
+                  <div className="text-[11px] font-medium uppercase tracking-widest" style={{ color: "rgba(25,37,20,0.4)" }}>{t('dash_chart_title')}</div>
+                  <div className="font-black text-lg" style={{ color: "var(--green-dark)", letterSpacing: "-0.02em" }}>{t('dash_chart_status')}</div>
                 </div>
-                <div className="text-[11px] px-2.5 py-1 rounded-md" style={{ color: "rgba(25,37,20,0.5)", background: "rgba(25,37,20,0.06)" }}>MON–SUN</div>
+                <div className="text-[11px] px-2.5 py-1 rounded-md" style={{ color: "rgba(25,37,20,0.5)", background: "rgba(25,37,20,0.06)" }}>{t('dash_chart_days')}</div>
               </div>
               <svg width="100%" height="70" viewBox="0 0 600 70" preserveAspectRatio="none">
                 <path d="M0,50 L86,42 L171,35 L257,55 L343,22 L428,30 L514,15 L600,28" fill="none" stroke="#55BB33" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -567,10 +708,10 @@ function DashboardPreview() {
             {/* Sensor grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {[
-                { label: "Soil Moisture", val: "45.2%", active: true },
-                { label: "Temperature", val: "24.5°C", active: false },
-                { label: "Humidity", val: "65%", active: false },
-                { label: "Light", val: "1450 lux", active: false },
+                { label: t('dash_s1'), val: "45.2%", active: true },
+                { label: t('dash_s2'), val: "24.5°C", active: false },
+                { label: t('dash_s3'), val: "65%", active: false },
+                { label: t('dash_s4'), val: "1450 lux", active: false },
               ].map((s) => (
                 <div key={s.label} className="rounded-2xl p-3" style={{ background: s.active ? "#55BB33" : "white", border: s.active ? "none" : "1px solid rgba(25,37,20,0.07)" }}>
                   <div className="text-[9px] font-semibold uppercase tracking-widest mb-2" style={{ color: s.active ? "rgba(255,255,255,0.8)" : "rgba(25,37,20,0.4)" }}>{s.label}</div>
@@ -583,8 +724,8 @@ function DashboardPreview() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               <div className="flex flex-col gap-2.5">
                 {[
-                  { label: "Pump · Auto", time: "08:00 – 08:20", status: "OFF", on: false },
-                  { label: "Fan · Semi-auto", time: "14:00 – 14:30", status: "ON", on: true },
+                  { label: t('dash_act1'), time: "08:00 – 08:20", status: "OFF", on: false },
+                  { label: t('dash_act2'), time: "14:00 – 14:30", status: "ON", on: true },
                 ].map((a) => (
                   <div key={a.label} className="rounded-2xl p-3.5 flex items-center justify-between" style={{ background: "#192514" }}>
                     <div>
@@ -596,10 +737,10 @@ function DashboardPreview() {
                 ))}
               </div>
               <div className="rounded-2xl p-3.5 flex flex-col justify-between" style={{ background: "#192514" }}>
-                <div className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.5)" }}>Crop Info</div>
-                <div className="text-sm font-semibold text-white mt-1.5">🌿 Tomatoes</div>
-                <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>Flowering · Growth priority</div>
-                <div className="mt-2.5 text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>AI: Water promptly — soil is very dry and overheating detected.</div>
+                <div className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.5)" }}>{t('dash_crop_title')}</div>
+                <div className="text-sm font-semibold text-white mt-1.5">🌿 {t('dash_crop_name')}</div>
+                <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>{t('dash_crop_status')}</div>
+                <div className="mt-2.5 text-[11px] leading-relaxed" style={{ color: "rgba(255,255,255,0.5)" }}>{t('dash_crop_ai')}</div>
               </div>
             </div>
           </div>
@@ -608,7 +749,7 @@ function DashboardPreview() {
 
       <div className="text-center mt-10">
         <Link to="/signup" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-[#F5F7F2] no-underline transition-all duration-200 hover:-translate-y-0.5" style={{ background: "var(--green-dark)" }}>
-          Get dashboard access →
+          {t('dash_cta')}
         </Link>
       </div>
     </section>
@@ -617,10 +758,11 @@ function DashboardPreview() {
 
 // ── About ─────────────────────────────────────────────────────────────────
 function About() {
+  const { t } = useTranslation();
   const values = [
-    { icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#55BB33" strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>, iconBg: "rgba(85,187,51,0.12)", title: "Reliable by design", desc: "Edge computing ensures your farm stays monitored even without internet connectivity." },
-    { icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ecad20" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" /></svg>, iconBg: "rgba(236,173,32,0.12)", title: "Accessible to everyone", desc: "Plug & Play setup. No engineers needed — any farmer can deploy Sahla in minutes." },
-    { icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#192514" strokeWidth="2" strokeLinecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /></svg>, iconBg: "rgba(25,37,20,0.06)", title: "Built to scale", desc: "From a small greenhouse to a large farm — Sahla grows with your operation seamlessly." },
+    { icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#55BB33" strokeWidth="2" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>, iconBg: "rgba(85,187,51,0.12)", title: t('about_v1_title'), desc: t('about_v1_desc') },
+    { icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ecad20" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" /></svg>, iconBg: "rgba(236,173,32,0.12)", title: t('about_v2_title'), desc: t('about_v2_desc') },
+    { icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#192514" strokeWidth="2" strokeLinecap="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /></svg>, iconBg: "rgba(25,37,20,0.06)", title: t('about_v3_title'), desc: t('about_v3_desc') },
   ];
 
   return (
@@ -628,16 +770,16 @@ function About() {
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
           <Reveal>
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6" style={{ background: "rgba(85,187,51,0.12)", color: "#3a8a1e", border: "1px solid rgba(85,187,51,0.25)" }}>Our story</span>
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6" style={{ background: "rgba(85,187,51,0.12)", color: "#3a8a1e", border: "1px solid rgba(85,187,51,0.25)" }}>{t('about_badge')}</span>
             <h2 className="font-black leading-tight mb-6" style={{ fontSize: "clamp(32px,5vw,52px)", letterSpacing: "-0.03em", color: "var(--green-dark)" }}>
-              Born from a<br /><span style={{ color: "var(--green-primary)" }}>real problem.</span>
+              {t('about_title_p1')}<br /><span style={{ color: "var(--green-primary)" }}>{t('about_title_p2')}</span>
             </h2>
-            <p className="text-base leading-relaxed mb-5" style={{ color: "rgba(25,37,20,0.65)" }}>Sahla Farm was born from a real-world challenge: how can farmers monitor their crops efficiently without expensive infrastructure or technical barriers?</p>
-            <p className="text-base leading-relaxed mb-8" style={{ color: "rgba(25,37,20,0.65)" }}>We are a team passionate about technology and sustainability. Instead of overwhelming farmers with complexity, we focused on building a solution that is intuitive, reliable, and scalable.</p>
+            <p className="text-base leading-relaxed mb-5" style={{ color: "rgba(25,37,20,0.65)" }}>{t('about_p1')}</p>
+            <p className="text-base leading-relaxed mb-8" style={{ color: "rgba(25,37,20,0.65)" }}>{t('about_p2')}</p>
             <div className="grid grid-cols-2 gap-5">
               {[
-                { label: "Mission", text: "Simplify smart agriculture through reliable IoT systems every farmer can use." },
-                { label: "Vision", text: "Farms that are connected, efficient, and sustainable — technology enhancing nature." },
+                { label: t('about_mission'), text: t('about_mission_text') },
+                { label: t('about_vision'), text: t('about_vision_text') },
               ].map((m) => (
                 <div key={m.label} className="p-5 rounded-2xl" style={{ background: "#F5F7F2" }}>
                   <div className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "rgba(25,37,20,0.45)" }}>{m.label}</div>
@@ -668,17 +810,18 @@ function About() {
 
 // ── Benefits ──────────────────────────────────────────────────────────────
 function Benefits() {
+  const { t } = useTranslation();
   const items = [
-    { val: "40%", label: "Water Savings", desc: "Precise irrigation scheduling eliminates waste and ensures crops get exactly what they need.", dark: false, color: "var(--green-primary)" },
-    { val: "3x", label: "Yield Increase", desc: "Optimal growing conditions maintained round the clock lead to healthier, more productive harvests.", dark: true, color: "#55BB33" },
-    { val: "0", label: "Technical barriers", desc: "No engineering degree required. If you can plug in a device, you can run a smart farm.", dark: false, color: "var(--golden)" },
+    { val: "40%", label: t('bene_1_label'), desc: t('bene_1_desc'), dark: false, color: "var(--green-primary)" },
+    { val: "3x", label: t('bene_2_label'), desc: t('bene_2_desc'), dark: true, color: "#55BB33" },
+    { val: "0", label: t('bene_3_label'), desc: t('bene_3_desc'), dark: false, color: "var(--golden)" },
   ];
   return (
     <section className="py-28 max-w-6xl mx-auto px-6">
       <Reveal className="text-center mb-16">
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4" style={{ background: "rgba(85,187,51,0.12)", color: "#3a8a1e", border: "1px solid rgba(85,187,51,0.25)" }}>Real outcomes</span>
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-4" style={{ background: "rgba(85,187,51,0.12)", color: "#3a8a1e", border: "1px solid rgba(85,187,51,0.25)" }}>{t('bene_badge')}</span>
         <h2 className="font-black leading-tight" style={{ fontSize: "clamp(32px,5vw,52px)", letterSpacing: "-0.03em", color: "var(--green-dark)" }}>
-          Results that<br /><span style={{ color: "var(--green-primary)" }}>speak for themselves.</span>
+          {t('bene_title_p1')}<br /><span style={{ color: "var(--green-primary)" }}>{t('bene_title_p2')}</span>
         </h2>
       </Reveal>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -688,8 +831,8 @@ function Benefits() {
             onMouseOver={(e) => { if (!item.dark) { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 20px 48px rgba(25,37,20,0.1)"; } }}
             onMouseOut={(e) => { if (!item.dark) { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; } }}>
             <div className="font-black leading-none mb-3" style={{ fontSize: 56, color: item.color, letterSpacing: "-0.03em" }}>{item.val}</div>
-            <div className="font-bold text-lg mb-2" style={{ letterSpacing: "-0.02em", color: item.dark ? "white" : "var(--green-dark)" }}>{item.label}</div>
-            <div className="text-sm leading-relaxed" style={{ color: item.dark ? "rgba(255,255,255,0.55)" : "rgba(25,37,20,0.55)" }}>{item.desc}</div>
+            <div className="font-bold text-lg mb-2" style={{ letterSpacing: "-0.02em", color: "var(--green-dark)" }}>{item.label}</div>
+            <div className="text-sm leading-relaxed" style={{ color: "rgba(25,37,20,0.55)" }}>{item.desc}</div>
           </Reveal>
         ))}
       </div>
@@ -699,22 +842,23 @@ function Benefits() {
 
 // ── CTA ───────────────────────────────────────────────────────────────────
 function CTA() {
+  const { t } = useTranslation();
   return (
     <section className="py-20 max-w-6xl mx-auto px-6">
       <Reveal className="rounded-[32px] px-16 py-20 text-center relative overflow-hidden" style={{ background: "var(--green-dark)" }}>
         <div className="absolute -top-12 -right-12 w-72 h-72 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(85,187,51,0.15) 0%, transparent 70%)" }} />
         <div className="absolute -bottom-16 -left-10 w-64 h-64 rounded-full pointer-events-none" style={{ background: "radial-gradient(circle, rgba(189,214,48,0.1) 0%, transparent 70%)" }} />
         <div className="relative z-10">
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6" style={{ background: "rgba(85,187,51,0.15)", color: "#7edd55", border: "1px solid rgba(85,187,51,0.3)" }}>Start today</span>
-          <h2 className="font-black text-white leading-tight mb-5" style={{ fontSize: "clamp(32px,5vw,52px)", letterSpacing: "-0.03em" }}>
-            Your farm deserves<br />smarter technology.
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6" style={{ background: "rgba(85,187,51,0.15)", color: "#7edd55", border: "1px solid rgba(85,187,51,0.3)" }}>{t('cta_badge')}</span>
+          <h2 className="font-black leading-tight mb-5" style={{ fontSize: "clamp(32px,5vw,52px)", letterSpacing: "-0.03em", color: "#192514" }}>
+            {t('cta_title_p1')}<br />{t('cta_title_p2')}
           </h2>
-          <p className="text-base mb-10 mx-auto" style={{ color: "rgba(255,255,255,0.6)", lineHeight: 1.7, maxWidth: 480 }}>
-            Join farmers already using Sahla Farm to reduce waste, increase yields, and farm with confidence.
+          <p className="text-base mb-10 mx-auto" style={{ color: "#192514", lineHeight: 1.8, maxWidth: 480 }}>
+            {t('cta_desc')}
           </p>
           <div className="flex gap-3 justify-center flex-wrap">
-            <Link to="/signup" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-white no-underline transition-all duration-200 hover:-translate-y-0.5" style={{ background: "#55BB33" }}>Get started for free →</Link>
-            <a href="#dashboard" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-white no-underline transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10" style={{ border: "1.5px solid rgba(255,255,255,0.25)" }}>View demo</a>
+            <Link to="/signup" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-white no-underline transition-all duration-200 hover:-translate-y-0.5" style={{ background: "#55BB33" }}>{t('cta_btn1')}</Link>
+            <a href="#dashboard" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full font-semibold text-sm text-[#192514] no-underline transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/10" style={{ border: "1.5px solid rgba(255,255,255,0.25)" }}>{t('cta_btn2')}</a>
           </div>
         </div>
       </Reveal>
@@ -724,6 +868,7 @@ function CTA() {
 
 // ── Contact ───────────────────────────────────────────────────────────────
 function Contact() {
+  const { t } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
 
@@ -741,9 +886,9 @@ function Contact() {
   };
 
   const contactInfo = [
-    { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#55BB33" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>, label: "Email", value: "contact@sahlafarm.com" },
-    { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#55BB33" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>, label: "Location", value: "Algiers, Algeria" },
-    { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#55BB33" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>, label: "Response time", value: "Within 24 hours" },
+    { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#55BB33" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>, label: t('contact_i1_label'), value: "contact@sahlafarm.com" },
+    { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#55BB33" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>, label: t('contact_i2_label'), value: t('contact_i2_value') },
+    { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#55BB33" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>, label: t('contact_i3_label'), value: t('contact_i3_value') },
   ];
 
   return (
@@ -751,11 +896,11 @@ function Contact() {
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-start">
           <Reveal>
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6" style={{ background: "rgba(85,187,51,0.12)", color: "#3a8a1e", border: "1px solid rgba(85,187,51,0.25)" }}>Get in touch</span>
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-1.5 rounded-full mb-6" style={{ background: "rgba(85,187,51,0.12)", color: "#3a8a1e", border: "1px solid rgba(85,187,51,0.25)" }}>{t('contact_badge')}</span>
             <h2 className="font-black leading-tight mb-5" style={{ fontSize: "clamp(32px,5vw,52px)", letterSpacing: "-0.03em", color: "var(--green-dark)" }}>
-              Let's talk about<br /><span style={{ color: "var(--green-primary)" }}>your farm.</span>
+              {t('contact_title_p1')}<br /><span style={{ color: "var(--green-primary)" }}>{t('contact_title_p2')}</span>
             </h2>
-            <p className="text-base leading-relaxed mb-10" style={{ color: "rgba(25,37,20,0.6)" }}>Whether you're a small greenhouse grower or a large-scale operation, we'd love to show you how Sahla Farm can transform your workflow.</p>
+            <p className="text-base leading-relaxed mb-10" style={{ color: "rgba(25,37,20,0.6)" }}>{t('contact_desc')}</p>
             <div className="flex flex-col gap-5">
               {contactInfo.map((c) => (
                 <div key={c.label} className="flex items-center gap-3.5">
@@ -773,36 +918,36 @@ function Contact() {
             <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(25,37,20,0.6)" }}>First name</label>
-                  <input type="text" placeholder="Yahia" style={inputStyle} onFocus={(e) => (e.target.style.borderColor = "#55BB33")} onBlur={(e) => (e.target.style.borderColor = "rgba(25,37,20,0.12)")} />
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(25,37,20,0.6)" }}>{t('contact_fname')}</label>
+                  <input type="text" placeholder={t('contact_fname_ph')} style={inputStyle} onFocus={(e) => (e.target.style.borderColor = "#55BB33")} onBlur={(e) => (e.target.style.borderColor = "rgba(25,37,20,0.12)")} />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(25,37,20,0.6)" }}>Last name</label>
-                  <input type="text" placeholder="Gueroudji" style={inputStyle} onFocus={(e) => (e.target.style.borderColor = "#55BB33")} onBlur={(e) => (e.target.style.borderColor = "rgba(25,37,20,0.12)")} />
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(25,37,20,0.6)" }}>{t('contact_lname')}</label>
+                  <input type="text" placeholder={t('contact_lname_ph')} style={inputStyle} onFocus={(e) => (e.target.style.borderColor = "#55BB33")} onBlur={(e) => (e.target.style.borderColor = "rgba(25,37,20,0.12)")} />
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(25,37,20,0.6)" }}>Email</label>
-                <input type="email" placeholder="you@sahlafarm.com" style={inputStyle} onFocus={(e) => (e.target.style.borderColor = "#55BB33")} onBlur={(e) => (e.target.style.borderColor = "rgba(25,37,20,0.12)")} />
+                <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(25,37,20,0.6)" }}>{t('contact_email')}</label>
+                <input type="email" placeholder={t('contact_email_ph')} style={inputStyle} onFocus={(e) => (e.target.style.borderColor = "#55BB33")} onBlur={(e) => (e.target.style.borderColor = "rgba(25,37,20,0.12)")} />
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(25,37,20,0.6)" }}>Farm type</label>
+                <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(25,37,20,0.6)" }}>{t('contact_farmtype')}</label>
                 <select style={{ ...inputStyle, appearance: "none", cursor: "pointer" }} onFocus={(e) => (e.target.style.borderColor = "#55BB33")} onBlur={(e) => (e.target.style.borderColor = "rgba(25,37,20,0.12)")}>
-                  <option value="" disabled>Select your farm type</option>
-                  {["Greenhouse", "Open field", "Vertical farm", "Orchard", "Other"].map((o) => <option key={o}>{o}</option>)}
+                  <option value="" disabled>{t('contact_farm_select')}</option>
+                  {[t('contact_farm_o1'), t('contact_farm_o2'), t('contact_farm_o3'), t('contact_farm_o4'), t('contact_farm_o5')].map((o) => <option key={o}>{o}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(25,37,20,0.6)" }}>Message</label>
-                <textarea placeholder="Tell us about your farm and what you're looking for..." rows={4} style={{ ...inputStyle, resize: "vertical" }} onFocus={(e) => (e.target.style.borderColor = "#55BB33")} onBlur={(e) => (e.target.style.borderColor = "rgba(25,37,20,0.12)")} />
+                <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(25,37,20,0.6)" }}>{t('contact_msg')}</label>
+                <textarea placeholder={t('contact_msg_ph')} rows={4} style={{ ...inputStyle, resize: "vertical" }} onFocus={(e) => (e.target.style.borderColor = "#55BB33")} onBlur={(e) => (e.target.style.borderColor = "rgba(25,37,20,0.12)")} />
               </div>
               {!submitted ? (
                 <button type="submit" className="w-full py-4 rounded-full font-semibold text-sm text-[#F5F7F2] transition-all duration-200 hover:-translate-y-0.5 cursor-pointer border-none" style={{ background: "var(--green-dark)", opacity: sending ? 0.7 : 1 }}>
-                  {sending ? "Sending..." : "Send message →"}
+                  {sending ? t('contact_sending') : t('contact_send')}
                 </button>
               ) : (
                 <div className="text-center py-3 rounded-xl text-sm font-semibold" style={{ color: "#3a8a1e", background: "rgba(85,187,51,0.1)" }}>
-                  ✓ Message sent! We'll be in touch within 24 hours.
+                  {t('contact_success')}
                 </div>
               )}
             </form>
@@ -815,9 +960,39 @@ function Contact() {
 
 // ── Footer ────────────────────────────────────────────────────────────────
 function Footer() {
-  const product = ["Features", "Dashboard", "How it works", "Mobile app"];
-  const company = ["About us", "Contact", "Blog"];
-  const legal = ["Privacy", "Terms"];
+  const { t } = useTranslation();
+
+  const linkStyle = { color: "rgba(245,247,242,0.6)", textDecoration: "none", fontSize: 14, transition: "color 0.2s" };
+  const hoverIn  = (e) => (e.target.style.color = "white");
+  const hoverOut = (e) => (e.target.style.color = "rgba(245,247,242,0.6)");
+
+  const columns = [
+    {
+      title: t('footer_col1'),
+      links: [
+        { label: t('nav_features'),      href: "#features",   type: "anchor" },
+        { label: t('nav_dashboard'),     href: "#dashboard",  type: "anchor" },
+        { label: t('nav_how'),           href: "#how",        type: "anchor" },
+        { label: t('footer_mobile_app'), href: "/mobile-app", type: "router" },
+      ],
+    },
+    {
+      title: t('footer_col2'),
+      links: [
+        { label: t('nav_about'),   href: "#about",   type: "anchor" },
+        { label: t('nav_contact'), href: "#contact", type: "anchor" },
+        { label: t('footer_blog'), href: "/blog",    type: "router" },
+      ],
+    },
+    {
+      title: t('footer_col3'),
+      links: [
+        { label: t('footer_privacy'), href: "/privacy", type: "router" },
+        { label: t('footer_terms'),   href: "/terms",   type: "router" },
+      ],
+    },
+  ];
+
   return (
     <footer className="px-6 pt-16 pb-8" style={{ background: "var(--green-dark)" }}>
       <div className="max-w-6xl mx-auto">
@@ -825,32 +1000,46 @@ function Footer() {
           <div>
             <div className="flex items-center gap-2.5 mb-4">
               <Logo size={32} />
-              <span className="font-black text-lg text-white" style={{ letterSpacing: "-0.03em" }}>SahlaFarm</span>
+              <span className="font-black text-lg text-white" style={{ letterSpacing: "-0.03em" }}>{t('nav_brand')}</span>
             </div>
-            <p className="text-sm leading-relaxed" style={{ color: "rgba(245,247,242,0.5)", maxWidth: 280 }}>Smarter farms, stronger yields, sustainable futures. Innovation in the palm of your hands.</p>
+            <p className="text-sm leading-relaxed" style={{ color: "rgba(245,247,242,0.5)", maxWidth: 280 }}>{t('footer_desc')}</p>
           </div>
 
-          {[
-            { title: "Product", links: product },
-            { title: "Company", links: company },
-            { title: "Legal", links: legal },
-          ].map((col) => (
+          {columns.map((col) => (
             <div key={col.title}>
               <div className="text-xs font-bold uppercase tracking-widest mb-5" style={{ color: "rgba(245,247,242,0.35)" }}>{col.title}</div>
               <div className="flex flex-col gap-3">
-                {col.links.map((l) => (
-                  <a key={l} href="#" className="text-sm no-underline transition-colors duration-200" style={{ color: "rgba(245,247,242,0.6)" }}
-                    onMouseOver={(e) => (e.target.style.color = "white")}
-                    onMouseOut={(e) => (e.target.style.color = "rgba(245,247,242,0.6)")}>{l}</a>
-                ))}
+                {col.links.map((l) =>
+                  l.type === "router" ? (
+                    <Link
+                      key={l.label}
+                      to={l.href}
+                      style={linkStyle}
+                      onMouseOver={hoverIn}
+                      onMouseOut={hoverOut}
+                    >
+                      {l.label}
+                    </Link>
+                  ) : (
+                    <a
+                      key={l.label}
+                      href={l.href}
+                      style={linkStyle}
+                      onMouseOver={hoverIn}
+                      onMouseOut={hoverOut}
+                    >
+                      {l.label}
+                    </a>
+                  )
+                )}
               </div>
             </div>
           ))}
         </div>
 
         <div className="pt-8 flex flex-wrap justify-between items-center gap-3">
-          <span className="text-xs" style={{ color: "rgba(245,247,242,0.35)" }}>© 2026 SahlaFarm. All rights reserved.</span>
-          <span className="text-xs" style={{ color: "rgba(245,247,242,0.35)" }}>Algiers, Algeria · sahlafarm.com</span>
+          <span className="text-xs" style={{ color: "rgba(245,247,242,0.35)" }}>{t('footer_copy')}</span>
+          <span className="text-xs" style={{ color: "rgba(245,247,242,0.35)" }}>{t('footer_location')}</span>
         </div>
       </div>
     </footer>
@@ -859,8 +1048,10 @@ function Footer() {
 
 // ── App ───────────────────────────────────────────────────────────────────
 export default function LandingPage() {
+  const { i18n } = useTranslation();
+  const isArabic = i18n.language === 'ar';
   return (
-    <div style={{ fontFamily: "Poppins, sans-serif" }}>
+    <div style={{ fontFamily: "Poppins, sans-serif" }} dir={isArabic ? "rtl" : "ltr"}>
       <Nav />
       <Hero />
       <Marquee />

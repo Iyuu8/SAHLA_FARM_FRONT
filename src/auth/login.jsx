@@ -9,7 +9,8 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../utilities/components/login/LanguageSwitcher' 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 export default function Login() {
-  const { t } = useTranslation();
+  const { t  , i18n } = useTranslation();
+  const isArabic = i18n.language === 'ar';
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -192,7 +193,7 @@ export default function Login() {
         {/* Return to Home */}
         <Link
           to="/"
-          className="absolute bottom-5 left-6 flex items-center gap-1.5 text-sm font-medium no-underline"
+          className={`absolute bottom-5 ${isArabic ? 'right-6' : 'left-6'} flex items-center gap-1.5 text-sm font-medium no-underline`}
           style={{ color: "rgba(25,37,20,0.55)", transition: "color 0.2s" }}
           onMouseOver={(e) => (e.currentTarget.style.color = "#192514")}
           onMouseOut={(e) => (e.currentTarget.style.color = "rgba(25,37,20,0.55)")}
@@ -200,7 +201,8 @@ export default function Login() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
-          Return to Home
+
+          {t('login.ReturnToHome')}
         </Link>
       </div>
  

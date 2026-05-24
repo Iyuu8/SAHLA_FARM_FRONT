@@ -3,23 +3,30 @@ import { useTranslation } from 'react-i18next';
 import { FaGlobe } from 'react-icons/fa';
 
 const LANGUAGES = [
-  { code: 'en', label: 'English', dir: 'ltr' },
-  { code: 'fr', label: 'Français', dir: 'ltr' },
-  { code: 'ar', label: 'العربية', dir: 'rtl' },
+  { code: 'en', label: 'English',  shortLabel: 'en', dir: 'ltr' },
+  { code: 'fr', label: 'Français', shortLabel: 'fr', dir: 'ltr' },
+  { code: 'ar', label: 'العربية',  shortLabel: 'عر', dir: 'rtl' },
 ];
 
-export default function LanguageSwitcher() {
+/**
+ * LanguageSwitcher
+ *
+ * Props:
+ *  compact   – when true, shows only the short label (en / fr / عر) and hides the chevron.
+ *              Renders inline (position: relative) instead of absolutely positioned.
+ *  className – extra classes merged onto the wrapper div.
+ */
+export default function LanguageSwitcher({ compact = false, className = '' }) {
   const { i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // Get the current language object
   const currentLangObj = LANGUAGES.find((l) => l.code === i18n.language) || LANGUAGES[0];
 
-  // Close dropdown when clicking outside of it
+  // Close on outside click
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setIsOpen(false);
       }
     };
@@ -29,49 +36,61 @@ export default function LanguageSwitcher() {
 
   const changeLanguage = (code) => {
     i18n.changeLanguage(code);
-    setIsOpen(false); // Close the menu after selecting
+    setIsOpen(false);
   };
 
-  // Update HTML direction (RTL/LTR)
+  // Keep <html> dir/lang in sync
   useEffect(() => {
-    document.documentElement.dir = currentLangObj.dir;
+    document.documentElement.dir  = currentLangObj.dir;
     document.documentElement.lang = currentLangObj.code;
   }, [i18n.language, currentLangObj]);
 
+  // Wrapper positioning:
+  //  - login pages (compact=false): absolute top-left, fixed width
+  //  - landing / help nav (compact=true): relative, shrink-to-content
+  const wrapperClass = compact
+    ? `relative z-50 ${className}`
+    : `absolute top-4 start-4 z-50 min-w-[130px] ${className}`;
+
   return (
-    // Added a min-width to keep the button size stable across languages
-    <div className="absolute top-4 start-4 z-50 min-w-[130px]" ref={dropdownRef}>
-      
-      {/* Custom Trigger Button */}
+    <div className={wrapperClass} ref={dropdownRef}>
+
+      {/* Trigger button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center justify-between w-full gap-2 bg-white px-3 py-2 rounded-lg shadow-sm border border-gray-200 text-[#444] font-medium cursor-pointer transition-all hover:bg-gray-50"
       >
         <div className="flex items-center gap-2">
           <FaGlobe className="text-[#55BB33]" />
-          <span>{currentLangObj.label}</span>
+          <span>{compact ? currentLangObj.shortLabel : currentLangObj.label}</span>
         </div>
-        {/* Small custom dropdown arrow */}
-        <svg className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-        </svg>
+
+        {/* Chevron — only in full (non-compact) mode */}
+        {!compact && (
+          <svg
+            className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        )}
       </button>
 
-      {/* Custom Dropdown List */}
+      {/* Dropdown list */}
       {isOpen && (
-        <ul className="absolute top-full start-0 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-50">
+        <ul className="absolute top-full mt-1 w-max min-w-full bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden z-50 start-0">
           {LANGUAGES.map((lang) => (
             <li key={lang.code}>
               <button
                 onClick={() => changeLanguage(lang.code)}
                 className={`w-full text-start px-3 py-2 transition-colors ${
-                  i18n.language === lang.code 
-                    ? 'bg-[#F8FFF6] text-[#55BB33] font-bold' 
+                  i18n.language === lang.code
+                    ? 'bg-[#F8FFF6] text-[#55BB33] font-bold'
                     : 'text-[#444] hover:bg-gray-100'
                 }`}
-                dir={lang.dir} // Ensures Arabic text aligns correctly inside the list
+                dir={lang.dir}
               >
-                {lang.label}
+                {compact ? lang.shortLabel : lang.label}
               </button>
             </li>
           ))}
