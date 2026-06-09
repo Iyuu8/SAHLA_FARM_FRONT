@@ -10,7 +10,7 @@ import ThinkingIndicator from '../utilities/components/aiChat/ThinkingIndicator'
 import ChatInput         from '../utilities/components/aiChat/ChatInput';
 
 import { parseMessageSegments } from '../utilities/functions/chatParser';
-import { buildSystemPrompt, buildFarmContext, buildLanguageInstruction } from '../utilities/functions/chatPrompts';
+import { buildSystemPrompt, buildFarmContext } from '../utilities/functions/chatPrompts';
 import { useHAStatus } from '../context/HAStatusContext';
 
 import {
@@ -23,15 +23,14 @@ import {
   CHAT_COPY,
 } from '../utilities/data/chatConstants';
 import { STORAGE_KEYS } from '../utilities/data/storageKeys';
-import useFarmPreferences from '../context/FarmContext';
+import useFarmPreferences from '../hooks/useFarmPreferences';
 import useActuatorsState from '../hooks/useActuatorsState';
 import usePersistentState from '../hooks/usePersistentState';
 import useLiveState from '../hooks/useLiveState';
 import { DASHBOARD_SENSOR_OPTIONS } from '../utilities/data/dashboardData';
 import useHaCredentials from '../hooks/useHaCredentials';
 
-
-const HA_ENTITY   = 'camera.farm_camera_farm_camera_feed';
+const HA_ENTITY = 'camera.farm_camera_farm_camera_feed';
 
 // ─── Language helpers ─────────────────────────────────────────────────────────
 function normalizeLanguage(lang) {
@@ -49,8 +48,6 @@ function langName(lang) {
 }
 
 // ─── Critical language rule injected into EVERY API call ─────────────────────
-// This tells the model to write DIRECTLY in the target language — no translation,
-// no mixing, no Chinese/other script contamination.
 function criticalLangRule(lang) {
   const name = langName(lang);
   if (lang === 'ar') {
@@ -105,7 +102,7 @@ const OFFLINE_VARIANTS = {
   ],
 };
 
-// ─── Concise guide steps ─────────────────────────────────────────────────────
+// ─── Concise guide steps ──────────────────────────────────────────────────────
 const GUIDE_STEPS = {
   en: [
     "Let's get you reconnected. **Step 1:** Open Home Assistant in your browser and click on your **Profile** (bottom-left sidebar).\n\nWere you able to open your profile?",
@@ -172,6 +169,17 @@ const CONNECTED_MSG = {
   ar: "🎉 **تهانينا!** أنت الآن متصل بمزرعتك.\n\nيمكنك الآن:\n• مشاهدة **البث المباشر للكاميرا**\n• استكشاف **لوحة المعلومات** مع المستشعرات في الوقت الفعلي\n• الوصول إلى جميع **صفحات المزرعة** وعناصر التحكم\n\nكيف يمكنني مساعدك اليوم؟",
   fr: "🎉 **Félicitations !** Vous êtes maintenant connecté à votre ferme.\n\nVous pouvez désormais :\n• Voir le **flux de la caméra en direct**\n• Explorer le **tableau de bord** avec les capteurs en temps réel\n• Accéder à toutes les **pages de la ferme** et aux contrôles\n\nComment puis-je vous aider aujourd'hui ?",
 };
+
+// ─── Help-page hint appended to every detailed AI answer ─────────────────────
+const HELP_PAGE_HINT = {
+  en: 'If you need more details or visual step-by-step guidance, you can visit the **Help page** from the menu.',
+  ar: 'إذا كنتَ بحاجة إلى مزيد من التفاصيل أو إرشادات مرئية خطوة بخطوة، يمكنك زيارة **صفحة المساعدة** من القائمة.',
+  fr: 'Si vous avez besoin de plus de détails ou d\'un guide visuel étape par étape, vous pouvez consulter la **page d\'aide** depuis le menu.',
+};
+
+function getHelpPageHint(lang) {
+  return HELP_PAGE_HINT[lang] || HELP_PAGE_HINT.en;
+}
 
 function getOfflineVariant(lang, index) {
   const list = OFFLINE_VARIANTS[lang] || OFFLINE_VARIANTS.en;
@@ -263,7 +271,7 @@ async function tryGrabStreamSnapshot(haUrl, haToken) {
   }
 }
 
-// ─── Compress image to base64 JPEG ───────────────────────────────────────────
+// ─── Compress image to base64 JPEG (max 1024px, 85% quality) ─────────────────
 function compressImageToBase64(file) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -273,7 +281,7 @@ function compressImageToBase64(file) {
       let { width, height } = img;
       if (width > MAX || height > MAX) {
         if (width > height) { height = Math.round((height * MAX) / width); width = MAX; }
-        else { width = Math.round((width * MAX) / height); height = MAX; }
+        else                { width  = Math.round((width * MAX) / height); height = MAX; }
       }
       const canvas = document.createElement('canvas');
       canvas.width = width;
@@ -287,10 +295,10 @@ function compressImageToBase64(file) {
   });
 }
 
-// ─── Build user content ───────────────────────────────────────────────────────
+// ─── Build user content (handles images, text files, and unsupported files) ───
 async function buildUserContent(text, files, farmContext, modeInstruction) {
   const imageFiles = files.filter((f) => f.isImage);
-  const textFiles = files.filter((f) => f.isText);
+  const textFiles  = files.filter((f) => f.isText);
   const otherFiles = files.filter((f) => !f.isImage && !f.isText);
 
   const textFilesContent = textFiles.length > 0
@@ -300,7 +308,7 @@ async function buildUserContent(text, files, farmContext, modeInstruction) {
   const textBlock = [
     farmContext,
     otherFiles.length > 0
-      ? `[System Note: The user attached unsupported files: ${otherFiles.map((f) => f.name).join(', ')}. Politely inform the user you can only read image files and text (.txt) files.]`
+      ? `[System Note: The user attached unsupported files: ${otherFiles.map((f) => f.name).join(', ')}. You MUST politely inform the user that you can only read image files and text (.txt) files, and you cannot see the contents of those unsupported files.]`
       : '',
     textFilesContent,
     `[Style: ${modeInstruction}]`,
@@ -331,6 +339,8 @@ Part 1 — Visual Description: Carefully describe what you see in the attached f
 
 Part 2 — Farm Data Report: Based EXCLUSIVELY on the farm sensor data provided above (not the image), give a structured report of current sensor readings, actuator states, and any active alerts.
 
+At the end of your response, append: "${getHelpPageHint(lang)}"
+
 Farmer's message: ${userText || 'Describe the farm.'}`,
   ].filter(Boolean).join('\n\n');
 
@@ -346,7 +356,7 @@ Farmer's message: ${userText || 'Describe the farm.'}`,
 }
 
 // ─── Build camera-unavailable prompt ─────────────────────────────────────────
-function buildCameraUnavailablePrompt(farmContext, modeInstruction, userText) {
+function buildCameraUnavailablePrompt(farmContext, modeInstruction, userText, lang = 'en') {
   return [
     farmContext,
     `[Style: ${modeInstruction}]`,
@@ -355,20 +365,27 @@ Part 1 — Camera Status: Inform the farmer politely that the farm camera is cur
 
 Part 2 — Farm Data Report: Based EXCLUSIVELY on the farm sensor data provided above, give a structured report of current sensor readings, actuator states, and any active alerts.
 
+At the end of your response, append: "${getHelpPageHint(lang)}"
+
 Farmer's message: ${userText || 'Describe the farm.'}`,
   ].filter(Boolean).join('\n\n');
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function AIchat({ recommendedAction }) {
-  const { haUrl, haToken, isHaOnline, loading } = useHaCredentials();
+  const { haUrl, haToken } = useHaCredentials();
   const { t, i18n } = useTranslation();
   const { haStatus, haLoading } = useHAStatus();
   const lang = normalizeLanguage(i18n.language);
 
   const {
-    crop, growthStage, mode,
-    temperatureUnit, humidityUnit, soilMoistureUnit, lightIntensityUnit,
+    crop,
+    growthStage,
+    mode,
+    temperatureUnit,
+    humidityUnit,
+    soilMoistureUnit,
+    lightIntensityUnit,
   } = useFarmPreferences();
 
   const [actuators] = useActuatorsState();
@@ -378,25 +395,27 @@ export default function AIchat({ recommendedAction }) {
     liveRecommendation, liveWarnings,
   } = useLiveState(DASHBOARD_SENSOR_OPTIONS);
 
+  // AI chat is intentionally localStorage-backed in this simulation build.
   const [messages, setMessages] = usePersistentState(STORAGE_KEYS.chatHistory, []);
   const [responseMode, setResponseMode] = usePersistentState(`${STORAGE_KEYS.chatHistory}:mode`, 'Detailed');
   const [isThinking, setIsThinking] = useState(false);
   const [conversationLimitReached, setConversationLimitReached] = useState(false);
 
   // ─── Refs ──────────────────────────────────────────────────────────────────
-  // lang is stored on guideRef so language switches mid-guide don't break steps
-  const guideRef    = useRef({ active: false, step: 0, lang: 'en' });
+  const guideRef      = useRef({ active: false, step: 0, lang: 'en' });
   const wasOfflineRef = useRef(false);
   const messagesRef   = useRef(messages);
   const isSendingRef  = useRef(false);
+  const bottomRef     = useRef(null);
 
   useEffect(() => { messagesRef.current = messages; }, [messages]);
 
-  const bottomRef = useRef(null);
+  // Auto-scroll to bottom
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isThinking]);
 
+  // If localStorage contains malformed data, keep UI usable.
   useEffect(() => {
     if (!Array.isArray(messages)) setMessages([]);
   }, [messages, setMessages]);
@@ -430,7 +449,7 @@ export default function AIchat({ recommendedAction }) {
 
   // ─── Clear chat ───────────────────────────────────────────────────────────
   const handleClearChat = useCallback(() => {
-    if (window.confirm(t('aiChat.newChatConfirm'))) {
+    if (window.confirm(t('aiChat.newChatConfirm', { defaultValue: CHAT_COPY.newChatConfirm }))) {
       localStorage.removeItem(STORAGE_KEYS.chatHistory);
       setMessages([]);
       setConversationLimitReached(false);
@@ -488,19 +507,15 @@ export default function AIchat({ recommendedAction }) {
       if (haStatus !== 'online') {
         const lowerText = (text || '').toLowerCase();
 
-        // Intent: user wants to connect — specific phrases only
         const isConnectIntent = [
           'how to connect', 'how do i connect', 'setup', 'reconnect', 'configuration',
           'how to link', 'get online', 'back online',
-          // Arabic — specific, NOT bare اتصال
           'كيف أتصل', 'كيف اتصل', 'كيفية الاتصال', 'ربط التطبيق', 'إعداد الاتصال',
           'إعادة الاتصال', 'كيف أربط', 'كيف أوصل', 'طريقة الاتصال',
-          // French
           'comment se connecter', 'comment connecter', 'reconnecter',
           'comment lier', 'rétablir la connexion',
         ].some(k => lowerText.includes(k));
 
-        // Intent: user completed the current step
         const isNext = [
           'next step', 'done', 'did it', 'finished', 'i saved', 'i did it',
           'go on', 'proceed', 'move on', "i've done", 'i have done',
@@ -511,7 +526,6 @@ export default function AIchat({ recommendedAction }) {
           'ça a marché', 'étape suivante', 'ça fonctionne',
         ].some(k => lowerText.includes(k));
 
-        // Intent: user wants clarification or more explanation
         const isClarification = [
           'yes', 'yeah', 'yep', 'ok', 'okay',
           'نعم', 'حسناً', 'حسنا', 'اوكي', 'أوكي',
@@ -543,7 +557,6 @@ export default function AIchat({ recommendedAction }) {
         let responseText = '';
 
         if (isConnectIntent) {
-          // Start guide, lock language to current lang
           guideRef.current = { active: true, step: 0, lang };
           responseText = getGuideStep(lang, 0);
           const segs = parseMessageSegments(responseText);
@@ -556,7 +569,6 @@ export default function AIchat({ recommendedAction }) {
           const currentStep = guideRef.current.step;
           const guideSteps = GUIDE_STEPS[guideLang] || GUIDE_STEPS.en;
 
-          // Advance only on unambiguous completion — clarification takes priority
           if (isNext && !isClarification) {
             const nextStep = currentStep + 1;
             if (nextStep >= guideSteps.length) {
@@ -571,10 +583,9 @@ export default function AIchat({ recommendedAction }) {
             return;
           }
 
-          // Clarification OR ambiguous — call AI to explain current step
-          // AI writes directly in guideLang — no translation
+          // Clarification — call AI to explain current step in guide language
           setIsThinking(true);
-          const currentStepText = getGuideStepDetailed(guideLang, currentStep);
+          const currentStepText  = getGuideStepDetailed(guideLang, currentStep);
           const currentStepShort = getGuideStep(guideLang, currentStep);
           const gLangName = langName(guideLang);
           try {
@@ -597,9 +608,9 @@ The farmer is currently on this step:
 ${currentStepText}
 
 Your rules:
-1. Write your ENTIRE response exclusively in ${gLangName}. Not even one word in another language. No Chinese. No English mixed in Arabic responses.
+1. Write your ENTIRE response exclusively in ${gLangName}. Not even one word in another language.
 2. If the farmer's message is a question or request for clarification about this step, answer it clearly and in simple language. Break it into small sub-steps if needed.
-3. After your explanation, always end with a short confirmation question asking if the farmer was able to do it (in ${gLangName}).
+3. After your explanation, always end with a short confirmation question asking if the farmer was able to do it (in ${gLangName}), followed by this sentence: "${getHelpPageHint(guideLang)}"
 4. If the farmer's message is completely unrelated to this step, politely tell them you can only help with the current step right now, and remind them of the step briefly.
 5. Do NOT move to the next step. Do NOT mention the next step.
 6. Do NOT translate your response — compose it originally in ${gLangName}.`,
@@ -675,16 +686,17 @@ Your rules:
         ? CHAT_COPY.conciseModeInstruction
         : CHAT_COPY.detailedModeInstruction;
 
-      const farmContext = buildFarmContext(farmProps);
+      const farmContext  = buildFarmContext(farmProps);
       const systemPrompt = buildSystemPrompt(lang);
 
       try {
         let aiText = '';
 
         const userAttachedImages = validFiles.some((f) => f.isImage);
-        const wantsCameraView = !userAttachedImages && containsCameraKeyword(text);
+        const wantsCameraView    = !userAttachedImages && containsCameraKeyword(text);
 
         if (wantsCameraView) {
+          // ── Camera snapshot flow ──────────────────────────────────────
           const snapshotBase64 = await tryGrabStreamSnapshot(haUrl, haToken);
 
           if (snapshotBase64) {
@@ -712,15 +724,19 @@ Your rules:
               console.warn('Groq Vision failed on snapshot, falling back to Gemini…', groqErr);
               const geminiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${GOOGLE_VISION_MODEL}:generateContent?key=${GOOGLE_API_KEY}`;
               const gLangName = langName(lang);
-              const geminiParts = [
-                { text: snapshotMessages[0].content[0].text },
-                { inline_data: { mime_type: 'image/jpeg', data: snapshotBase64 } },
-                { text: `CRITICAL: Respond ONLY in ${gLangName}. Do not use any other language. Do not translate. Write directly in ${gLangName}.` },
-              ];
               const geminiRes = await fetch(geminiEndpoint, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ role: 'user', parts: geminiParts }] }),
+                body: JSON.stringify({
+                  contents: [{
+                    role: 'user',
+                    parts: [
+                      { text: snapshotMessages[0].content[0].text },
+                      { inline_data: { mime_type: 'image/jpeg', data: snapshotBase64 } },
+                      { text: `CRITICAL: Respond ONLY in ${gLangName}. Do not use any other language. Do not translate. Write directly in ${gLangName}.` },
+                    ],
+                  }],
+                }),
               });
               const geminiData = await geminiRes.json();
               if (!geminiRes.ok || geminiData.error) {
@@ -730,13 +746,8 @@ Your rules:
             }
 
           } else {
-            // Camera unavailable
-            const cameraUnavailableContent = buildCameraUnavailablePrompt(farmContext, modeInstruction, text);
-            const apiMessages = [
-              { role: 'system', content: systemPrompt },
-              { role: 'system', content: criticalLangRule(lang) },
-              { role: 'user', content: cameraUnavailableContent },
-            ];
+            // Camera unavailable — text-only response
+            const cameraUnavailableContent = buildCameraUnavailablePrompt(farmContext, modeInstruction, text, lang);
             const res = await fetch(GROQ_ENDPOINT, {
               method: 'POST',
               headers: {
@@ -745,7 +756,11 @@ Your rules:
               },
               body: JSON.stringify({
                 model: GROQ_MODEL,
-                messages: apiMessages,
+                messages: [
+                  { role: 'system', content: systemPrompt },
+                  { role: 'system', content: criticalLangRule(lang) },
+                  { role: 'user',   content: cameraUnavailableContent },
+                ],
                 max_tokens: responseMode === 'Concise' ? 300 : 900,
                 temperature: 0.55,
               }),
@@ -756,12 +771,11 @@ Your rules:
           }
 
         } else {
-          // Text or user-attached image
+          // ── Text or user-attached image flow ─────────────────────────
           const { content, hasImages } = await buildUserContent(text, validFiles, farmContext, modeInstruction);
-          const model = hasImages ? GROQ_VISION_MODEL : GROQ_MODEL;
+          const model     = hasImages ? GROQ_VISION_MODEL : GROQ_MODEL;
           const maxTokens = responseMode === 'Concise' ? 200 : 800;
 
-          // Build clean history — filter out messages with no text content
           const history = nextUserMessages
             .filter((m) => m.text)
             .map((m) => ({ role: m.role, content: m.text }));
@@ -769,7 +783,6 @@ Your rules:
           let apiMessages = [];
 
           if (hasImages) {
-            // For image messages: include recent text-only history for context
             const imageHistory = nextUserMessages
               .slice(0, -1)
               .filter((m) => m.text && !m.files?.some((f) => f.isImage))
@@ -785,9 +798,12 @@ Your rules:
             apiMessages = [
               { role: 'system', content: systemPrompt },
               ...history,
-              // Language enforcement injected right before the user turn
               { role: 'system', content: criticalLangRule(lang) },
-              { role: 'user', content },
+              {
+                role: 'system',
+                content: `HELP PAGE RULE: When your answer is detailed or explains a topic in depth, always append exactly this sentence at the very end of your response (translated into the response language, never in English if responding in another language): "${getHelpPageHint(lang)}"`,
+              },
+              { role: 'user',   content },
             ];
           }
 
@@ -812,12 +828,7 @@ Your rules:
                 ...content.map(part => {
                   if (part.type === 'text') return { text: part.text };
                   if (part.type === 'image_url') {
-                    return {
-                      inline_data: {
-                        mime_type: 'image/jpeg',
-                        data: part.image_url.url.split(',')[1],
-                      },
-                    };
+                    return { inline_data: { mime_type: 'image/jpeg', data: part.image_url.url.split(',')[1] } };
                   }
                   return null;
                 }).filter(Boolean),
@@ -846,7 +857,9 @@ Your rules:
       } catch (err) {
         console.error('AI Chat Error:', err);
         const attemptedImage = validFiles?.some((f) => f.isImage);
-        const errText = attemptedImage ? t('aiChat.imageError') : t('aiChat.genericError');
+        const errText = attemptedImage
+          ? t('aiChat.imageError',   { defaultValue: CHAT_COPY.imageError })
+          : t('aiChat.genericError', { defaultValue: CHAT_COPY.genericError });
         const nextErrorMessages = [
           ...nextUserMessages,
           { role: 'assistant', text: errText, segments: parseMessageSegments(errText) },
@@ -861,7 +874,7 @@ Your rules:
     }
   }, [
     conversationLimitReached, farmProps, haLoading, haStatus,
-    lang, messages, persistConversation,
+    haUrl, haToken, lang, messages, persistConversation,
     responseMode, setMessages, t,
   ]);
 
@@ -871,7 +884,7 @@ Your rules:
 
       {conversationLimitReached ? (
         <div className="mx-3 sm:mx-6 md:mx-12 lg:mx-20 mt-2 rounded-lg border border-[#C73030]/20 bg-[#FFF4F4] px-3 py-2 text-sm text-[#8B1C1C] flex items-center justify-between gap-2">
-          <span>{t('aiChat.limitReached')}</span>
+          <span>{t('aiChat.limitReached', { defaultValue: 'Reached conversation limit. Please open a new conversation to continue.' })}</span>
           <button
             onClick={handleClearChat}
             className="shrink-0 text-xs font-semibold underline hover:opacity-70 transition-opacity"
@@ -881,6 +894,7 @@ Your rules:
         </div>
       ) : null}
 
+      {/* Message list */}
       <div className="flex-1 overflow-y-auto px-3 sm:px-6 md:px-12 lg:px-20 py-6 flex flex-col gap-6 pt-16">
 
         {messages.length === 0 && !isThinking && (
@@ -892,7 +906,7 @@ Your rules:
               <img src="/logo_sahla.svg" alt="SAHLA" className="w-11 h-11 object-contain" />
             </div>
             <p className="text-base font-medium max-w-xs" style={{ color: 'rgba(25,37,20,0.45)' }}>
-              {t('aiChat.welcomeHint')}
+              {t('aiChat.welcomeHint', { defaultValue: CHAT_COPY.welcomeHint })}
             </p>
           </motion.div>
         )}
@@ -900,7 +914,7 @@ Your rules:
         {messages.map((msg, i) =>
           msg.role === 'user'
             ? <UserBubble key={i} message={msg} />
-            : <AIBubble key={i} segments={msg.segments || parseMessageSegments(msg.text)} />
+            : <AIBubble   key={i} segments={msg.segments || parseMessageSegments(msg.text)} />
         )}
 
         <AnimatePresence>

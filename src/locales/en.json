@@ -31,7 +31,7 @@
         "errorRequired": "URL and token are required.",
         "cancel": "Cancel",
         "save": "Save",
-        "connecting": "'Connecting...'"
+        "connecting": "Connecting..."
       },
     "editProfileModal": {
       "title": "Edit Profile",
@@ -334,6 +334,7 @@
       }
     },
     "manual": "Manual",
+    "not scheduled": "Not Scheduled",
     "monitoringAlerts": {
       "title": "Monitoring Alerts",
       "subtitle": "Track critical environmental situations in real time.",

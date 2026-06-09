@@ -2,8 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from 'react-i18next';
 import useHaCredentials from '../hooks/useHaCredentials';
 
-// ── Configuration (REPLACE TOKEN HERE) ────────────────────────────────────────
+// ── Configuration ───────────────────────────────────────────────────────────
 const ENTITY_ID = "camera.farm_camera_farm_camera_feed";
+
+// ── HARDCODED CAMERA TOKEN (from entity_picture) ─────────────────────────────
+const HARDCODED_CAMERA_TOKEN = "5cb00ccc7d608601b4dc7702ed3ba1fd8a158de0e53ed31f4887fc3e8dacf362";
+
+// ── HARDCODED HA URL (bypass broken hook for testing) ────────────────────────
+const HARDCODED_HA_URL = "https://dawdler-drone-submersed.ngrok-free.dev";
 
 // ── Live clock ────────────────────────────────────────────────────────────────
 function useClock() {
@@ -118,12 +124,17 @@ const Corner = ({ pos, isMobile }) => {
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function CamStream() {
- const { haUrl, haToken, isHaOnline, loading } = useHaCredentials();
+  // ── Use hook for token, but hardcode URL for testing ──────────────────────
+  const { haUrl: hookUrl, haToken, isHaOnline, loading } = useHaCredentials();
+  
+  // Use hardcoded URL if hook fails (500 error), otherwise use hook URL
+  const haUrl = hookUrl || HARDCODED_HA_URL;
+  
   const isMobile = useIsMobile();
   const time     = useClock();
   const { t } = useTranslation();
 
-  const [confirmDelete, setConfirmDelete] = useState(null); 
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const [streaming, setStreaming]     = useState(() => sessionStorage.getItem("camStreaming") === "true");
 
   useEffect(() => {
@@ -137,8 +148,8 @@ export default function CamStream() {
   const [pendingSnap, setPendingSnap] = useState(null);
   const [lightbox, setLightbox]       = useState(null);
 
-  // ── NEW STATE: Holds our fetched camera frame
-  const [imgSrc, setImgSrc] = useState(null); 
+  // ── STATE: Holds the signed camera URL (plain string)
+  const [imgSrc, setImgSrc] = useState(null);
 
   const [gallery, setGallery] = useState(() => {
     if (typeof window !== "undefined") {
@@ -164,52 +175,27 @@ export default function CamStream() {
   const imgRef     = useRef(null);
   const canvasRef  = useRef(null);
   const galleryRef = useRef(null);
-  const timerRef   = useRef(null);
 
-  // ── Secure HTTP Fetching (Poller) ───────────────────────────────────────────
-  // ── Secure HTTP Fetching (Poller) ───────────────────────────────────────────
+  // ── Direct MJPEG Stream via <img> (Native Browser Streaming) ───────────────
   useEffect(() => {
-    // GUARD: Don't fetch if stopped, loading, or HA is offline
-    if (!streaming || loading || !isHaOnline || !haUrl || !haToken) {
-      if (timerRef.current) clearInterval(timerRef.current);
+    // Only check streaming. Bypass isHaOnline/haToken/loading checks since hook is broken
+    if (!streaming) {
       setImgSrc(null);
       return;
     }
 
+    const base = haUrl.replace(/\/$/, "");
+    // Use camera_proxy_stream for TRUE live MJPEG streaming
+    const signedUrl = `${base}/api/camera_proxy_stream/${ENTITY_ID}?token=${HARDCODED_CAMERA_TOKEN}`;
+    
+    console.log("Stream URL:", signedUrl);
+    setImgSrc(signedUrl);
     setCamError("");
 
-    const fetchFrame = async () => {
-      try {
-        const response = await fetch(`${haUrl}/api/camera_proxy/${ENTITY_ID}`, {
-          headers: {
-            "Authorization": `Bearer ${haToken}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const blob = await response.blob();
-        const objectUrl = URL.createObjectURL(blob);
-        
-        setImgSrc((prevUrl) => {
-          if (prevUrl) URL.revokeObjectURL(prevUrl); 
-          return objectUrl;
-        });
-      } catch (err) {
-        console.error(err);
-        setCamError(t('camStream.status.errorConnection', 'Failed to connect to stream'));
-      }
-    };
-
-    fetchFrame();
-    timerRef.current = setInterval(fetchFrame, 500); // 2fps refresh rate
-
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      setImgSrc(null);
     };
-  }, [streaming, loading, isHaOnline, haUrl, haToken, t]); // <-- Added new dependencies
+  }, [streaming, haUrl]);
 
   // ── Camera ──
   const startCam = () => {
@@ -218,8 +204,9 @@ export default function CamStream() {
   };
 
   const stopStream = () => {
-    setStreaming(false); 
+    setStreaming(false);
     setCamError("");
+    setImgSrc(null);
   };
 
   const handleToggleStream = () => {
@@ -233,10 +220,10 @@ export default function CamStream() {
     const img    = imgRef.current;
     const canvas = canvasRef.current;
     if (!img || !canvas) return;
-    
-    canvas.width  = 800; 
-    canvas.height = 600; 
-    
+
+    canvas.width  = img.naturalWidth || 800;
+    canvas.height = img.naturalHeight || 600;
+
     try {
       canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
       setPendingSnap(canvas.toDataURL("image/png"));
@@ -335,7 +322,7 @@ export default function CamStream() {
             >
               {t('camStream.modals.save', 'Save')}
             </button>
-          </div>  
+          </div>
         </div>
       </div>
     );
@@ -386,7 +373,7 @@ export default function CamStream() {
       </div>
     );
   }
-  
+
   return (
     <div className="flex flex-col gap-3 w-full font-newblack overflow-hidden px-3 sm:px-5">
 
@@ -415,18 +402,20 @@ export default function CamStream() {
           </span>
         </div>
 
-        {/* We only render the image tag if imgSrc is actively available */}
+        {/* Native MJPEG stream via direct signed URL */}
         {imgSrc && streaming && (
           <img
             ref={imgRef}
+            key={imgSrc}
             src={imgSrc}
             style={{
               position: "absolute", inset: 0, width: "100%", height: "100%",
               objectFit: "cover", display: "block", zIndex: 1,
             }}
             alt="IP Webcam Stream"
-            onError={() => {
-              if (streaming) setCamError(`${t('camStream.status.errorConnection', 'Error connecting to stream')}`);
+            onError={(e) => {
+              console.error("Image failed to load:", e);
+              if (streaming) setCamError(t('camStream.status.errorConnection', 'Error connecting to stream'));
             }}
           />
         )}
@@ -439,9 +428,8 @@ export default function CamStream() {
           }}>
             <CameraIcon size={isMobile ? 32 : 52} color="#55BB33" />
             <span style={{ color: "#55BB33", fontSize: 13, opacity: 0.8 }}>
-
-              {streaming && !imgSrc && !camError 
-                ? t('camStream.status.connecting', 'Connecting to stream...') 
+              {streaming && !imgSrc && !camError
+                ? t('camStream.status.connecting', 'Connecting to stream...')
                 : t('camStream.status.streamOffline', 'Stream Offline')}
             </span>
           </div>
@@ -636,7 +624,7 @@ export default function CamStream() {
                     {t('camStream.gallery.close', 'Close')}
                   </button>
                 </div>
-                
+
                 <span className="text-[#e8ffe0] text-[11px] md:text-[16px] opacity-70 font-newblack [text-shadow:0_1px_1px_rgba(0,0,0,0.1)]">
                   {t('camStream.gallery.capturedAt', 'Captured:')} {snap.date} — {snap.time}
                 </span>

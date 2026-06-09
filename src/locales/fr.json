@@ -357,6 +357,7 @@
       }
     },
     "manual": "Manuel",
+    "not scheduled": "Not Scheduled",
     "monitoringAlerts": {
       "title": "Alertes de Surveillance",
       "subtitle": "Suivez les situations environnementales critiques en temps réel.",

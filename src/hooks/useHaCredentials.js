@@ -9,7 +9,7 @@ export default function useHaCredentials() {
   const [haToken, setHaToken] = useState(null);
   const [isHaOnline, setIsHaOnline] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  console.log("API Base URL:", API_BASE);
   useEffect(() => {
     const fetchCredentials = async () => {
       try {
@@ -54,6 +54,7 @@ export default function useHaCredentials() {
     };
 
     fetchCredentials();
+    console.log("useHaCredentials: haUrl:", haUrl, "haToken:", haToken, "isHaOnline:", isHaOnline);
   }, []);
 
   return { haUrl, haToken, isHaOnline, loading };
