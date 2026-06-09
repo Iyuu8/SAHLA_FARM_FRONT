@@ -39,7 +39,7 @@ export default function CropInfoDropdown({
     const translationMap = {
       'Germination': 'dashboard.cropInfo.stages.germination',
       'Seedling': 'dashboard.cropInfo.stages.seedling',
-      'Vegetative Growth': 'dashboard.cropInfo.stages.vegetativeGrowth',
+      'Vegetative': 'dashboard.cropInfo.stages.vegetative',
       'Flowering': 'dashboard.cropInfo.stages.flowering',
       'Fruiting': 'dashboard.cropInfo.stages.fruiting',
       'Maturity': 'dashboard.cropInfo.stages.maturity',
